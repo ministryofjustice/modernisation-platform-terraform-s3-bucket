@@ -49,7 +49,9 @@ resource "aws_s3_bucket" "default" {
     role = var.replication_role_arn
 
     rules {
-      status = "Enabled"
+      id       = "enabled"
+      status   = "Enabled"
+      priority = 0
 
       destination {
         bucket        = aws_s3_bucket.replication.arn
