@@ -1,3 +1,15 @@
+# Configure two providers, one for the home region,
+# and one for the replication region
+provider "aws" {
+  region = var.home_region
+}
+
+provider "aws" {
+  alias  = "bucket-replication"
+  region = var.replication_region
+}
+
+# Main S3 bucket, that is replicated from (rather than to)
 resource "aws_s3_bucket" "default" {
   bucket_prefix = var.bucket_prefix
   acl           = var.acl
@@ -33,6 +45,21 @@ resource "aws_s3_bucket" "default" {
     }
   }
 
+  replication_configuration {
+    role = var.replication_role_arn
+
+    rules {
+      id       = "enabled"
+      status   = "Enabled"
+      priority = 0
+
+      destination {
+        bucket        = aws_s3_bucket.replication.arn
+        storage_class = "STANDARD"
+      }
+    }
+  }
+
   server_side_encryption_configuration {
     rule {
       apply_server_side_encryption_by_default {
@@ -49,6 +76,7 @@ resource "aws_s3_bucket" "default" {
   tags = var.tags
 }
 
+# Block public access policies for this bucket
 resource "aws_s3_bucket_public_access_block" "default" {
   bucket                  = aws_s3_bucket.default.bucket
   block_public_acls       = true
@@ -57,6 +85,9 @@ resource "aws_s3_bucket_public_access_block" "default" {
   restrict_public_buckets = true
 }
 
+# Merge and attach policies to the S3 bucket
+# This ensures every bucket created via this module
+# doesn't allow any actions that aren't over SecureTransport methods (i.e. HTTP)
 resource "aws_s3_bucket_policy" "default" {
   bucket = aws_s3_bucket.default.id
   policy = data.aws_iam_policy_document.default.json
@@ -71,6 +102,73 @@ data "aws_iam_policy_document" "default" {
     resources = [
       aws_s3_bucket.default.arn,
       "${aws_s3_bucket.default.arn}/*"
+    ]
+
+    principals {
+      identifiers = ["*"]
+      type        = "AWS"
+    }
+
+    condition {
+      test     = "Bool"
+      variable = "aws:SecureTransport"
+      values   = ["false"]
+    }
+  }
+}
+
+# Replication S3 bucket, to replicate to (rather than from)
+resource "aws_s3_bucket" "replication" {
+  provider      = aws.bucket-replication
+  bucket_prefix = "${var.bucket_prefix}-replication"
+  acl           = "private"
+
+  lifecycle {
+    prevent_destroy = true
+  }
+
+  server_side_encryption_configuration {
+    rule {
+      apply_server_side_encryption_by_default {
+        sse_algorithm     = "aws:kms"
+        kms_master_key_id = (length(var.custom_kms_key) > 0) ? var.custom_kms_key : ""
+      }
+    }
+  }
+
+  versioning {
+    enabled = true
+  }
+
+  tags = var.tags
+}
+
+# Block public access policies to the replication bucket
+resource "aws_s3_bucket_public_access_block" "replication" {
+  provider                = aws.bucket-replication
+  bucket                  = aws_s3_bucket.replication.bucket
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+# Attach policies to the S3 bucket
+# This ensures every bucket created via this module
+# doesn't allow any actions that aren't over SecureTransport methods (i.e. HTTP)
+resource "aws_s3_bucket_policy" "replication" {
+  provider = aws.bucket-replication
+  bucket   = aws_s3_bucket.replication.id
+  policy   = data.aws_iam_policy_document.replication.json
+}
+
+data "aws_iam_policy_document" "replication" {
+  statement {
+    effect  = "Deny"
+    actions = ["s3:*"]
+    resources = [
+      aws_s3_bucket.replication.arn,
+      "${aws_s3_bucket.replication.arn}/*"
     ]
 
     principals {
