@@ -1,12 +1,7 @@
-# Configure two providers, one for the home region,
-# and one for the replication region
+# The default calling provider is inherited here, so we only need to create
+# a new one for the replicated region.
 provider "aws" {
-  region = var.home_region
-}
-
-provider "aws" {
-  alias  = "bucket-replication"
-  region = var.replication_region
+  alias = "bucket-replication"
 }
 
 # Main S3 bucket, that is replicated from (rather than to)
