@@ -1,9 +1,4 @@
-# Configure two providers, one for the home region,
-# and one for the replication region
-provider "aws" {
-  region = var.home_region
-}
-
+# Configure a provider in the region of the bucket replication
 provider "aws" {
   alias  = "bucket-replication"
   region = var.replication_region
