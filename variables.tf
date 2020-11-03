@@ -27,11 +27,6 @@ variable "enable_lifecycle_rules" {
   default     = false
 }
 
-variable "home_region" {
-  type        = string
-  description = "Region to create the S3 bucket in"
-}
-
 variable "log_bucket" {
   type        = string
   description = "Bucket for server access logging, if applicable"
@@ -42,11 +37,6 @@ variable "log_prefix" {
   type        = string
   description = "Prefix to use for server access logging, if applicable"
   default     = ""
-}
-
-variable "replication_region" {
-  type        = string
-  description = "Region to replicate the S3 bucket to. It can be the same as home_region"
 }
 
 variable "replication_role_arn" {

@@ -4,12 +4,24 @@ A Terraform module to standardise S3 buckets with sensible defaults.
 
 ## Usage
 
+This module inherits the default provider, though you'll need to pass through your replication region. For example, to create the original bucket in eu-west-2, and to replicate it in eu-west-1:
+
 ```
+provider "aws" {
+  region = "eu-west-2"
+}
+
+provider "aws" {
+  alias  = "bucket-replication"
+  region = "eu-west-1"
+}
+
 module "s3-bucket" {
   source               = "github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket"
+  providers = {
+    aws.bucket-replication = aws.eu-west-2
+  }
   bucket_prefix        = "s3-bucket"
-  home_region          = "eu-west-2"
-  replication_region   = "eu-west-1"
   replication_role_arn = module.s3-bucket-replication-role.role.arn
   tags                 = local.tags
 }
@@ -23,10 +35,8 @@ module "s3-bucket" {
 | bucket_prefix          | Bucket prefix, which will include a randomised suffix to ensure globally unique names | string  |           | yes      |
 | custom_kms_key         | KMS key ARN to use                                                                    | string  | ""        | no       |
 | enable_lifecycle_rules | Whether or not to enable standardised lifecycle rules                                 | boolean | false     | no       |
-| home_region            | Region to create the main S3 bucket in                                                | string  |           | yes      |
 | log_bucket             | Bucket for server access logging, if applicable                                       | string  | ""        | no       |
 | log_prefix             | Prefix to use for server access logging, if applicable                                | string  | ""        | no       |
-| replication_region     | Region to replicate the main S3 bucket in                                             | string  |           | yes      |
 | replication_role_arn   | IAM Role ARN for replication. See below for more information                          | string  |           | yes      |
 | tags                   | Tags to apply to resources, where applicable                                          | map     |           | yes      |
 
