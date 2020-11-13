@@ -13,6 +13,13 @@ variable "bucket_policy" {
 variable "bucket_prefix" {
   type        = string
   description = "Bucket prefix, which will include a randomised suffix to ensure globally unique names"
+  default     = null
+}
+
+variable "bucket_name" {
+  type        = string
+  description = "Please use bucket_prefix instead of bucket_name to ensure a globally unique name."
+  default     = null
 }
 
 variable "custom_kms_key" {

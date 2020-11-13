@@ -6,6 +6,7 @@ provider "aws" {
 
 # Main S3 bucket, that is replicated from (rather than to)
 resource "aws_s3_bucket" "default" {
+  bucket        = var.bucket_name
   bucket_prefix = var.bucket_prefix
   acl           = var.acl
 
@@ -115,7 +116,8 @@ data "aws_iam_policy_document" "default" {
 # Replication S3 bucket, to replicate to (rather than from)
 resource "aws_s3_bucket" "replication" {
   provider      = aws.bucket-replication
-  bucket_prefix = "${var.bucket_prefix}-replication"
+  bucket        = (var.bucket_name != null) ? "${var.bucket_name}-replication" : null
+  bucket_prefix = (var.bucket_prefix != null) ? "${var.bucket_prefix}-replication" : null
   acl           = "private"
 
   lifecycle {
