@@ -28,11 +28,13 @@ module "s3-bucket" {
 ```
 
 ## Inputs
+
 | Name                   | Description                                                                           | Type    | Default   | Required |
 |------------------------|---------------------------------------------------------------------------------------|---------|-----------|----------|
 | acl                    | Canned ACL to use on the bucket                                                       | string  | `private` | no       |
+| bucket_name            | Can be used to set a non-random bucket name, required if not using bucket_prefix      | string  | `null`    | no       |
 | bucket_policy          | JSON for the bucket policy, see note below                                            | string  | ""        | no       |
-| bucket_prefix          | Bucket prefix, which will include a randomised suffix to ensure globally unique names | string  |           | yes      |
+| bucket_prefix          | Bucket prefix, which will include a randomised suffix to ensure globally unique names | string  | `null`    | yes      |
 | custom_kms_key         | KMS key ARN to use                                                                    | string  | ""        | no       |
 | enable_lifecycle_rules | Whether or not to enable standardised lifecycle rules                                 | boolean | false     | no       |
 | log_bucket             | Bucket for server access logging, if applicable                                       | string  | ""        | no       |
