@@ -161,7 +161,7 @@ resource "aws_s3_bucket_policy" "replication" {
   bucket   = aws_s3_bucket.replication.id
   policy   = data.aws_iam_policy_document.replication.json
 
-   # Create the Public Access Block before the policy is added
+  # Create the Public Access Block before the policy is added
   depends_on = [aws_s3_bucket_public_access_block.replication]
 }
 
