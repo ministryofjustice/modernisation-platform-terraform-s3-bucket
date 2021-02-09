@@ -7,7 +7,7 @@ variable "acl" {
 variable "bucket_policy" {
   type        = string
   description = "JSON for the bucket policy"
-  default     = ""
+  default     = "{}"
 }
 
 variable "bucket_prefix" {
@@ -52,6 +52,6 @@ variable "replication_role_arn" {
 }
 
 variable "tags" {
-  type        = map
+  type        = map(any)
   description = "Tags to apply to resources, where applicable"
 }
