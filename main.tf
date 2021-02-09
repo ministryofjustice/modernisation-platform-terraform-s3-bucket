@@ -14,7 +14,7 @@ resource "aws_s3_bucket" "default" {
     prevent_destroy = true
   }
 
-  dynamic lifecycle_rule {
+  dynamic "lifecycle_rule" {
     for_each = var.enable_lifecycle_rules ? [var.enable_lifecycle_rules] : []
 
     content {
@@ -32,7 +32,7 @@ resource "aws_s3_bucket" "default" {
     }
   }
 
-  dynamic logging {
+  dynamic "logging" {
     for_each = (length(var.log_bucket) > 0) ? [var.log_bucket] : []
 
     content {
