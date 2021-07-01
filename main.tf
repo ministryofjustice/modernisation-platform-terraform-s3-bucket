@@ -1,9 +1,3 @@
-# The default calling provider is inherited here, so we only need to create
-# a new one for the replicated region.
-provider "aws" {
-  alias = "bucket-replication"
-}
-
 # Main S3 bucket, that is replicated from (rather than to)
 resource "aws_s3_bucket" "default" {
   bucket        = var.bucket_name
