@@ -43,7 +43,7 @@ module "s3" {
   }
   bucket_prefix          = "s3-bucket"
   replication_role_arn   = aws_iam_role.default.arn
-  enable_lifecycle_rules = false
+  #enable_lifecycle_rules = false
   tags                   = local.tags
 }
 
