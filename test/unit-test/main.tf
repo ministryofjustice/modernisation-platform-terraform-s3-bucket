@@ -41,10 +41,10 @@ module "s3" {
   providers = {
     aws.bucket-replication = aws.bucket-replication
   }
-  bucket_prefix          = "s3-bucket"
-  replication_role_arn   = aws_iam_role.default.arn
+  bucket_prefix        = "s3-bucket"
+  replication_role_arn = aws_iam_role.default.arn
   #enable_lifecycle_rules = false
-  tags                   = local.tags
+  tags = local.tags
 }
 
 locals {
