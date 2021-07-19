@@ -17,12 +17,55 @@ provider "aws" {
 }
 
 module "s3-bucket" {
-  source               = "github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket"
+  source = "github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket?ref=v3.0.0"
+
   providers = {
     aws.bucket-replication = aws.eu-west-2
   }
   bucket_prefix        = "s3-bucket"
   replication_role_arn = module.s3-bucket-replication-role.role.arn
+
+  lifecycle_rule = [
+    {
+      id      = "main"
+      enabled = true
+      prefix  = ""
+
+      tags = {
+        rule      = "log"
+        autoclean = "true"
+      }
+
+      transition = [
+        {
+          days          = 60
+          storage_class = "STANDARD_IA"
+          }, {
+          days          = 365
+          storage_class = "GLACIER"
+        }
+      ]
+
+      expiration = {
+        days = 2555
+      }
+
+      noncurrent_version_transition = [
+        {
+          days          = 60
+          storage_class = "STANDARD_IA"
+          }, {
+          days          = 365
+          storage_class = "GLACIER"
+        }
+      ]
+
+      noncurrent_version_expiration = {
+        days = 2555
+      }
+    }
+  ]
+
   tags                 = local.tags
 }
 ```
@@ -36,7 +79,7 @@ module "s3-bucket" {
 | bucket_policy          | JSON for the bucket policy, see note below                                            | string  | ""        | no       |
 | bucket_prefix          | Bucket prefix, which will include a randomised suffix to ensure globally unique names | string  | `null`    | yes      |
 | custom_kms_key         | KMS key ARN to use                                                                    | string  | ""        | no       |
-| enable_lifecycle_rules | Whether or not to enable standardised lifecycle rules                                 | boolean | false     | no       |
+| lifecycle_rule         | Lifecycle rules                                                                       | object  | `null`    | no       |
 | log_bucket             | Bucket for server access logging, if applicable                                       | string  | ""        | no       |
 | log_prefix             | Prefix to use for server access logging, if applicable                                | string  | ""        | no       |
 | replication_role_arn   | IAM Role ARN for replication. See below for more information                          | string  |           | yes      |
