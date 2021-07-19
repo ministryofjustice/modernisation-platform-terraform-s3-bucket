@@ -17,12 +17,56 @@ provider "aws" {
 }
 
 module "s3-bucket" {
-  source               = "github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket"
+  source = "github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket?ref=v3.0.0"
+
   providers = {
     aws.bucket-replication = aws.eu-west-2
   }
   bucket_prefix        = "s3-bucket"
   replication_role_arn = module.s3-bucket-replication-role.role.arn
+  replication_enabled = true
+
+  lifecycle_rule = [
+    {
+      id      = "main"
+      enabled = true
+      prefix  = ""
+
+      tags = {
+        rule      = "log"
+        autoclean = "true"
+      }
+
+      transition = [
+        {
+          days          = 90
+          storage_class = "STANDARD_IA"
+          }, {
+          days          = 365
+          storage_class = "GLACIER"
+        }
+      ]
+
+      expiration = {
+        days = 730
+      }
+
+      noncurrent_version_transition = [
+        {
+          days          = 90
+          storage_class = "STANDARD_IA"
+          }, {
+          days          = 365
+          storage_class = "GLACIER"
+        }
+      ]
+
+      noncurrent_version_expiration = {
+        days = 730
+      }
+    }
+  ]
+
   tags                 = local.tags
 }
 ```
@@ -32,15 +76,18 @@ module "s3-bucket" {
 | Name                   | Description                                                                           | Type    | Default   | Required |
 |------------------------|---------------------------------------------------------------------------------------|---------|-----------|----------|
 | acl                    | Canned ACL to use on the bucket                                                       | string  | `private` | no       |
+| replication_enabled    | Turn S3 bucket replication on/off                                                     | bool    |  false    | no       |
 | bucket_name            | Can be used to set a non-random bucket name, required if not using bucket_prefix      | string  | `null`    | no       |
 | bucket_policy          | JSON for the bucket policy, see note below                                            | string  | ""        | no       |
 | bucket_prefix          | Bucket prefix, which will include a randomised suffix to ensure globally unique names | string  | `null`    | yes      |
 | custom_kms_key         | KMS key ARN to use                                                                    | string  | ""        | no       |
-| enable_lifecycle_rules | Whether or not to enable standardised lifecycle rules                                 | boolean | false     | no       |
+| lifecycle_rule         | Lifecycle rules                                                                       | object  | `null`    | no       |
 | log_bucket             | Bucket for server access logging, if applicable                                       | string  | ""        | no       |
 | log_prefix             | Prefix to use for server access logging, if applicable                                | string  | ""        | no       |
 | replication_role_arn   | IAM Role ARN for replication. See below for more information                          | string  |           | yes      |
 | tags                   | Tags to apply to resources, where applicable                                          | map     |           | yes      |
+
+
 
 ## Bucket policies
 Regardless of whether a custom bucket policy is set as part of this module, we will always include policy `statement` to require the use of SecureTransport (SSL) for every action on and every resource within the bucket.

@@ -9,19 +9,55 @@ resource "aws_s3_bucket" "default" {
   }
 
   dynamic "lifecycle_rule" {
-    for_each = var.enable_lifecycle_rules ? [var.enable_lifecycle_rules] : []
+    for_each = try(jsondecode(var.lifecycle_rule), var.lifecycle_rule)
 
     content {
-      enabled = var.enable_lifecycle_rules
+      id                                     = lookup(lifecycle_rule.value, "id", null)
+      prefix                                 = lookup(lifecycle_rule.value, "prefix", null)
+      tags                                   = lookup(lifecycle_rule.value, "tags", null)
+      abort_incomplete_multipart_upload_days = lookup(lifecycle_rule.value, "abort_incomplete_multipart_upload_days", null)
+      enabled                                = lookup(lifecycle_rule.value, "enabled", null)
 
-      noncurrent_version_transition {
-        days          = 30
-        storage_class = "GLACIER"
+
+      # Max 1 block - expiration
+      dynamic "expiration" {
+        for_each = length(keys(lookup(lifecycle_rule.value, "expiration", {}))) == 0 ? [] : [lookup(lifecycle_rule.value, "expiration", {})]
+
+        content {
+          date                         = lookup(expiration.value, "date", null)
+          days                         = lookup(expiration.value, "days", null)
+          expired_object_delete_marker = lookup(expiration.value, "expired_object_delete_marker", null)
+        }
       }
 
-      transition {
-        days          = 30
-        storage_class = "GLACIER"
+      # Several blocks - transition
+      dynamic "transition" {
+        for_each = lookup(lifecycle_rule.value, "transition", [])
+
+        content {
+          date          = lookup(transition.value, "date", null)
+          days          = lookup(transition.value, "days", null)
+          storage_class = transition.value.storage_class
+        }
+      }
+
+      # Max 1 block - noncurrent_version_expiration
+      dynamic "noncurrent_version_expiration" {
+        for_each = length(keys(lookup(lifecycle_rule.value, "noncurrent_version_expiration", {}))) == 0 ? [] : [lookup(lifecycle_rule.value, "noncurrent_version_expiration", {})]
+
+        content {
+          days = lookup(noncurrent_version_expiration.value, "days", null)
+        }
+      }
+
+      # Several blocks - noncurrent_version_transition
+      dynamic "noncurrent_version_transition" {
+        for_each = lookup(lifecycle_rule.value, "noncurrent_version_transition", [])
+
+        content {
+          days          = lookup(noncurrent_version_transition.value, "days", null)
+          storage_class = noncurrent_version_transition.value.storage_class
+        }
       }
     }
   }
@@ -35,19 +71,26 @@ resource "aws_s3_bucket" "default" {
     }
   }
 
-  replication_configuration {
-    role = var.replication_role_arn
+  dynamic "replication_configuration" {
+
+    for_each = var.replication_enabled  ? ["run"]: []
+
+    content {
+    
+    role = try(var.replication_role_arn, "null")
 
     rules {
-      id       = "enabled"
-      status   = "Enabled"
+ 
+      id       = "default"
+      status   = var.replication_enabled ? "Enabled" : "Disabled"
       priority = 0
 
       destination {
-        bucket        = aws_s3_bucket.replication.arn
+        bucket        = var.replication_enabled ? aws_s3_bucket.replication[0].arn : aws_s3_bucket.replication[0].arn
         storage_class = "STANDARD"
       }
     }
+  }
   }
 
   server_side_encryption_configuration {
@@ -112,6 +155,9 @@ data "aws_iam_policy_document" "default" {
 
 # Replication S3 bucket, to replicate to (rather than from)
 resource "aws_s3_bucket" "replication" {
+
+  count = var.replication_enabled ? 1 : 0
+
   provider      = aws.bucket-replication
   bucket        = (var.bucket_name != null) ? "${var.bucket_name}-replication" : null
   bucket_prefix = (var.bucket_prefix != null) ? "${var.bucket_prefix}-replication" : null
@@ -121,6 +167,42 @@ resource "aws_s3_bucket" "replication" {
     prevent_destroy = true
   }
 
+  lifecycle_rule {
+     
+      id      = "main"
+      enabled = true
+      prefix  = ""
+      tags = {}
+      transition {
+        
+          days          = 90
+          storage_class = "STANDARD_IA"
+          }
+      transition {
+          days          = 365
+          storage_class = "GLACIER"
+        
+      }
+      expiration  {
+        days = 730
+      }
+      noncurrent_version_transition {
+          days          = 90
+          storage_class = "STANDARD_IA"
+      }
+          
+      noncurrent_version_transition  {
+           
+          days          = 365
+          storage_class = "GLACIER"
+        }
+      
+      noncurrent_version_expiration {
+        days = 730
+      }
+     
+    }
+   
   server_side_encryption_configuration {
     rule {
       apply_server_side_encryption_by_default {
@@ -139,8 +221,11 @@ resource "aws_s3_bucket" "replication" {
 
 # Block public access policies to the replication bucket
 resource "aws_s3_bucket_public_access_block" "replication" {
+
+  count = var.replication_enabled ? 1 : 0
+
   provider                = aws.bucket-replication
-  bucket                  = aws_s3_bucket.replication.bucket
+  bucket                  = aws_s3_bucket.replication[count.index].bucket
   block_public_acls       = true
   block_public_policy     = true
   ignore_public_acls      = true
@@ -151,21 +236,27 @@ resource "aws_s3_bucket_public_access_block" "replication" {
 # This ensures every bucket created via this module
 # doesn't allow any actions that aren't over SecureTransport methods (i.e. HTTP)
 resource "aws_s3_bucket_policy" "replication" {
+
+  count = var.replication_enabled ? 1 : 0
+
   provider = aws.bucket-replication
-  bucket   = aws_s3_bucket.replication.id
-  policy   = data.aws_iam_policy_document.replication.json
+  bucket   = aws_s3_bucket.replication[count.index].id
+  policy   = data.aws_iam_policy_document.replication[count.index].json
 
   # Create the Public Access Block before the policy is added
   depends_on = [aws_s3_bucket_public_access_block.replication]
 }
 
 data "aws_iam_policy_document" "replication" {
+
+  count = var.replication_enabled ? 1 : 0
+
   statement {
     effect  = "Deny"
     actions = ["s3:*"]
     resources = [
-      aws_s3_bucket.replication.arn,
-      "${aws_s3_bucket.replication.arn}/*"
+      aws_s3_bucket.replication[count.index].arn,
+      "${aws_s3_bucket.replication[count.index].arn}/*"
     ]
 
     principals {

@@ -4,6 +4,13 @@ variable "acl" {
   default     = "private"
 }
 
+variable "replication_enabled" {
+  
+  type = bool
+  description = "Activate S3 bucket replication"
+  default = false
+}
+
 variable "bucket_policy" {
   type        = string
   description = "JSON for the bucket policy"
@@ -28,10 +35,10 @@ variable "custom_kms_key" {
   default     = ""
 }
 
-variable "enable_lifecycle_rules" {
-  type        = bool
-  description = "Whether or not to enable standardised lifecycle rules"
-  default     = false
+variable "lifecycle_rule" {
+  description = "List of maps containing configuration of object lifecycle management."
+  type        = any
+  default     = []
 }
 
 variable "log_bucket" {
