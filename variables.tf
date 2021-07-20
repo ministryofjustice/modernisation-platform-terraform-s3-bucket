@@ -4,6 +4,13 @@ variable "acl" {
   default     = "private"
 }
 
+variable "replication_enabled" {
+
+  type        = bool
+  description = "Activate S3 bucket replication"
+  default     = false
+}
+
 variable "bucket_policy" {
   type        = string
   description = "JSON for the bucket policy"

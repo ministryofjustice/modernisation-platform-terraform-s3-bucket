@@ -24,6 +24,7 @@ module "s3-bucket" {
   }
   bucket_prefix        = "s3-bucket"
   replication_role_arn = module.s3-bucket-replication-role.role.arn
+  replication_enabled = true
 
   lifecycle_rule = [
     {
@@ -38,7 +39,7 @@ module "s3-bucket" {
 
       transition = [
         {
-          days          = 60
+          days          = 90
           storage_class = "STANDARD_IA"
           }, {
           days          = 365
@@ -47,12 +48,12 @@ module "s3-bucket" {
       ]
 
       expiration = {
-        days = 2555
+        days = 730
       }
 
       noncurrent_version_transition = [
         {
-          days          = 60
+          days          = 90
           storage_class = "STANDARD_IA"
           }, {
           days          = 365
@@ -61,7 +62,7 @@ module "s3-bucket" {
       ]
 
       noncurrent_version_expiration = {
-        days = 2555
+        days = 730
       }
     }
   ]
@@ -75,6 +76,7 @@ module "s3-bucket" {
 | Name                   | Description                                                                           | Type    | Default   | Required |
 |------------------------|---------------------------------------------------------------------------------------|---------|-----------|----------|
 | acl                    | Canned ACL to use on the bucket                                                       | string  | `private` | no       |
+| replication_enabled    | Turn S3 bucket replication on/off                                                     | bool    |  false    | no       |
 | bucket_name            | Can be used to set a non-random bucket name, required if not using bucket_prefix      | string  | `null`    | no       |
 | bucket_policy          | JSON for the bucket policy, see note below                                            | string  | ""        | no       |
 | bucket_prefix          | Bucket prefix, which will include a randomised suffix to ensure globally unique names | string  | `null`    | yes      |
@@ -84,6 +86,8 @@ module "s3-bucket" {
 | log_prefix             | Prefix to use for server access logging, if applicable                                | string  | ""        | no       |
 | replication_role_arn   | IAM Role ARN for replication. See below for more information                          | string  |           | yes      |
 | tags                   | Tags to apply to resources, where applicable                                          | map     |           | yes      |
+
+
 
 ## Bucket policies
 Regardless of whether a custom bucket policy is set as part of this module, we will always include policy `statement` to require the use of SecureTransport (SSL) for every action on and every resource within the bucket.

@@ -71,17 +71,24 @@ resource "aws_s3_bucket" "default" {
     }
   }
 
-  replication_configuration {
-    role = var.replication_role_arn
+  dynamic "replication_configuration" {
 
-    rules {
-      id       = "enabled"
-      status   = "Enabled"
-      priority = 0
+    for_each = var.replication_enabled ? ["run"] : []
 
-      destination {
-        bucket        = aws_s3_bucket.replication.arn
-        storage_class = "STANDARD"
+    content {
+
+      role = try(var.replication_role_arn, "null")
+
+      rules {
+
+        id       = "default"
+        status   = var.replication_enabled ? "Enabled" : "Disabled"
+        priority = 0
+
+        destination {
+          bucket        = var.replication_enabled ? aws_s3_bucket.replication[0].arn : aws_s3_bucket.replication[0].arn
+          storage_class = "STANDARD"
+        }
       }
     }
   }
@@ -148,6 +155,9 @@ data "aws_iam_policy_document" "default" {
 
 # Replication S3 bucket, to replicate to (rather than from)
 resource "aws_s3_bucket" "replication" {
+
+  count = var.replication_enabled ? 1 : 0
+
   provider      = aws.bucket-replication
   bucket        = (var.bucket_name != null) ? "${var.bucket_name}-replication" : null
   bucket_prefix = (var.bucket_prefix != null) ? "${var.bucket_prefix}-replication" : null
@@ -155,6 +165,42 @@ resource "aws_s3_bucket" "replication" {
 
   lifecycle {
     prevent_destroy = true
+  }
+
+  lifecycle_rule {
+
+    id      = "main"
+    enabled = true
+    prefix  = ""
+    tags    = {}
+    transition {
+
+      days          = 90
+      storage_class = "STANDARD_IA"
+    }
+    transition {
+      days          = 365
+      storage_class = "GLACIER"
+
+    }
+    expiration {
+      days = 730
+    }
+    noncurrent_version_transition {
+      days          = 90
+      storage_class = "STANDARD_IA"
+    }
+
+    noncurrent_version_transition {
+
+      days          = 365
+      storage_class = "GLACIER"
+    }
+
+    noncurrent_version_expiration {
+      days = 730
+    }
+
   }
 
   server_side_encryption_configuration {
@@ -175,8 +221,11 @@ resource "aws_s3_bucket" "replication" {
 
 # Block public access policies to the replication bucket
 resource "aws_s3_bucket_public_access_block" "replication" {
+
+  count = var.replication_enabled ? 1 : 0
+
   provider                = aws.bucket-replication
-  bucket                  = aws_s3_bucket.replication.bucket
+  bucket                  = aws_s3_bucket.replication[count.index].bucket
   block_public_acls       = true
   block_public_policy     = true
   ignore_public_acls      = true
@@ -187,21 +236,27 @@ resource "aws_s3_bucket_public_access_block" "replication" {
 # This ensures every bucket created via this module
 # doesn't allow any actions that aren't over SecureTransport methods (i.e. HTTP)
 resource "aws_s3_bucket_policy" "replication" {
+
+  count = var.replication_enabled ? 1 : 0
+
   provider = aws.bucket-replication
-  bucket   = aws_s3_bucket.replication.id
-  policy   = data.aws_iam_policy_document.replication.json
+  bucket   = aws_s3_bucket.replication[count.index].id
+  policy   = data.aws_iam_policy_document.replication[count.index].json
 
   # Create the Public Access Block before the policy is added
   depends_on = [aws_s3_bucket_public_access_block.replication]
 }
 
 data "aws_iam_policy_document" "replication" {
+
+  count = var.replication_enabled ? 1 : 0
+
   statement {
     effect  = "Deny"
     actions = ["s3:*"]
     resources = [
-      aws_s3_bucket.replication.arn,
-      "${aws_s3_bucket.replication.arn}/*"
+      aws_s3_bucket.replication[count.index].arn,
+      "${aws_s3_bucket.replication[count.index].arn}/*"
     ]
 
     principals {
