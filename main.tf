@@ -73,24 +73,24 @@ resource "aws_s3_bucket" "default" {
 
   dynamic "replication_configuration" {
 
-    for_each = var.replication_enabled  ? ["run"]: []
+    for_each = var.replication_enabled ? ["run"] : []
 
     content {
-    
-    role = try(var.replication_role_arn, "null")
 
-    rules {
- 
-      id       = "default"
-      status   = var.replication_enabled ? "Enabled" : "Disabled"
-      priority = 0
+      role = try(var.replication_role_arn, "null")
 
-      destination {
-        bucket        = var.replication_enabled ? aws_s3_bucket.replication[0].arn : aws_s3_bucket.replication[0].arn
-        storage_class = "STANDARD"
+      rules {
+
+        id       = "default"
+        status   = var.replication_enabled ? "Enabled" : "Disabled"
+        priority = 0
+
+        destination {
+          bucket        = var.replication_enabled ? aws_s3_bucket.replication[0].arn : aws_s3_bucket.replication[0].arn
+          storage_class = "STANDARD"
+        }
       }
     }
-  }
   }
 
   server_side_encryption_configuration {
@@ -168,41 +168,41 @@ resource "aws_s3_bucket" "replication" {
   }
 
   lifecycle_rule {
-     
-      id      = "main"
-      enabled = true
-      prefix  = ""
-      tags = {}
-      transition {
-        
-          days          = 90
-          storage_class = "STANDARD_IA"
-          }
-      transition {
-          days          = 365
-          storage_class = "GLACIER"
-        
-      }
-      expiration  {
-        days = 730
-      }
-      noncurrent_version_transition {
-          days          = 90
-          storage_class = "STANDARD_IA"
-      }
-          
-      noncurrent_version_transition  {
-           
-          days          = 365
-          storage_class = "GLACIER"
-        }
-      
-      noncurrent_version_expiration {
-        days = 730
-      }
-     
+
+    id      = "main"
+    enabled = true
+    prefix  = ""
+    tags    = {}
+    transition {
+
+      days          = 90
+      storage_class = "STANDARD_IA"
     }
-   
+    transition {
+      days          = 365
+      storage_class = "GLACIER"
+
+    }
+    expiration {
+      days = 730
+    }
+    noncurrent_version_transition {
+      days          = 90
+      storage_class = "STANDARD_IA"
+    }
+
+    noncurrent_version_transition {
+
+      days          = 365
+      storage_class = "GLACIER"
+    }
+
+    noncurrent_version_expiration {
+      days = 730
+    }
+
+  }
+
   server_side_encryption_configuration {
     rule {
       apply_server_side_encryption_by_default {

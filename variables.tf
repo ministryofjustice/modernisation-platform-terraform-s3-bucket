@@ -5,10 +5,10 @@ variable "acl" {
 }
 
 variable "replication_enabled" {
-  
-  type = bool
+
+  type        = bool
   description = "Activate S3 bucket replication"
-  default = false
+  default     = false
 }
 
 variable "bucket_policy" {
