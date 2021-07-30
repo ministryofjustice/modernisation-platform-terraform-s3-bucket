@@ -84,7 +84,8 @@ module "s3-bucket" {
 | lifecycle_rule         | Lifecycle rules                                                                       | object  | `null`    | no       |
 | log_bucket             | Bucket for server access logging, if applicable                                       | string  | ""        | no       |
 | log_prefix             | Prefix to use for server access logging, if applicable                                | string  | ""        | no       |
-| replication_role_arn   | IAM Role ARN for replication. See below for more information                          | string  |           | yes      |
+| replication_role_arn   | IAM Role ARN for replication. See below for more information (Required if             |         |           |          |
+|                        | 'replication enabled' variable is set to true)                                        | string  | ""        | depends  |
 | tags                   | Tags to apply to resources, where applicable                                          | map     |           | yes      |
 
 
