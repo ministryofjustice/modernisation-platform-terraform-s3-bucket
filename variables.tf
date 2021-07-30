@@ -56,6 +56,7 @@ variable "log_prefix" {
 variable "replication_role_arn" {
   type        = string
   description = "Role ARN to access S3 and replicate objects"
+  default     = ""
 }
 
 variable "tags" {
