@@ -1,3 +1,5 @@
+data "aws_caller_identity" "current" {}
+
 # Main S3 bucket, that is replicated from (rather than to)
 resource "aws_s3_bucket" "default" {
   bucket        = var.bucket_name
@@ -88,6 +90,13 @@ resource "aws_s3_bucket" "default" {
         destination {
           bucket        = var.replication_enabled ? aws_s3_bucket.replication[0].arn : aws_s3_bucket.replication[0].arn
           storage_class = "STANDARD"
+          replica_kms_key_id = ( var.custom_replication_kms_key != "" ) ? var.custom_replication_kms_key : "arn:aws:kms:eu-west-1:${data.aws_caller_identity.current.account_id}:alias/aws/s3"
+        }
+        
+        source_selection_criteria {
+          sse_kms_encrypted_objects {
+            enabled = ( var.custom_replication_kms_key != "" ) ? true : false
+          }
         }
       }
     }
@@ -96,8 +105,8 @@ resource "aws_s3_bucket" "default" {
   server_side_encryption_configuration {
     rule {
       apply_server_side_encryption_by_default {
-        sse_algorithm     = "aws:kms"
-        kms_master_key_id = (length(var.custom_kms_key) > 0) ? var.custom_kms_key : ""
+        sse_algorithm     = (var.custom_kms_key != "") ? "aws:kms" : "AES256"
+        kms_master_key_id = (var.custom_kms_key != "") ? var.custom_kms_key : ""
       }
     }
   }
@@ -207,7 +216,7 @@ resource "aws_s3_bucket" "replication" {
     rule {
       apply_server_side_encryption_by_default {
         sse_algorithm     = "aws:kms"
-        kms_master_key_id = (length(var.custom_kms_key) > 0) ? var.custom_kms_key : ""
+        kms_master_key_id = (var.custom_replication_kms_key != "") ? var.custom_replication_kms_key : ""
       }
     }
   }

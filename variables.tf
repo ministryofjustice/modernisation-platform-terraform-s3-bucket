@@ -35,6 +35,12 @@ variable "custom_kms_key" {
   default     = ""
 }
 
+variable "custom_replication_kms_key" {
+  type        = string
+  description = "KMS key ARN to use for replication to eu-west-1"
+  default     = ""
+}
+
 variable "lifecycle_rule" {
   description = "List of maps containing configuration of object lifecycle management."
   type        = any
