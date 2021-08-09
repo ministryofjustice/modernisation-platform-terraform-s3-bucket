@@ -88,14 +88,14 @@ resource "aws_s3_bucket" "default" {
         priority = 0
 
         destination {
-          bucket        = var.replication_enabled ? aws_s3_bucket.replication[0].arn : aws_s3_bucket.replication[0].arn
-          storage_class = "STANDARD"
-          replica_kms_key_id = ( var.custom_replication_kms_key != "" ) ? var.custom_replication_kms_key : "arn:aws:kms:eu-west-1:${data.aws_caller_identity.current.account_id}:alias/aws/s3"
+          bucket             = var.replication_enabled ? aws_s3_bucket.replication[0].arn : aws_s3_bucket.replication[0].arn
+          storage_class      = "STANDARD"
+          replica_kms_key_id = (var.custom_replication_kms_key != "") ? var.custom_replication_kms_key : "arn:aws:kms:eu-west-1:${data.aws_caller_identity.current.account_id}:alias/aws/s3"
         }
-        
+
         source_selection_criteria {
           sse_kms_encrypted_objects {
-            enabled = ( var.custom_replication_kms_key != "" ) ? true : false
+            enabled = (var.custom_replication_kms_key != "") ? true : false
           }
         }
       }
