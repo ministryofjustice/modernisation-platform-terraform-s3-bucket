@@ -73,20 +73,21 @@ module "s3-bucket" {
 
 ## Inputs
 
-| Name                   | Description                                                                           | Type    | Default   | Required |
-|------------------------|---------------------------------------------------------------------------------------|---------|-----------|----------|
-| acl                    | Canned ACL to use on the bucket                                                       | string  | `private` | no       |
-| replication_enabled    | Turn S3 bucket replication on/off                                                     | bool    |  false    | no       |
-| bucket_name            | Can be used to set a non-random bucket name, required if not using bucket_prefix      | string  | `null`    | no       |
-| bucket_policy          | JSON for the bucket policy, see note below                                            | string  | ""        | no       |
-| bucket_prefix          | Bucket prefix, which will include a randomised suffix to ensure globally unique names | string  | `null`    | yes      |
-| custom_kms_key         | KMS key ARN to use                                                                    | string  | ""        | no       |
-| lifecycle_rule         | Lifecycle rules                                                                       | object  | `null`    | no       |
-| log_bucket             | Bucket for server access logging, if applicable                                       | string  | ""        | no       |
-| log_prefix             | Prefix to use for server access logging, if applicable                                | string  | ""        | no       |
-| replication_role_arn   | IAM Role ARN for replication. See below for more information (Required if             |         |           |          |
-|                        | 'replication enabled' variable is set to true)                                        | string  | ""        | depends  |
-| tags                   | Tags to apply to resources, where applicable                                          | map     |           | yes      |
+| Name                       | Description                                                                           | Type    | Default   | Required |
+|----------------------------|---------------------------------------------------------------------------------------|---------|-----------|----------|
+| acl                        | Canned ACL to use on the bucket                                                       | string  | `private` | no       |
+| replication_enabled        | Turn S3 bucket replication on/off                                                     | bool    |  false    | no       |
+| bucket_name                | Can be used to set a non-random bucket name, required if not using bucket_prefix      | string  | `null`    | no       |
+| bucket_policy              | JSON for the bucket policy, see note below                                            | string  | ""        | no       |
+| bucket_prefix              | Bucket prefix, which will include a randomised suffix to ensure globally unique names | string  | `null`    | yes      |
+| custom_kms_key             | KMS key ARN to use                                                                    | string  | ""        | no       |
+| custom_replication_kms_key | KMS key ARN to use for replication to eu-west-1                                       | string  | ""        | no       |
+| lifecycle_rule             | Lifecycle rules                                                                       | object  | `null`    | no       |
+| log_bucket                 | Bucket for server access logging, if applicable                                       | string  | ""        | no       |
+| log_prefix                 | Prefix to use for server access logging, if applicable                                | string  | ""        | no       |
+| replication_role_arn       | IAM Role ARN for replication. See below for more information (Required if             |         |           |          |
+|                            | 'replication enabled' variable is set to true)                                        | string  | ""        | depends  |
+| tags                       | Tags to apply to resources, where applicable                                          | map     |           | yes      |
 
 
 
