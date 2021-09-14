@@ -20,7 +20,7 @@ module "s3-bucket" {
   source = "github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket?ref=v3.0.0"
 
   providers = {
-    aws.bucket-replication = aws.eu-west-2
+    aws.bucket-replication = aws.bucket-replication
   }
   bucket_prefix        = "s3-bucket"
   replication_role_arn = module.s3-bucket-replication-role.role.arn
