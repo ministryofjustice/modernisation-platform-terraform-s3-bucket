@@ -3,11 +3,27 @@ variable "acl" {
   description = "Canned ACL to use on the bucket"
   default     = "private"
 }
+variable "versioning_enabled" {
+  type        = bool
+  description = "Activate S3 bucket versioning"
+  default     = true
+}
 
 variable "replication_enabled" {
-
   type        = bool
   description = "Activate S3 bucket replication"
+  default     = false
+}
+
+variable "replication_region" {
+  type        = string
+  description = "Region to create S3 replication bucket"
+  default     = "eu-west-1"
+}
+
+variable "versioning_enabled_on_replication_bucket" {
+  type        = bool
+  description = "Activate S3 bucket versioning on replication bucket"
   default     = false
 }
 

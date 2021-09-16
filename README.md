@@ -17,14 +17,18 @@ provider "aws" {
 }
 
 module "s3-bucket" {
-  source = "github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket?ref=v3.0.0"
+  source = "github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket?ref=v5.0.0"
 
   providers = {
     aws.bucket-replication = aws.bucket-replication
   }
-  bucket_prefix        = "s3-bucket"
-  replication_role_arn = module.s3-bucket-replication-role.role.arn
-  replication_enabled = true
+  bucket_prefix                            = "s3-bucket"
+  versioning_enabled                       = false
+  replication_enabled                      = false
+  # -- Below three variables are only relevant if 'replication_enabled' is set to true
+  replication_region                       = "eu-west-1"
+  versioning_enabled_on_replication_bucket = false
+  replication_role_arn                     = module.s3-bucket-replication-role.role.arn
 
   lifecycle_rule = [
     {
@@ -73,28 +77,34 @@ module "s3-bucket" {
 
 ## Inputs
 
-| Name                       | Description                                                                           | Type    | Default   | Required |
-|----------------------------|---------------------------------------------------------------------------------------|---------|-----------|----------|
-| acl                        | Canned ACL to use on the bucket                                                       | string  | `private` | no       |
-| replication_enabled        | Turn S3 bucket replication on/off                                                     | bool    |  false    | no       |
-| bucket_name                | Can be used to set a non-random bucket name, required if not using bucket_prefix      | string  | `null`    | no       |
-| bucket_policy              | JSON for the bucket policy, see note below                                            | string  | ""        | no       |
-| bucket_prefix              | Bucket prefix, which will include a randomised suffix to ensure globally unique names | string  | `null`    | yes      |
-| custom_kms_key             | KMS key ARN to use                                                                    | string  | ""        | no       |
-| custom_replication_kms_key | KMS key ARN to use for replication to eu-west-1                                       | string  | ""        | no       |
-| lifecycle_rule             | Lifecycle rules                                                                       | object  | `null`    | no       |
-| log_bucket                 | Bucket for server access logging, if applicable                                       | string  | ""        | no       |
-| log_prefix                 | Prefix to use for server access logging, if applicable                                | string  | ""        | no       |
-| replication_role_arn       | IAM Role ARN for replication. See below for more information (Required if             |         |           |          |
-|                            | 'replication enabled' variable is set to true)                                        | string  | ""        | depends  |
-| tags                       | Tags to apply to resources, where applicable                                          | map     |           | yes      |
-
+| Name                                     | Description                                                                           | Type    | Default     | Required    |
+|------------------------------------------|---------------------------------------------------------------------------------------|---------|-------------|-------------|
+| bucket_prefix                            | Bucket prefix, which will include a randomised suffix to ensure globally unique names | string  | `null`      | no          |
+| bucket_name                              | Can be used to set a non-random bucket name, required if not using bucket_prefix      | string  | `null`      | no          |
+| acl                                      | Canned ACL to use on the bucket                                                       | string  | `private`   | no          |
+| versioning_enabled                       | Enable versioning of the main bucket                                                  | bool    | true        | no          |
+| replication_enabled                      | Turn S3 bucket replication on/off                                                     | bool    | false       | no          |
+| replication_region                       | Specify region to create the replication bucket                                       | string  | `eu-west-1` | no          |
+| versioning_enabled_on_replication_bucket | Enable versioning of the replication bucket                                           | bool    | false       | no          |
+| replication_role_arn                     | IAM Role ARN for replication. See below for more information (Required if 'replication enabled' variable is set to true)                                        | string  | ""          | conditional |
+| bucket_policy                            | JSON for the bucket policy, see note below                                            | string  | ""          | no          |
+| custom_kms_key                           | KMS key ARN to use                                                                    | string  | ""          | no          |
+| custom_replication_kms_key               | KMS key ARN to use for replication to eu-west-1                                       | string  | ""          | no          |
+| lifecycle_rule                           | Lifecycle rules                                                                       | object  | `null`      | no          |
+| log_bucket                               | Bucket for server access logging, if applicable                                       | string  | ""          | no          |
+| log_prefix                               | Prefix to use for server access logging, if applicable                                | string  | ""          | no          |
+| tags                                     | Tags to apply to resources, where applicable                                          | map     |             | yes         |
 
 
 ## Bucket policies
 Regardless of whether a custom bucket policy is set as part of this module, we will always include policy `statement` to require the use of SecureTransport (SSL) for every action on and every resource within the bucket.
 
 ## Replication
+If replication is enabled then:
+- 'custom_replication_kms_key' variable is required, this key must allow access for S3
+- 'versioning_enabled' variable must be set to enabled
+- 'replication_role_arn' variable must be set to relevant arn for iam role
+
 There are two ways to create the IAM role for replication:
 - use the [modernisation-platform-terraform-s3-bucket-replication-role](https://github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket-replication-role) to configure a role based on bucket ARNs
 - create one yourself, by following the [Setting up permissions for replication](https://docs.aws.amazon.com/AmazonS3/latest/dev/setting-repl-config-perm-overview.html) guide on AWS
