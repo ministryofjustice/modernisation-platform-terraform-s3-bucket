@@ -90,7 +90,7 @@ resource "aws_s3_bucket" "default" {
         destination {
           bucket             = var.replication_enabled ? aws_s3_bucket.replication[0].arn : aws_s3_bucket.replication[0].arn
           storage_class      = "STANDARD"
-          replica_kms_key_id = (var.custom_replication_kms_key != "") ? var.custom_replication_kms_key : "arn:aws:kms:eu-west-1:${data.aws_caller_identity.current.account_id}:alias/aws/s3"
+          replica_kms_key_id = (var.custom_replication_kms_key != "") ? var.custom_replication_kms_key : "arn:aws:kms:${var.replication_region}:${data.aws_caller_identity.current.account_id}:alias/aws/s3"
         }
 
         source_selection_criteria {
@@ -112,7 +112,7 @@ resource "aws_s3_bucket" "default" {
   }
 
   versioning {
-    enabled = true
+    enabled = var.versioning_enabled
   }
 
   tags = var.tags
@@ -222,7 +222,7 @@ resource "aws_s3_bucket" "replication" {
   }
 
   versioning {
-    enabled = true
+    enabled = var.versioning_enabled_on_replication_bucket
   }
 
   tags = var.tags
