@@ -18,7 +18,7 @@ variable "replication_enabled" {
 variable "replication_region" {
   type        = string
   description = "Region to create S3 replication bucket"
-  default     = "eu-west-1"
+  default     = "eu-west-2"
 }
 
 variable "versioning_enabled_on_replication_bucket" {
@@ -53,7 +53,7 @@ variable "custom_kms_key" {
 
 variable "custom_replication_kms_key" {
   type        = string
-  description = "KMS key ARN to use for replication to eu-west-1"
+  description = "KMS key ARN to use for replication to eu-west-2"
   default     = ""
 }
 

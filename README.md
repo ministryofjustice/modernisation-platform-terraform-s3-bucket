@@ -4,32 +4,26 @@ A Terraform module to standardise S3 buckets with sensible defaults.
 
 ## Usage
 
-This module inherits the default provider, though you'll need to pass through your replication region. For example, to create the original bucket in eu-west-2, and to replicate it in eu-west-1:
-
 ```
-provider "aws" {
-  region = "eu-west-2"
-}
-
-provider "aws" {
-  alias  = "bucket-replication"
-  region = "eu-west-1"
-}
-
 module "s3-bucket" {
-  source = "github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket?ref=v5.0.0"
+  source = "github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket?ref=v5.0.1"
 
-  providers = {
-    aws.bucket-replication = aws.bucket-replication
-  }
   bucket_prefix                            = "s3-bucket"
   versioning_enabled                       = false
+  
+  # Refer to the below section "Replication" before enabling replication
   replication_enabled                      = false
-  # -- Below three variables are only relevant if 'replication_enabled' is set to true
-  replication_region                       = "eu-west-1"
+  # Below three variables and providers configuration are only relevant if 'replication_enabled' is set to true
+  replication_region                       = "eu-west-2"
   versioning_enabled_on_replication_bucket = false
   replication_role_arn                     = module.s3-bucket-replication-role.role.arn
-
+  providers = {
+    # Here we use the default provider Region for replication. Destination buckets can be within the same Region as the
+    # source bucket. On the other hand, if you need to enable cross-region replication, please contact the Modernisation
+    # Platform team to add a new provider for the additional Region.
+    aws.bucket-replication = aws
+  }
+  
   lifecycle_rule = [
     {
       id      = "main"
@@ -84,12 +78,12 @@ module "s3-bucket" {
 | acl                                      | Canned ACL to use on the bucket                                                       | string  | `private`   | no          |
 | versioning_enabled                       | Enable versioning of the main bucket                                                  | bool    | true        | no          |
 | replication_enabled                      | Turn S3 bucket replication on/off                                                     | bool    | false       | no          |
-| replication_region                       | Specify region to create the replication bucket                                       | string  | `eu-west-1` | no          |
+| replication_region                       | Specify region to create the replication bucket                                       | string  | `eu-west-2` | no          |
 | versioning_enabled_on_replication_bucket | Enable versioning of the replication bucket                                           | bool    | false       | no          |
 | replication_role_arn                     | IAM Role ARN for replication. See below for more information (Required if 'replication enabled' variable is set to true)                                        | string  | ""          | conditional |
 | bucket_policy                            | JSON for the bucket policy, see note below                                            | string  | ""          | no          |
 | custom_kms_key                           | KMS key ARN to use                                                                    | string  | ""          | no          |
-| custom_replication_kms_key               | KMS key ARN to use for replication to eu-west-1                                       | string  | ""          | no          |
+| custom_replication_kms_key               | KMS key ARN to use for replication to eu-west-2                                       | string  | ""          | no          |
 | lifecycle_rule                           | Lifecycle rules                                                                       | object  | `null`      | no          |
 | log_bucket                               | Bucket for server access logging, if applicable                                       | string  | ""          | no          |
 | log_prefix                               | Prefix to use for server access logging, if applicable                                | string  | ""          | no          |
