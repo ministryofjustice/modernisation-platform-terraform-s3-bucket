@@ -3,6 +3,7 @@ variable "acl" {
   description = "Canned ACL to use on the bucket"
   default     = "private"
 }
+
 variable "versioning_enabled" {
   type        = bool
   description = "Activate S3 bucket versioning"
