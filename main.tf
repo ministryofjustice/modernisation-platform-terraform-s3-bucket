@@ -203,7 +203,6 @@ resource "aws_s3_bucket_lifecycle_configuration" "replication" {
   rule {
     id     = "main"
     status = "Enabled"
-    prefix = ""
 
     transition {
       days          = 90
