@@ -1,6 +1,8 @@
 .env
 .terraform
+.terraform.lock.hcl
 *.tfstate*
 .DS_Store
 tmp/
 .vscode/
+.idea/

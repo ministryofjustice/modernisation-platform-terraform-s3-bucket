@@ -3,6 +3,7 @@ variable "acl" {
   description = "Canned ACL to use on the bucket"
   default     = "private"
 }
+
 variable "versioning_enabled" {
   type        = bool
   description = "Activate S3 bucket versioning"
@@ -28,9 +29,9 @@ variable "versioning_enabled_on_replication_bucket" {
 }
 
 variable "bucket_policy" {
-  type        = string
+  type        = list(string)
   description = "JSON for the bucket policy"
-  default     = "{}"
+  default     = ["{}"]
 }
 
 variable "bucket_prefix" {
