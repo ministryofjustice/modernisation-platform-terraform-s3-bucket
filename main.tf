@@ -192,6 +192,8 @@ resource "aws_s3_bucket" "replication" {
 # Configure bucket ACL
 resource "aws_s3_bucket_acl" "replication" {
   count  = var.replication_enabled ? 1 : 0
+
+  provider      = aws.bucket-replication
   bucket = aws_s3_bucket.replication[count.index].id
   acl    = "private"
 }
@@ -199,6 +201,8 @@ resource "aws_s3_bucket_acl" "replication" {
 # Configure bucket lifecycle rules
 resource "aws_s3_bucket_lifecycle_configuration" "replication" {
   count  = var.replication_enabled ? 1 : 0
+
+  provider      = aws.bucket-replication
   bucket = aws_s3_bucket.replication[count.index].id
   rule {
     id     = "main"
@@ -262,6 +266,8 @@ resource "aws_s3_bucket_policy" "replication" {
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "replication" {
   count  = var.replication_enabled ? 1 : 0
+
+  provider      = aws.bucket-replication
   bucket = aws_s3_bucket.replication[count.index].id
   rule {
     apply_server_side_encryption_by_default {
@@ -273,6 +279,8 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "replication" {
 
 resource "aws_s3_bucket_versioning" "replication" {
   count  = var.replication_enabled ? 1 : 0
+
+  provider      = aws.bucket-replication
   bucket = aws_s3_bucket.replication[count.index].id
   versioning_configuration {
     status = (var.versioning_enabled != true) ? "Suspended" : "Enabled"
