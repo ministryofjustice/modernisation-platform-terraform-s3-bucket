@@ -93,7 +93,7 @@ Version 6.0.0 of this module uses the Hashicorp AWS Provider 4.0 as a minimum.
 AWS Provider 4.0 introduces some significant changes to the `s3_bucket` resources as documented [here](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/guides/version-4-upgrade).
 
 We have worked to make the change as seamless to your code as possible, but you should expect to update your value for
-`Status` from a boolean value of `true | false` to string value of `Enabled | Disabled`.
+`Status` from a boolean value of `true | false` to a string value of `Enabled | Disabled`.
 
 ## Bucket policies
 Regardless of whether a custom bucket policy is set as part of this module, we will always include policy `statement` to require the use of SecureTransport (SSL) for every action on and every resource within the bucket.
