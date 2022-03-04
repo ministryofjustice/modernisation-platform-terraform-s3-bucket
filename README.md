@@ -27,7 +27,7 @@ module "s3-bucket" {
   lifecycle_rule = [
     {
       id      = "main"
-      enabled = true
+      enabled = "Enabled"
       prefix  = ""
 
       tags = {
@@ -68,6 +68,12 @@ module "s3-bucket" {
   tags                 = local.tags
 }
 ```
+## Upgrading from versions below 6.0.0
+Version 6.0.0 of this module uses the Hashicorp AWS Provider 4.0 as a minimum.
+AWS Provider 4.0 introduces some significant changes to the `s3_bucket` resources as documented (here)[https://registry.terraform.io/providers/hashicorp/aws/latest/docs/guides/version-4-upgrade].
+
+We have worked to make the change as seamless to your code as possible, but you should expect to update your value for
+`Status` from a boolean value of `true | false` to string value of `Enabled | Disabled`.
 
 ## Inputs
 
