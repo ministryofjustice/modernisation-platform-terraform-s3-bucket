@@ -26,8 +26,10 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
     for_each = try(jsondecode(var.lifecycle_rule), var.lifecycle_rule)
 
     content {
-      id     = lookup(rule.value, "id", null)
-      prefix = lookup(rule.value, "prefix", null)
+      id = lookup(rule.value, "id", null)
+      filter {
+        prefix = lookup(rule.value, "prefix", null)
+      }
       status = lookup(rule.value, "enabled", null)
 
       abort_incomplete_multipart_upload {
