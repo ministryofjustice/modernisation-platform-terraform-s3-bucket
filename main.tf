@@ -33,7 +33,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
       status = lookup(rule.value, "enabled", null)
 
       abort_incomplete_multipart_upload {
-        days_after_initiation = lookup(rule.value, "abort_incomplete_multipart_upload_days", null)
+        days_after_initiation = lookup(rule.value, "abort_incomplete_multipart_upload_days", "7")
       }
 
       # Max 1 block - expiration
