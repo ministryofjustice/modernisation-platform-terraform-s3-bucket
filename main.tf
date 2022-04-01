@@ -1,6 +1,10 @@
 data "aws_caller_identity" "current" {}
 
 # Main S3 bucket, that is replicated from (rather than to)
+# KMS Encryption handled by aws_s3_bucket_server_side_encryption_configuration resource
+# Logging handled by aws_s3_bucket_logging resource
+# Versioning handled by aws_s3_bucket_versioning resource
+# tfsec:ignore:aws-s3-enable-bucket-encryption tfsec:ignore:aws-s3-encryption-customer-key tfsec:ignore:aws-s3-enable-bucket-logging tfsec:ignore:aws-s3-enable-versioning
 resource "aws_s3_bucket" "default" {
   bucket        = var.bucket_name
   bucket_prefix = var.bucket_prefix
