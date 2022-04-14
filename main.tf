@@ -139,6 +139,8 @@ resource "aws_s3_bucket_replication_configuration" "default" {
   }
 }
 
+# AWS-provided KMS acceptable compromise in absence of customer provided key
+# tfsec:ignore:aws-s3-encryption-customer-key
 resource "aws_s3_bucket_server_side_encryption_configuration" "default" {
   bucket = aws_s3_bucket.default.id
   rule {
