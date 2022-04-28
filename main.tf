@@ -183,6 +183,8 @@ data "aws_iam_policy_document" "default" {
 }
 
 # Replication S3 bucket, to replicate to (rather than from)
+# Logging not deemed required for replication bucket
+# tfsec:ignore:aws-s3-enable-bucket-logging
 resource "aws_s3_bucket" "replication" {
   count = var.replication_enabled ? 1 : 0
 
