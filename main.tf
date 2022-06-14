@@ -8,10 +8,7 @@ data "aws_caller_identity" "current" {}
 resource "aws_s3_bucket" "default" {
   bucket        = var.bucket_name
   bucket_prefix = var.bucket_prefix
-
-  lifecycle {
-    prevent_destroy = true
-  }
+  force_destroy = var.force_destroy
 
   tags = var.tags
 }

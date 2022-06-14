@@ -61,7 +61,39 @@ variable "custom_replication_kms_key" {
 variable "lifecycle_rule" {
   description = "List of maps containing configuration of object lifecycle management."
   type        = any
-  default     = []
+  default = [{
+    id      = "main"
+    enabled = "Enabled"
+    prefix  = ""
+    tags = {
+      rule      = "log"
+      autoclean = "true"
+    }
+    transition = [
+      {
+        days          = 90
+        storage_class = "STANDARD_IA"
+        }, {
+        days          = 365
+        storage_class = "GLACIER"
+      }
+    ]
+    expiration = {
+      days = 730
+    }
+    noncurrent_version_transition = [
+      {
+        days          = 90
+        storage_class = "STANDARD_IA"
+        }, {
+        days          = 365
+        storage_class = "GLACIER"
+      }
+    ]
+    noncurrent_version_expiration = {
+      days = 730
+    }
+  }]
 }
 
 variable "log_bucket" {
@@ -85,4 +117,10 @@ variable "replication_role_arn" {
 variable "tags" {
   type        = map(any)
   description = "Tags to apply to resources, where applicable"
+}
+
+variable "force_destroy" {
+  type        = bool
+  description = "A boolean that indicates all objects (including any locked objects) should be deleted from the bucket so that the bucket can be destroyed without error. These objects are not recoverable."
+  default     = false
 }
