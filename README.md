@@ -69,25 +69,10 @@ module "s3-bucket" {
   tags                 = local.tags
 }
 ```
-## Inputs
 
-| Name                                     | Description                                                                           | Type    | Default     | Required    |
-|------------------------------------------|---------------------------------------------------------------------------------------|---------|-------------|-------------|
-| bucket_prefix                            | Bucket prefix, which will include a randomised suffix to ensure globally unique names | string  | `null`      | no          |
-| bucket_name                              | Can be used to set a non-random bucket name, required if not using bucket_prefix      | string  | `null`      | no          |
-| acl                                      | Canned ACL to use on the bucket                                                       | string  | `private`   | no          |
-| versioning_enabled                       | Enable versioning of the main bucket                                                  | bool    | true        | no          |
-| replication_enabled                      | Turn S3 bucket replication on/off                                                     | bool    | false       | no          |
-| replication_region                       | Specify region to create the replication bucket                                       | string  | `eu-west-2` | no          |
-| versioning_enabled_on_replication_bucket | Enable versioning of the replication bucket                                           | bool    | false       | no          |
-| replication_role_arn                     | IAM Role ARN for replication. See below for more information (Required if 'replication enabled' variable is set to true)                                        | string  | ""          | conditional |
-| bucket_policy                            | JSON for the bucket policy, see note below                                            | string  | ""          | no          |
-| custom_kms_key                           | KMS key ARN to use                                                                    | string  | ""          | no          |
-| custom_replication_kms_key               | KMS key ARN to use for replication to eu-west-2                                       | string  | ""          | no          |
-| lifecycle_rule                           | Lifecycle rules                                                                       | object  | `null`      | no          |
-| log_bucket                               | Bucket for server access logging, if applicable                                       | string  | ""          | no          |
-| log_prefix                               | Prefix to use for server access logging, if applicable                                | string  | ""          | no          |
-| tags                                     | Tags to apply to resources, where applicable                                          | map     |             | yes         |
+<!-- BEGIN_TF_DOCS -->
+{{ .Content }}
+<!-- END_TF_DOCS -->
 
 ## Upgrading from versions below 6.0.0
 Version 6.0.0 of this module uses the Hashicorp AWS Provider 4.0 as a minimum.
