@@ -15,14 +15,11 @@ func TestS3Creation(t *testing.T) {
 		TerraformDir: "./unit-test",
 	})
 
-	// Would fail as lifecycle.prevent_destroy is set on the bucket
-	//defer terraform.Destroy(t, terraformOptions)
+	defer terraform.Destroy(t, terraformOptions)
 
 	terraform.InitAndApply(t, terraformOptions)
 
-	bucketArn := terraform.Output(t, terraformOptions, "bucket_arn")
-	bucketName := terraform.Output(t, terraformOptions, "bucket_name")
+	bucketArn := terraform.Output(t, terraformOptions, "bucketArn")
 
 	assert.Regexp(t, regexp.MustCompile(`^arn:aws:s3:::s3-bucket-*`), bucketArn)
-	assert.Regexp(t, regexp.MustCompile(`^s3-bucket-*`), bucketName)
 }

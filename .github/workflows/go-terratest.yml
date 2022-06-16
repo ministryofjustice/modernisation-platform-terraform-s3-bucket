@@ -29,4 +29,7 @@ jobs:
       - name: Run Go Tests
         working-directory: test
         run: go test -v
+<<<<<<< HEAD
        
+=======
+>>>>>>> 23f54b8eaa3ddbdcbc17f6fa95d0e952a353f36b
