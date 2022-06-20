@@ -22,4 +22,8 @@ func TestS3Creation(t *testing.T) {
 	bucketArn := terraform.Output(t, terraformOptions, "bucketArn")
 
 	assert.Regexp(t, regexp.MustCompile(`^arn:aws:s3:::s3-bucket-*`), bucketArn)
+
+	bucketName := terraform.Output(t, terraformOptions, "bucketName")
+	// 	bucketid := (s3_bucket_id + ".s3.amazonaws.com")
+	// 	assert.Regexp(t, regexp.MustCompile(`bucket-name.eu.s3.eu-west-1.amazonaws.com`), bucketName)
 }
