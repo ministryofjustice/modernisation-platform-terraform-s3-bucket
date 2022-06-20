@@ -17,7 +17,7 @@ func TestS3Creation(t *testing.T) {
 	})
 
 	defer terraform.Destroy(t, terraformOptions)
-	awsRegion := aws.GetRandomStableRegion(t, nil, nil)
+	awsRegion := "eu-west-2"
 	terraform.InitAndApply(t, terraformOptions)
 
 	bucketArn := terraform.Output(t, terraformOptions, "bucketArn")
