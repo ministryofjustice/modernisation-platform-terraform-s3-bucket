@@ -27,4 +27,9 @@ func TestS3Creation(t *testing.T) {
 	assert.Regexp(t, regexp.MustCompile(`^arn:aws:s3:::s3-bucket-*`), bucketArn)
 	// Verify that our Bucket has a policy attached
 	aws.AssertS3BucketPolicyExists(t, awsRegion, bucketID)
+
+	// Verify that our Bucket has versioning enabled
+	actualStatus := aws.GetS3BucketVersioning(t, awsRegion, bucketID)
+	expectedStatus := "Enabled"
+	assert.Equal(t, expectedStatus, actualStatus)
 }
