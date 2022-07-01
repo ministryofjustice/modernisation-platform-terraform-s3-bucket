@@ -2,7 +2,7 @@ output "bucketArn" {
   value       = module.s3.bucket.arn
   description = "Bucket ARN"
 }
-output "bucketname" {
+output "bucket_id" {
   value       = module.s3.bucket.id
   description = "Bucket Name"
 }
