@@ -124,3 +124,9 @@ variable "force_destroy" {
   description = "A boolean that indicates all objects (including any locked objects) should be deleted from the bucket so that the bucket can be destroyed without error. These objects are not recoverable."
   default     = false
 }
+
+variable "sse_algorithm" {
+  type        = string
+  description = "The server-side encryption algorithm to use"
+  default     = "aws:kms"
+}

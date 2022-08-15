@@ -1,4 +1,5 @@
 # Modernisation Platform Terraform S3 Bucket Module
+
 [![repo standards badge](https://img.shields.io/badge/dynamic/json?color=blue&style=for-the-badge&logo=github&label=MoJ%20Compliant&query=%24.data%5B%3F%28%40.name%20%3D%3D%20%22modernisation-platform-terraform-s3-bucket%22%29%5D.status&url=https%3A%2F%2Foperations-engineering-reports.cloud-platform.service.justice.gov.uk%2Fgithub_repositories)](https://operations-engineering-reports.cloud-platform.service.justice.gov.uk/github_repositories#modernisation-platform-terraform-s3-bucket "Link to report")
 
 A Terraform module to standardise S3 buckets with sensible defaults.
@@ -11,7 +12,7 @@ module "s3-bucket" {
 
   bucket_prefix                            = "s3-bucket"
   versioning_enabled                       = false
-  
+
   # Refer to the below section "Replication" before enabling replication
   replication_enabled                      = false
   # Below three variables and providers configuration are only relevant if 'replication_enabled' is set to true
@@ -24,7 +25,7 @@ module "s3-bucket" {
     # Platform team to add a new provider for the additional Region.
     aws.bucket-replication = aws
   }
-  
+
   lifecycle_rule = [
     {
       id      = "main"
@@ -130,6 +131,7 @@ No modules.
 | <a name="input_replication_enabled"></a> [replication\_enabled](#input\_replication\_enabled) | Activate S3 bucket replication | `bool` | `false` | no |
 | <a name="input_replication_region"></a> [replication\_region](#input\_replication\_region) | Region to create S3 replication bucket | `string` | `"eu-west-2"` | no |
 | <a name="input_replication_role_arn"></a> [replication\_role\_arn](#input\_replication\_role\_arn) | Role ARN to access S3 and replicate objects | `string` | `""` | no |
+| <a name="input_sse_algorithm"></a> [sse\_algorithm](#input\_sse\_algorithm) | The server-side encryption algorithm to use | `string` | `"aws:kms"` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | Tags to apply to resources, where applicable | `map(any)` | n/a | yes |
 | <a name="input_versioning_enabled"></a> [versioning\_enabled](#input\_versioning\_enabled) | Activate S3 bucket versioning | `bool` | `true` | no |
 | <a name="input_versioning_enabled_on_replication_bucket"></a> [versioning\_enabled\_on\_replication\_bucket](#input\_versioning\_enabled\_on\_replication\_bucket) | Activate S3 bucket versioning on replication bucket | `bool` | `false` | no |
@@ -139,9 +141,11 @@ No modules.
 | Name | Description |
 |------|-------------|
 | <a name="output_bucket"></a> [bucket](#output\_bucket) | Direct aws\_s3\_bucket resource with all attributes |
+| <a name="output_bucket_server_side_encryption"></a> [bucket\_server\_side\_encryption](#output\_bucket\_server\_side\_encryption) | Bucket server-side encryption configuration |
 <!-- END_TF_DOCS -->
 
 ## Upgrading from versions below 6.0.0
+
 Version 6.0.0 of this module uses the Hashicorp AWS Provider 4.0 as a minimum.
 AWS Provider 4.0 introduces some significant changes to the `s3_bucket` resources as documented [here](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/guides/version-4-upgrade).
 
@@ -149,22 +153,28 @@ We have worked to make the change as seamless to your code as possible, but you 
 `Status` from a boolean value of `true | false` to a string value of `Enabled | Disabled`.
 
 ## Bucket policies
+
 Regardless of whether a custom bucket policy is set as part of this module, we will always include policy `statement` to require the use of SecureTransport (SSL) for every action on and every resource within the bucket.
 
 ## Replication
+
 If replication is enabled then:
+
 - 'custom_replication_kms_key' variable is required, this key must allow access for S3
 - 'versioning_enabled' variable must be set to enabled
 - 'replication_role_arn' variable must be set to relevant arn for iam role
 
 There are two ways to create the IAM role for replication:
+
 - use the [modernisation-platform-terraform-s3-bucket-replication-role](https://github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket-replication-role) to configure a role based on bucket ARNs
 - create one yourself, by following the [Setting up permissions for replication](https://docs.aws.amazon.com/AmazonS3/latest/dev/setting-repl-config-perm-overview.html) guide on AWS
 
 ## Outputs
+
 See the [aws_s3_bucket](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket#attributes-reference) attributes reference. This module outputs the resource map, i.e. `aws_s3_bucket`, so you can access each attribute from Terraform directly under the `bucket` output, e.g. `module.s3-bucket.bucket.id` for the bucket ID.
 
 ## Looking for issues?
+
 If you're looking to raise an issue with this module, please create a new issue in the [Modernisation Platform repository](https://github.com/ministryofjustice/modernisation-platform/issues).
 
 ## S3 bucket versioning notes
