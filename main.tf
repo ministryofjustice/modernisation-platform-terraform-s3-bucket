@@ -6,6 +6,11 @@ data "aws_caller_identity" "current" {}
 # Versioning handled by aws_s3_bucket_versioning resource
 # tfsec:ignore:aws-s3-enable-bucket-encryption tfsec:ignore:aws-s3-encryption-customer-key tfsec:ignore:aws-s3-enable-bucket-logging tfsec:ignore:aws-s3-enable-versioning
 resource "aws_s3_bucket" "default" {
+  #checkov:skip=CKV_AWS_144: "Replication handled in replication configuration resource"
+  #checkov:skip=CKV_AWS_18: "Logging handled in logging configuration resource"
+  #checkov:skip=CKV_AWS_21: "Versioning handled in Versioning configuration resource"
+  #checkov:skip=CKV_AWS_145: "Encryption handled in encryption configuration resource"
+
   bucket        = var.bucket_name
   bucket_prefix = var.bucket_prefix
   force_destroy = var.force_destroy
@@ -142,7 +147,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "default" {
   bucket = aws_s3_bucket.default.id
   rule {
     apply_server_side_encryption_by_default {
-      sse_algorithm     = "aws:kms"
+      sse_algorithm     = var.sse_algorithm
       kms_master_key_id = (var.custom_kms_key != "") ? var.custom_kms_key : ""
     }
   }
@@ -183,6 +188,11 @@ data "aws_iam_policy_document" "default" {
 # Logging not deemed required for replication bucket
 # tfsec:ignore:aws-s3-enable-bucket-logging
 resource "aws_s3_bucket" "replication" {
+  #checkov:skip=CKV_AWS_144: "Replication not required on replication bucket"
+  #checkov:skip=CKV_AWS_18: "Logging handled in logging configuration resource"
+  #checkov:skip=CKV_AWS_21: "Versioning handled in versioning configuration resource"
+  #checkov:skip=CKV_AWS_145: "Encryption handled in encryption configuration resource"
+
   count = var.replication_enabled ? 1 : 0
 
   provider      = aws.bucket-replication
@@ -274,7 +284,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "replication" {
   bucket   = aws_s3_bucket.replication[count.index].id
   rule {
     apply_server_side_encryption_by_default {
-      sse_algorithm     = "aws:kms"
+      sse_algorithm     = var.sse_algorithm
       kms_master_key_id = (var.custom_replication_kms_key != "") ? var.custom_replication_kms_key : ""
     }
   }

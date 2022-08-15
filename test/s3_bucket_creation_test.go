@@ -24,6 +24,14 @@ func TestS3Creation(t *testing.T) {
 	// Run `terraform output` to get the value of an output variable
 	bucketID := terraform.Output(t, terraformOptions, "bucket_id")
 
+	// Check aws:kms as default
+	bucketAWSKMS := terraform.Output(t, terraformOptions, "bucket_awskms")
+	assert.Regexp(t, regexp.MustCompile(`aws:kms`), bucketAWSKMS)
+
+	// Check AES256 possible
+	bucketAES256 := terraform.Output(t, terraformOptions, "bucket_aes256")
+	assert.Regexp(t, regexp.MustCompile(`AES256`), bucketAES256)
+
 	assert.Regexp(t, regexp.MustCompile(`^arn:aws:s3:::s3-bucket-*`), bucketArn)
 	// Verify that our Bucket has a policy attached
 	aws.AssertS3BucketPolicyExists(t, awsRegion, bucketID)
