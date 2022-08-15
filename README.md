@@ -1,4 +1,5 @@
 # Modernisation Platform Terraform S3 Bucket Module
+
 [![repo standards badge](https://img.shields.io/badge/dynamic/json?color=blue&style=for-the-badge&logo=github&label=MoJ%20Compliant&query=%24.data%5B%3F%28%40.name%20%3D%3D%20%22modernisation-platform-terraform-s3-bucket%22%29%5D.status&url=https%3A%2F%2Foperations-engineering-reports.cloud-platform.service.justice.gov.uk%2Fgithub_repositories)](https://operations-engineering-reports.cloud-platform.service.justice.gov.uk/github_repositories#modernisation-platform-terraform-s3-bucket "Link to report")
 
 A Terraform module to standardise S3 buckets with sensible defaults.
@@ -11,7 +12,7 @@ module "s3-bucket" {
 
   bucket_prefix                            = "s3-bucket"
   versioning_enabled                       = false
-  
+
   # Refer to the below section "Replication" before enabling replication
   replication_enabled                      = false
   # Below three variables and providers configuration are only relevant if 'replication_enabled' is set to true
@@ -24,7 +25,7 @@ module "s3-bucket" {
     # Platform team to add a new provider for the additional Region.
     aws.bucket-replication = aws
   }
-  
+
   lifecycle_rule = [
     {
       id      = "main"
@@ -71,19 +72,20 @@ module "s3-bucket" {
 ```
 
 <!-- BEGIN_TF_DOCS -->
+
 ## Requirements
 
-| Name | Version |
-|------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0.1 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 4.0 |
+| Name                                                                     | Version  |
+| ------------------------------------------------------------------------ | -------- |
+| <a name="requirement_terraform"></a> [terraform](#requirement_terraform) | >= 1.0.1 |
+| <a name="requirement_aws"></a> [aws](#requirement_aws)                   | ~> 4.0   |
 
 ## Providers
 
-| Name | Version |
-|------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 4.0 |
-| <a name="provider_aws.bucket-replication"></a> [aws.bucket-replication](#provider\_aws.bucket-replication) | ~> 4.0 |
+| Name                                                                                                      | Version |
+| --------------------------------------------------------------------------------------------------------- | ------- |
+| <a name="provider_aws"></a> [aws](#provider_aws)                                                          | ~> 4.0  |
+| <a name="provider_aws.bucket-replication"></a> [aws.bucket-replication](#provider_aws.bucket-replication) | ~> 4.0  |
 
 ## Modules
 
@@ -91,59 +93,61 @@ No modules.
 
 ## Resources
 
-| Name | Type |
-|------|------|
-| [aws_s3_bucket.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket) | resource |
-| [aws_s3_bucket.replication](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket) | resource |
-| [aws_s3_bucket_acl.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_acl) | resource |
-| [aws_s3_bucket_acl.replication](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_acl) | resource |
-| [aws_s3_bucket_lifecycle_configuration.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_lifecycle_configuration) | resource |
-| [aws_s3_bucket_lifecycle_configuration.replication](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_lifecycle_configuration) | resource |
-| [aws_s3_bucket_logging.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_logging) | resource |
-| [aws_s3_bucket_policy.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy) | resource |
-| [aws_s3_bucket_policy.replication](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy) | resource |
-| [aws_s3_bucket_public_access_block.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_public_access_block) | resource |
-| [aws_s3_bucket_public_access_block.replication](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_public_access_block) | resource |
-| [aws_s3_bucket_replication_configuration.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_replication_configuration) | resource |
-| [aws_s3_bucket_server_side_encryption_configuration.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_server_side_encryption_configuration) | resource |
-| [aws_s3_bucket_server_side_encryption_configuration.replication](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_server_side_encryption_configuration) | resource |
-| [aws_s3_bucket_versioning.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_versioning) | resource |
-| [aws_s3_bucket_versioning.replication](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_versioning) | resource |
-| [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
-| [aws_iam_policy_document.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
-| [aws_iam_policy_document.replication](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| Name                                                                                                                                                                                         | Type        |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| [aws_s3_bucket.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket)                                                                               | resource    |
+| [aws_s3_bucket.replication](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket)                                                                           | resource    |
+| [aws_s3_bucket_acl.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_acl)                                                                       | resource    |
+| [aws_s3_bucket_acl.replication](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_acl)                                                                   | resource    |
+| [aws_s3_bucket_lifecycle_configuration.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_lifecycle_configuration)                               | resource    |
+| [aws_s3_bucket_lifecycle_configuration.replication](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_lifecycle_configuration)                           | resource    |
+| [aws_s3_bucket_logging.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_logging)                                                               | resource    |
+| [aws_s3_bucket_policy.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy)                                                                 | resource    |
+| [aws_s3_bucket_policy.replication](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy)                                                             | resource    |
+| [aws_s3_bucket_public_access_block.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_public_access_block)                                       | resource    |
+| [aws_s3_bucket_public_access_block.replication](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_public_access_block)                                   | resource    |
+| [aws_s3_bucket_replication_configuration.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_replication_configuration)                           | resource    |
+| [aws_s3_bucket_server_side_encryption_configuration.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_server_side_encryption_configuration)     | resource    |
+| [aws_s3_bucket_server_side_encryption_configuration.replication](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_server_side_encryption_configuration) | resource    |
+| [aws_s3_bucket_versioning.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_versioning)                                                         | resource    |
+| [aws_s3_bucket_versioning.replication](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_versioning)                                                     | resource    |
+| [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity)                                                                | data source |
+| [aws_iam_policy_document.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document)                                                        | data source |
+| [aws_iam_policy_document.replication](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document)                                                    | data source |
 
 ## Inputs
 
-| Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
-| <a name="input_acl"></a> [acl](#input\_acl) | Canned ACL to use on the bucket | `string` | `"private"` | no |
-| <a name="input_bucket_name"></a> [bucket\_name](#input\_bucket\_name) | Please use bucket\_prefix instead of bucket\_name to ensure a globally unique name. | `string` | `null` | no |
-| <a name="input_bucket_policy"></a> [bucket\_policy](#input\_bucket\_policy) | JSON for the bucket policy | `list(string)` | <pre>[<br>  "{}"<br>]</pre> | no |
-| <a name="input_bucket_prefix"></a> [bucket\_prefix](#input\_bucket\_prefix) | Bucket prefix, which will include a randomised suffix to ensure globally unique names | `string` | `null` | no |
-| <a name="input_custom_kms_key"></a> [custom\_kms\_key](#input\_custom\_kms\_key) | KMS key ARN to use | `string` | `""` | no |
-| <a name="input_custom_replication_kms_key"></a> [custom\_replication\_kms\_key](#input\_custom\_replication\_kms\_key) | KMS key ARN to use for replication to eu-west-2 | `string` | `""` | no |
-| <a name="input_force_destroy"></a> [force\_destroy](#input\_force\_destroy) | A boolean that indicates all objects (including any locked objects) should be deleted from the bucket so that the bucket can be destroyed without error. These objects are not recoverable. | `bool` | `false` | no |
-| <a name="input_lifecycle_rule"></a> [lifecycle\_rule](#input\_lifecycle\_rule) | List of maps containing configuration of object lifecycle management. | `any` | <pre>[<br>  {<br>    "enabled": "Enabled",<br>    "expiration": {<br>      "days": 730<br>    },<br>    "id": "main",<br>    "noncurrent_version_expiration": {<br>      "days": 730<br>    },<br>    "noncurrent_version_transition": [<br>      {<br>        "days": 90,<br>        "storage_class": "STANDARD_IA"<br>      },<br>      {<br>        "days": 365,<br>        "storage_class": "GLACIER"<br>      }<br>    ],<br>    "prefix": "",<br>    "tags": {<br>      "autoclean": "true",<br>      "rule": "log"<br>    },<br>    "transition": [<br>      {<br>        "days": 90,<br>        "storage_class": "STANDARD_IA"<br>      },<br>      {<br>        "days": 365,<br>        "storage_class": "GLACIER"<br>      }<br>    ]<br>  }<br>]</pre> | no |
-| <a name="input_log_bucket"></a> [log\_bucket](#input\_log\_bucket) | Bucket for server access logging, if applicable | `string` | `""` | no |
-| <a name="input_log_prefix"></a> [log\_prefix](#input\_log\_prefix) | Prefix to use for server access logging, if applicable | `string` | `""` | no |
-| <a name="input_replication_enabled"></a> [replication\_enabled](#input\_replication\_enabled) | Activate S3 bucket replication | `bool` | `false` | no |
-| <a name="input_replication_region"></a> [replication\_region](#input\_replication\_region) | Region to create S3 replication bucket | `string` | `"eu-west-2"` | no |
-| <a name="input_replication_role_arn"></a> [replication\_role\_arn](#input\_replication\_role\_arn) | Role ARN to access S3 and replicate objects | `string` | `""` | no |
-| <a name="input_sse_algorithm"></a> [sse\_algorithm](#input\_sse\_algorithm) | The server-side encryption algorithm to use | `string` | `"aws:kms"` | no |
-| <a name="input_tags"></a> [tags](#input\_tags) | Tags to apply to resources, where applicable | `map(any)` | n/a | yes |
-| <a name="input_versioning_enabled"></a> [versioning\_enabled](#input\_versioning\_enabled) | Activate S3 bucket versioning | `bool` | `true` | no |
-| <a name="input_versioning_enabled_on_replication_bucket"></a> [versioning\_enabled\_on\_replication\_bucket](#input\_versioning\_enabled\_on\_replication\_bucket) | Activate S3 bucket versioning on replication bucket | `bool` | `false` | no |
+| Name                                                                                                                                                      | Description                                                                                                                                                                                 | Type           | Default                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | Required |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------: |
+| <a name="input_acl"></a> [acl](#input_acl)                                                                                                                | Canned ACL to use on the bucket                                                                                                                                                             | `string`       | `"private"`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |    no    |
+| <a name="input_bucket_name"></a> [bucket_name](#input_bucket_name)                                                                                        | Please use bucket_prefix instead of bucket_name to ensure a globally unique name.                                                                                                           | `string`       | `null`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |    no    |
+| <a name="input_bucket_policy"></a> [bucket_policy](#input_bucket_policy)                                                                                  | JSON for the bucket policy                                                                                                                                                                  | `list(string)` | <pre>[<br> "{}"<br>]</pre>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |    no    |
+| <a name="input_bucket_prefix"></a> [bucket_prefix](#input_bucket_prefix)                                                                                  | Bucket prefix, which will include a randomised suffix to ensure globally unique names                                                                                                       | `string`       | `null`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |    no    |
+| <a name="input_custom_kms_key"></a> [custom_kms_key](#input_custom_kms_key)                                                                               | KMS key ARN to use                                                                                                                                                                          | `string`       | `""`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |    no    |
+| <a name="input_custom_replication_kms_key"></a> [custom_replication_kms_key](#input_custom_replication_kms_key)                                           | KMS key ARN to use for replication to eu-west-2                                                                                                                                             | `string`       | `""`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |    no    |
+| <a name="input_force_destroy"></a> [force_destroy](#input_force_destroy)                                                                                  | A boolean that indicates all objects (including any locked objects) should be deleted from the bucket so that the bucket can be destroyed without error. These objects are not recoverable. | `bool`         | `false`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |    no    |
+| <a name="input_lifecycle_rule"></a> [lifecycle_rule](#input_lifecycle_rule)                                                                               | List of maps containing configuration of object lifecycle management.                                                                                                                       | `any`          | <pre>[<br> {<br> "enabled": "Enabled",<br> "expiration": {<br> "days": 730<br> },<br> "id": "main",<br> "noncurrent_version_expiration": {<br> "days": 730<br> },<br> "noncurrent_version_transition": [<br> {<br> "days": 90,<br> "storage_class": "STANDARD_IA"<br> },<br> {<br> "days": 365,<br> "storage_class": "GLACIER"<br> }<br> ],<br> "prefix": "",<br> "tags": {<br> "autoclean": "true",<br> "rule": "log"<br> },<br> "transition": [<br> {<br> "days": 90,<br> "storage_class": "STANDARD_IA"<br> },<br> {<br> "days": 365,<br> "storage_class": "GLACIER"<br> }<br> ]<br> }<br>]</pre> |    no    |
+| <a name="input_log_bucket"></a> [log_bucket](#input_log_bucket)                                                                                           | Bucket for server access logging, if applicable                                                                                                                                             | `string`       | `""`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |    no    |
+| <a name="input_log_prefix"></a> [log_prefix](#input_log_prefix)                                                                                           | Prefix to use for server access logging, if applicable                                                                                                                                      | `string`       | `""`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |    no    |
+| <a name="input_replication_enabled"></a> [replication_enabled](#input_replication_enabled)                                                                | Activate S3 bucket replication                                                                                                                                                              | `bool`         | `false`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |    no    |
+| <a name="input_replication_region"></a> [replication_region](#input_replication_region)                                                                   | Region to create S3 replication bucket                                                                                                                                                      | `string`       | `"eu-west-2"`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |    no    |
+| <a name="input_replication_role_arn"></a> [replication_role_arn](#input_replication_role_arn)                                                             | Role ARN to access S3 and replicate objects                                                                                                                                                 | `string`       | `""`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |    no    |
+| <a name="input_sse_algorithm"></a> [sse_algorithm](#input_sse_algorithm)                                                                                  | The server-side encryption algorithm to use                                                                                                                                                 | `string`       | `"aws:kms"`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |    no    |
+| <a name="input_tags"></a> [tags](#input_tags)                                                                                                             | Tags to apply to resources, where applicable                                                                                                                                                | `map(any)`     | n/a                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |   yes    |
+| <a name="input_versioning_enabled"></a> [versioning_enabled](#input_versioning_enabled)                                                                   | Activate S3 bucket versioning                                                                                                                                                               | `bool`         | `true`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |    no    |
+| <a name="input_versioning_enabled_on_replication_bucket"></a> [versioning_enabled_on_replication_bucket](#input_versioning_enabled_on_replication_bucket) | Activate S3 bucket versioning on replication bucket                                                                                                                                         | `bool`         | `false`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |    no    |
 
 ## Outputs
 
-| Name | Description |
-|------|-------------|
-| <a name="output_bucket"></a> [bucket](#output\_bucket) | Direct aws\_s3\_bucket resource with all attributes |
-| <a name="output_bucket_server_side_encryption"></a> [bucket\_server\_side\_encryption](#output\_bucket\_server\_side\_encryption) | Bucket server-side encryption configuration |
+| Name                                                                                                                       | Description                                       |
+| -------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| <a name="output_bucket"></a> [bucket](#output_bucket)                                                                      | Direct aws_s3_bucket resource with all attributes |
+| <a name="output_bucket_server_side_encryption"></a> [bucket_server_side_encryption](#output_bucket_server_side_encryption) | Bucket server-side encryption configuration       |
+
 <!-- END_TF_DOCS -->
 
 ## Upgrading from versions below 6.0.0
+
 Version 6.0.0 of this module uses the Hashicorp AWS Provider 4.0 as a minimum.
 AWS Provider 4.0 introduces some significant changes to the `s3_bucket` resources as documented [here](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/guides/version-4-upgrade).
 
@@ -151,22 +155,28 @@ We have worked to make the change as seamless to your code as possible, but you 
 `Status` from a boolean value of `true | false` to a string value of `Enabled | Disabled`.
 
 ## Bucket policies
+
 Regardless of whether a custom bucket policy is set as part of this module, we will always include policy `statement` to require the use of SecureTransport (SSL) for every action on and every resource within the bucket.
 
 ## Replication
+
 If replication is enabled then:
+
 - 'custom_replication_kms_key' variable is required, this key must allow access for S3
 - 'versioning_enabled' variable must be set to enabled
 - 'replication_role_arn' variable must be set to relevant arn for iam role
 
 There are two ways to create the IAM role for replication:
+
 - use the [modernisation-platform-terraform-s3-bucket-replication-role](https://github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket-replication-role) to configure a role based on bucket ARNs
 - create one yourself, by following the [Setting up permissions for replication](https://docs.aws.amazon.com/AmazonS3/latest/dev/setting-repl-config-perm-overview.html) guide on AWS
 
 ## Outputs
+
 See the [aws_s3_bucket](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket#attributes-reference) attributes reference. This module outputs the resource map, i.e. `aws_s3_bucket`, so you can access each attribute from Terraform directly under the `bucket` output, e.g. `module.s3-bucket.bucket.id` for the bucket ID.
 
 ## Looking for issues?
+
 If you're looking to raise an issue with this module, please create a new issue in the [Modernisation Platform repository](https://github.com/ministryofjustice/modernisation-platform/issues).
 
 ## S3 bucket versioning notes
