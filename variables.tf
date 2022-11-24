@@ -22,12 +22,6 @@ variable "replication_region" {
   default     = "eu-west-2"
 }
 
-variable "versioning_enabled_on_replication_bucket" {
-  type        = bool
-  description = "Activate S3 bucket versioning on replication bucket"
-  default     = false
-}
-
 variable "bucket_policy" {
   type        = list(string)
   description = "JSON for the bucket policy"
