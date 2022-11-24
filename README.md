@@ -136,7 +136,6 @@ No modules.
 | <a name="input_sse_algorithm"></a> [sse\_algorithm](#input\_sse\_algorithm) | The server-side encryption algorithm to use | `string` | `"aws:kms"` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | Tags to apply to resources, where applicable | `map(any)` | n/a | yes |
 | <a name="input_versioning_enabled"></a> [versioning\_enabled](#input\_versioning\_enabled) | Activate S3 bucket versioning | `bool` | `true` | no |
-| <a name="input_versioning_enabled_on_replication_bucket"></a> [versioning\_enabled\_on\_replication\_bucket](#input\_versioning\_enabled\_on\_replication\_bucket) | Activate S3 bucket versioning on replication bucket | `bool` | `false` | no |
 
 ## Outputs
 
