@@ -160,8 +160,37 @@ resource "aws_s3_bucket_versioning" "default" {
   }
 }
 
+data "aws_iam_policy_document" "bucket_policy_v2" {
+  dynamic "statement" {
+    for_each = var.bucket_policy_v2
+    content {
+      effect  = statement.value.effect
+      actions = statement.value.actions
+      resources = [
+        aws_s3_bucket.default.arn,
+        "${aws_s3_bucket.default.arn}/*"
+      ]
+      dynamic "principals" {
+        for_each = statement.value.principals != null ? [statement.value.principals] : []
+        content {
+          type        = principals.value.type
+          identifiers = principals.value.identifiers
+        }
+      }
+      dynamic "condition" {
+        for_each = statement.value.conditions
+        content {
+          test     = condition.value.test
+          variable = condition.value.variable
+          values   = condition.value.values
+        }
+      }
+    }
+  }
+}
+
 data "aws_iam_policy_document" "default" {
-  override_policy_documents = var.bucket_policy
+  override_policy_documents = concat(var.bucket_policy, [data.aws_iam_policy_document.bucket_policy_v2.json])
 
   statement {
     effect  = "Deny"
