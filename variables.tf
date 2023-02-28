@@ -28,6 +28,24 @@ variable "bucket_policy" {
   default     = ["{}"]
 }
 
+variable "bucket_policy_v2" {
+  type = list(object({
+    effect  = string
+    actions = list(string)
+    principals = optional(object({
+      type        = string
+      identifiers = list(string)
+    }))
+    conditions = optional(list(object({
+      test     = string
+      variable = string
+      values   = list(string)
+    })), [])
+  }))
+  description = "Alternative to bucket_policy.  Define policies directly without needing to know the bucket ARN"
+  default     = []
+}
+
 variable "bucket_prefix" {
   type        = string
   description = "Bucket prefix, which will include a randomised suffix to ensure globally unique names"
