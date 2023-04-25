@@ -1,7 +1,7 @@
 variable "use_private_acl" {
   type        = bool
   description = "Use canned 'private' ACL on the bucket instead of BucketOwnerEnforced ownership controls"
-  default     = false
+  default     = true
 }
 
 variable "versioning_enabled" {
