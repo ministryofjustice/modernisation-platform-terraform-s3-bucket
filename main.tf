@@ -21,7 +21,7 @@ resource "aws_s3_bucket" "default" {
 resource "aws_s3_bucket_ownership_controls" "default" {
   bucket = aws_s3_bucket.default.id
   rule {
-    object_ownership = var.use_private_acl ? "ObjectWriter" : "BucketOwnerEnforced"
+    object_ownership = var.use_private_acl ? "BucketOwnerEnforced" : "BucketOwnerEnforced"
   }
 }
 
