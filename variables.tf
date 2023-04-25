@@ -4,6 +4,12 @@ variable "acl" {
   default     = "private"
 }
 
+variable "ownership_controls" {
+  type        = string
+  description = "Bucket Ownership Controls. For use WITH acl above.  Use 'BucketOwnerPreferred' to allow bucket ownership to be transferred to the account creating the bucket, or 'ObjectWriter' to allow bucket ownership to be transferred to the account creating the object."
+  default     = "ObjectWriter"
+}
+
 variable "versioning_enabled" {
   type        = bool
   description = "Activate S3 bucket versioning"
