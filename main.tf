@@ -24,6 +24,13 @@ resource "aws_s3_bucket_acl" "default" {
   acl    = var.acl
 }
 
+resource "aws_s3_bucket_ownership_controls" "default" {
+  bucket = aws_s3_bucket.default.id
+  rule {
+    object_ownership = "BucketOwnerEnforced"
+  }
+}
+
 # Configure bucket lifecycle rules
 resource "aws_s3_bucket_lifecycle_configuration" "default" {
   bucket = aws_s3_bucket.default.id
