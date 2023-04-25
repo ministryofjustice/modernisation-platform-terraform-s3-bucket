@@ -1,12 +1,12 @@
 variable "acl" {
   type        = string
-  description = "Use canned 'private' ACL on the bucket instead of BucketOwnerEnforced ownership controls"
+  description = "Use canned ACL on the bucket instead of BucketOwnerEnforced ownership controls. var.ownership_controls must be set to corresponding value below."
   default     = "private"
 }
 
 variable "ownership_controls" {
   type        = string
-  description = "Bucket Ownership Controls. For use WITH acl above.  Use 'BucketOwnerPreferred' to allow bucket ownership to be transferred to the account creating the bucket, or 'ObjectWriter' to allow bucket ownership to be transferred to the account creating the object."
+  description = "Bucket Ownership Controls - for use WITH acl var above options are 'BucketOwnerPreferred' or 'ObjectWriter'. To disable ACLs and use new AWS recommended controls set this to 'BucketOwnerEnforced' and which will disabled ACLs and ignore var.acl"
   default     = "ObjectWriter"
 }
 
