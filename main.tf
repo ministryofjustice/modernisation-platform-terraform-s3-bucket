@@ -20,14 +20,15 @@ resource "aws_s3_bucket" "default" {
 
 # Configure bucket ACL
 resource "aws_s3_bucket_acl" "default" {
+  count  = var.use_private_acl ? 1 : 0
   bucket = aws_s3_bucket.default.id
-  acl    = var.acl
+  acl    = "private"
 }
 
 resource "aws_s3_bucket_ownership_controls" "default" {
   bucket = aws_s3_bucket.default.id
   rule {
-    object_ownership = "BucketOwnerEnforced"
+    object_ownership = var.use_private_acl ? "BucketOwnerPreferred" : "BucketOwnerEnforced"
   }
 }
 

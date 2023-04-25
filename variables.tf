@@ -1,7 +1,7 @@
-variable "acl" {
-  type        = string
-  description = "Canned ACL to use on the bucket"
-  default     = "private"
+variable "use_private_acl" {
+  type        = bool
+  description = "Use canned 'private' ACL on the bucket instead of BucketOwnerEnforced ownership controls"
+  default     = false
 }
 
 variable "versioning_enabled" {
