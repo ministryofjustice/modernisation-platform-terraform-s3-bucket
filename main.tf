@@ -18,18 +18,18 @@ resource "aws_s3_bucket" "default" {
   tags = var.tags
 }
 
+resource "aws_s3_bucket_ownership_controls" "default" {
+  bucket = aws_s3_bucket.default.id
+  rule {
+    object_ownership = var.use_private_acl ? "ObjectWriter" : "BucketOwnerEnforced"
+  }
+}
+
 # Configure bucket ACL
 resource "aws_s3_bucket_acl" "default" {
   count  = var.use_private_acl ? 1 : 0
   bucket = aws_s3_bucket.default.id
   acl    = "private"
-}
-
-resource "aws_s3_bucket_ownership_controls" "default" {
-  bucket = aws_s3_bucket.default.id
-  rule {
-    object_ownership = var.use_private_acl ? "BucketOwnerPreferred" : "BucketOwnerEnforced"
-  }
 }
 
 # Configure bucket lifecycle rules
