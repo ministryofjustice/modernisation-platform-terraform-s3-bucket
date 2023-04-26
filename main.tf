@@ -18,10 +18,21 @@ resource "aws_s3_bucket" "default" {
   tags = var.tags
 }
 
+resource "aws_s3_bucket_ownership_controls" "default" {
+  bucket = aws_s3_bucket.default.id
+  rule {
+    object_ownership = var.ownership_controls
+  }
+}
+
 # Configure bucket ACL
 resource "aws_s3_bucket_acl" "default" {
+  count  = var.ownership_controls == "BucketOwnerEnforced" ? 0 : 1
   bucket = aws_s3_bucket.default.id
   acl    = var.acl
+  depends_on = [
+    aws_s3_bucket_ownership_controls.default
+  ]
 }
 
 # Configure bucket lifecycle rules
