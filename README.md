@@ -10,24 +10,24 @@ A Terraform module to standardise S3 buckets with sensible defaults.
 
 ```
 module "s3-bucket" {
-  source = "github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket?ref=v5.0.1"
+    source = "github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket?ref=v7.0.0"
 
   bucket_prefix                            = "s3-bucket"
-  versioning_enabled                       = false
+  versioning_enabled                       = true
 
   # to disable ACLs in preference of BucketOwnership controls as per https://aws.amazon.com/blogs/aws/heads-up-amazon-s3-security-changes-are-coming-in-april-of-2023/ set:
-  # ownership_controls = "BucketOwnerEnforced"
+  ownership_controls = "BucketOwnerEnforced"
 
   # Refer to the below section "Replication" before enabling replication
   replication_enabled                      = false
-  # Below three variables and providers configuration are only relevant if 'replication_enabled' is set to true
-  replication_region                       = "eu-west-2"
-  versioning_enabled                       = false
-  replication_role_arn                     = module.s3-bucket-replication-role.role.arn
+  # Below two variables and providers configuration are only relevant if 'replication_enabled' is set to true
+  # replication_region                       = "eu-west-2"
+  # replication_role_arn                     = module.s3-bucket-replication-role.role.arn
   providers = {
     # Here we use the default provider Region for replication. Destination buckets can be within the same Region as the
     # source bucket. On the other hand, if you need to enable cross-region replication, please contact the Modernisation
     # Platform team to add a new provider for the additional Region.
+    # Leave this provider block in even if you are not using replication
     aws.bucket-replication = aws
   }
 
