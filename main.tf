@@ -10,6 +10,7 @@ resource "aws_s3_bucket" "default" {
   #checkov:skip=CKV_AWS_18: "Logging handled in logging configuration resource"
   #checkov:skip=CKV_AWS_21: "Versioning handled in Versioning configuration resource"
   #checkov:skip=CKV_AWS_145: "Encryption handled in encryption configuration resource"
+  #checkov:skip=CKV2_AWS_62: "Ensure S3 buckets should have event notifications enabled"
 
   bucket        = var.bucket_name
   bucket_prefix = var.bucket_prefix
@@ -232,6 +233,7 @@ resource "aws_s3_bucket" "replication" {
   #checkov:skip=CKV_AWS_18: "Logging handled in logging configuration resource"
   #checkov:skip=CKV_AWS_21: "Versioning handled in versioning configuration resource"
   #checkov:skip=CKV_AWS_145: "Encryption handled in encryption configuration resource"
+  #checkov:skip=CKV2_AWS_62: "Ensure S3 buckets should have event notifications enabled"
 
   count = var.replication_enabled ? 1 : 0
 
