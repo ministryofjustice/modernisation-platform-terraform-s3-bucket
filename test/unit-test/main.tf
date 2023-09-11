@@ -1,6 +1,6 @@
 module "s3" {
 
-#checkov:skip=CKV_AWS_300: "Ensure S3 lifecycle configuration sets period for aborting failed uploads"
+  #checkov:skip=CKV_AWS_300: "Ensure S3 lifecycle configuration sets period for aborting failed uploads"
 
   source = "../.."
   providers = {
