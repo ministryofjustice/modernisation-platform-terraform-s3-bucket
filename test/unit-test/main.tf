@@ -1,5 +1,5 @@
 module "s3" {
-# This is not needed in our tests
+  # This is not needed in our tests
   #checkov:skip=CKV_AWS_300: "Ensure S3 lifecycle configuration sets period for aborting failed uploads"
   source = "../.."
   providers = {
