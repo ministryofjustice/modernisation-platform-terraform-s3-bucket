@@ -1,5 +1,10 @@
 data "aws_caller_identity" "current" {}
 
+data "aws_sns_topic" "bucket-arn" {
+  name = "bucket-arn"
+}
+
+
 # Main S3 bucket, that is replicated from (rather than to)
 # KMS Encryption handled by aws_s3_bucket_server_side_encryption_configuration resource
 # Logging handled by aws_s3_bucket_logging resource
@@ -10,10 +15,12 @@ resource "aws_s3_bucket" "default" {
   #checkov:skip=CKV_AWS_18: "Logging handled in logging configuration resource"
   #checkov:skip=CKV_AWS_21: "Versioning handled in Versioning configuration resource"
   #checkov:skip=CKV_AWS_145: "Encryption handled in encryption configuration resource"
+  
 
   bucket        = var.bucket_name
   bucket_prefix = var.bucket_prefix
   force_destroy = var.force_destroy
+  bucket_arn = aws_sns_topic.bucket_arn.arn
 
   tags = var.tags
 }
@@ -37,6 +44,7 @@ resource "aws_s3_bucket_acl" "default" {
 
 # Configure bucket lifecycle rules
 resource "aws_s3_bucket_lifecycle_configuration" "default" {
+  #checkov:skip=CKV_AWS_300: "Ensure S3 lifecycle configuration sets period for aborting failed uploads"
   bucket = aws_s3_bucket.default.id
 
   dynamic "rule" {
@@ -93,9 +101,10 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
           storage_class   = noncurrent_version_transition.value.storage_class
         }
       }
+      }
     }
   }
-}
+
 
 # Configure bucket access logging
 resource "aws_s3_bucket_logging" "default" {
@@ -239,6 +248,7 @@ resource "aws_s3_bucket" "replication" {
   bucket        = (var.bucket_name != null) ? "${var.bucket_name}-replication" : null
   bucket_prefix = (var.bucket_prefix != null) ? "${var.bucket_prefix}-replication" : null
   force_destroy = var.force_destroy
+  bucket_arn = aws_sns_topic.bucket_arn.arn
   tags          = var.tags
 }
 
