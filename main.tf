@@ -104,7 +104,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
       }
     }
   }
-}
+
 
 # Configure bucket access logging
 resource "aws_s3_bucket_logging" "default" {
