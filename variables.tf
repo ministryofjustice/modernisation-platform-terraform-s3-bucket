@@ -153,12 +153,12 @@ variable "sns_arn" {
   type        = string
   description = "The arn for the SNS"
   default     = ""
-  }
+}
 
 variable "sqs_arn" {
   type        = string
   description = "The arn for the SNS"
   default     = ""
-  }
+}
 
 
