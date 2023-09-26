@@ -148,3 +148,17 @@ variable "sse_algorithm" {
   description = "The server-side encryption algorithm to use"
   default     = "aws:kms"
 }
+
+variable "sns_arn" {
+  type        = string
+  description = "The arn for the SNS"
+  default     = ""
+  }
+
+variable "sqs_arn" {
+  type        = string
+  description = "The arn for the SNS"
+  default     = ""
+  }
+
+

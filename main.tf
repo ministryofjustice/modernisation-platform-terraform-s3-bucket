@@ -1,9 +1,18 @@
 data "aws_caller_identity" "current" {}
 
-data "aws_sns_topic" "bucket-arn" {
-  name = "bucket-arn"
+resource "aws_s3_bucket" "bucket" {
+  bucket = aws_s3_bucket.bucket.id
 }
 
+resource "aws_s3_bucket_notification" "bucket_notification" {
+  bucket = aws_s3_bucket.bucket.id
+
+  topic {
+    topic_arn     = var.sns_arn
+    #events        = ["s3:ObjectCreated:*"]
+    #filter_suffix = ".log"
+  }
+}
 
 # Main S3 bucket, that is replicated from (rather than to)
 # KMS Encryption handled by aws_s3_bucket_server_side_encryption_configuration resource
@@ -11,17 +20,15 @@ data "aws_sns_topic" "bucket-arn" {
 # Versioning handled by aws_s3_bucket_versioning resource
 # tfsec:ignore:aws-s3-enable-bucket-encryption tfsec:ignore:aws-s3-encryption-customer-key tfsec:ignore:aws-s3-enable-bucket-logging tfsec:ignore:aws-s3-enable-versioning
 resource "aws_s3_bucket" "default" {
+  
   #checkov:skip=CKV_AWS_144: "Replication handled in replication configuration resource"
   #checkov:skip=CKV_AWS_18: "Logging handled in logging configuration resource"
   #checkov:skip=CKV_AWS_21: "Versioning handled in Versioning configuration resource"
   #checkov:skip=CKV_AWS_145: "Encryption handled in encryption configuration resource"
-  
 
   bucket        = var.bucket_name
   bucket_prefix = var.bucket_prefix
   force_destroy = var.force_destroy
-  bucket_arn = aws_sns_topic.bucket_arn.arn
-
   tags = var.tags
 }
 
@@ -248,7 +255,6 @@ resource "aws_s3_bucket" "replication" {
   bucket        = (var.bucket_name != null) ? "${var.bucket_name}-replication" : null
   bucket_prefix = (var.bucket_prefix != null) ? "${var.bucket_prefix}-replication" : null
   force_destroy = var.force_destroy
-  bucket_arn = aws_sns_topic.bucket_arn.arn
   tags          = var.tags
 }
 
@@ -263,6 +269,7 @@ resource "aws_s3_bucket_acl" "replication" {
 
 # Configure bucket lifecycle rules
 resource "aws_s3_bucket_lifecycle_configuration" "replication" {
+  #checkov:skip=CKV_AWS_300: "Ensure S3 lifecycle configuration sets period for aborting failed uploads"
   count = var.replication_enabled ? 1 : 0
 
   provider = aws.bucket-replication
