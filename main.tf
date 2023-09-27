@@ -16,7 +16,7 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
 # Versioning handled by aws_s3_bucket_versioning resource
 # tfsec:ignore:aws-s3-enable-bucket-encryption tfsec:ignore:aws-s3-encryption-customer-key tfsec:ignore:aws-s3-enable-bucket-logging tfsec:ignore:aws-s3-enable-versioning
 resource "aws_s3_bucket" "default" {
-  
+
   #checkov:skip=CKV_AWS_144: "Replication handled in replication configuration resource"
   #checkov:skip=CKV_AWS_18: "Logging handled in logging configuration resource"
   #checkov:skip=CKV_AWS_21: "Versioning handled in Versioning configuration resource"
@@ -25,7 +25,7 @@ resource "aws_s3_bucket" "default" {
   bucket        = var.bucket_name
   bucket_prefix = var.bucket_prefix
   force_destroy = var.force_destroy
-  tags = var.tags
+  tags          = var.tags
 }
 
 resource "aws_s3_bucket_ownership_controls" "default" {
@@ -104,9 +104,9 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
           storage_class   = noncurrent_version_transition.value.storage_class
         }
       }
-      }
     }
   }
+}
 
 
 # Configure bucket access logging

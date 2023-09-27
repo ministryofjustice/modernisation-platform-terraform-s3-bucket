@@ -159,6 +159,6 @@ variable "event" {
   type        = string
   description = "The event taking place"
   default     = ""
-  }
+}
 
 
