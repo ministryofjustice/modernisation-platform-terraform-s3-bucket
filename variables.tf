@@ -135,7 +135,7 @@ variable "replication_role_arn" {
 variable "tags" {
   type        = map(any)
   description = "Tags to apply to resources, where applicable"
- }
+}
 
 variable "force_destroy" {
   type        = bool
@@ -162,8 +162,8 @@ variable "event" {
 }
 
 variable "notification_enabled" {
-  type = bool
+  type        = bool
   description = "Activate notification bucket replication"
-  default = false
+  default     = false
 }
 
