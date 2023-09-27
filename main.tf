@@ -6,7 +6,6 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
   topic {
     topic_arn     = var.sns_arn
     events        = [var.event]
-    filter_suffix = ".log"
   }
 }
 
@@ -237,14 +236,13 @@ data "aws_iam_policy_document" "default" {
 }
 
 resource "aws_s3_bucket_notification" "bucket_notification2" {
-  bucket = aws_s3_bucket.replication.id
+  bucket = aws_s3_bucket.replication.id[count.var.notification_enabled]
 
-  count = var.notification_enabled ? 1 : 0
-
+  #count = var.notification_enabled ? 1 : 0
+ 
   topic {
     topic_arn     = var.sns_arn
     events        = [var.event]
-    filter_suffix = ".log"
   }
 }
 
