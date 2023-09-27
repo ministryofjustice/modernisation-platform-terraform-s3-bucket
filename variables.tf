@@ -161,4 +161,9 @@ variable "event" {
   default     = ""
 }
 
+variable "notification_enabled" {
+  type = bool
+  description = "Activate notification bucket replication"
+  default = false
+}
 
