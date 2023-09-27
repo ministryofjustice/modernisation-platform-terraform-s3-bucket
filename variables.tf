@@ -153,7 +153,7 @@ variable "sns_arn" {
   type        = string
   description = "The arn for the SNS"
   default     = "topic_arn"
-  }
+}
 
 variable "event" {
   type        = string
