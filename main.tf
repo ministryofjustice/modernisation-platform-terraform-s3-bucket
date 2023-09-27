@@ -235,8 +235,8 @@ data "aws_iam_policy_document" "default" {
   }
 }
 
-resource "aws_s3_bucket_notification" "bucket_notification2" {
-  bucket = aws_s3_bucket.replication.id[count.var.notification_enabled]
+resource "aws_s3_bucket_notification" "bucket_notification_replication" {
+  bucket = aws_s3_bucket_notification.bucket_notification_replication.id[count.var.notification_number]
 
   #count = var.notification_enabled ? 1 : 0
  
