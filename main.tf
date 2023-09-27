@@ -236,7 +236,7 @@ data "aws_iam_policy_document" "default" {
   }
 }
 
-resource "aws_s3_bucket_notification" "bucket_notification" {
+resource "aws_s3_bucket_notification" "bucket_notification2" {
   bucket = aws_s3_bucket.replication.id
 
   topic {
