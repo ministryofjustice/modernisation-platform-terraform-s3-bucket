@@ -152,12 +152,12 @@ variable "sse_algorithm" {
 variable "sns_arn" {
   type        = string
   description = "The arn for the SNS"
-  default     = ""
+  default     = "topic_arn"
   }
 
-variable "sqs_arn" {
+variable "event" {
   type        = string
-  description = "The arn for the SNS"
+  description = "The event taking place"
   default     = ""
   }
 

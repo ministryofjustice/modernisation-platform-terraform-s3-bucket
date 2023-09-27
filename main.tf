@@ -1,16 +1,12 @@
 data "aws_caller_identity" "current" {}
 
-resource "aws_s3_bucket" "bucket" {
-  bucket = aws_s3_bucket.bucket.id
-}
-
 resource "aws_s3_bucket_notification" "bucket_notification" {
-  bucket = aws_s3_bucket.bucket.id
+  bucket = aws_s3_bucket.default.id
 
   topic {
     topic_arn     = var.sns_arn
-    #events        = ["s3:ObjectCreated:*"]
-    #filter_suffix = ".log"
+    events        = [var.event]
+    filter_suffix = ".log"
   }
 }
 
@@ -237,6 +233,16 @@ data "aws_iam_policy_document" "default" {
       variable = "aws:SecureTransport"
       values   = ["false"]
     }
+  }
+}
+
+resource "aws_s3_bucket_notification" "bucket_notification" {
+  bucket = aws_s3_bucket.replication.id
+
+  topic {
+    topic_arn     = var.sns_arn
+    events        = [var.event]
+    filter_suffix = ".log"
   }
 }
 
