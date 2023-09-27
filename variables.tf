@@ -162,8 +162,8 @@ variable "event" {
 }
 
 variable "notification_number" {
-  type = number
+  type        = number
   description = "Notification number for bucket replication"
-  default = 0
+  default     = 0
 }
 

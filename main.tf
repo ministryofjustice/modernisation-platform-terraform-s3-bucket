@@ -4,8 +4,8 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
   bucket = aws_s3_bucket.default.id
 
   topic {
-    topic_arn     = var.sns_arn
-    events        = [var.event]
+    topic_arn = var.sns_arn
+    events    = [var.event]
   }
 }
 
@@ -240,10 +240,10 @@ resource "aws_s3_bucket_notification" "bucket_notification_replication" {
   bucket = aws_s3_bucket_notification.bucket_notification_replication.id[count]
 
   #count = var.notification_enabled ? 1 : 0
- 
+
   topic {
-    topic_arn     = var.sns_arn
-    events        = [var.event]
+    topic_arn = var.sns_arn
+    events    = [var.event]
   }
 }
 
