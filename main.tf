@@ -239,8 +239,6 @@ resource "aws_s3_bucket_notification" "bucket_notification_replication" {
   count = var.notification_number ? 1 : 0
   bucket = aws_s3_bucket_notification.bucket_notification_replication.id[count.index]
 
-  #count = var.notification_enabled ? 1 : 0
-
   topic {
     topic_arn = var.sns_arn
     events    = [var.event]
