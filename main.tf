@@ -237,7 +237,7 @@ data "aws_iam_policy_document" "default" {
 
 resource "aws_s3_bucket_notification" "bucket_notification_replication" {
   count  = var.notification_number ? 1 : 0
-  bucket = aws_s3_bucket_notification.bucket_notification_replication.id[count.index]
+  bucket = aws_s3_bucket_notification.bucket_notification_replication[count.index]
 
   topic {
     topic_arn = var.sns_arn
