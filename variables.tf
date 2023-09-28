@@ -149,21 +149,20 @@ variable "sse_algorithm" {
   default     = "aws:kms"
 }
 
-variable "sns_arn" {
+variable "notification_sns_arn" {
   type        = string
-  description = "The arn for the SNS"
-  default     = "topic_arn"
-}
-
-variable "event" {
-  type        = string
-  description = "The event taking place"
+  description = "The arn for the bucket notification SNS topic"
   default     = ""
 }
 
-variable "notification_number" {
-  type        = bool
-  description = "Notification for bucket replication"
-  default     = false
+variable "notification_events" {
+  type        = list(string)
+  description = "The event for which we send notifications"
+  default     = [""]
 }
 
+variable "notification_enabled" {
+  type        = bool
+  description = "Activate S3 bucket notification"
+  default     = false
+}
