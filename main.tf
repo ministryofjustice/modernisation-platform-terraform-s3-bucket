@@ -77,7 +77,9 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
 
       # Max 1 block - noncurrent_version_expiration
       dynamic "noncurrent_version_expiration" {
-        for_each = length(keys(lookup(rule.value, "noncurrent_version_expiration", {}))) == 0 ? [] : [lookup(rule.value, "noncurrent_version_expiration", {})]
+        for_each = length(keys(lookup(rule.value, "noncurrent_version_expiration", {}))) == 0 ? [] : [
+          lookup(rule.value, "noncurrent_version_expiration", {})
+        ]
 
         content {
           noncurrent_days = lookup(noncurrent_version_expiration.value, "days", null)
@@ -95,6 +97,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
       }
     }
   }
+}
 
 
 # Configure bucket access logging
