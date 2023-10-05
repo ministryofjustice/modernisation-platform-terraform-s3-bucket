@@ -104,6 +104,8 @@ No modules.
 | [aws_s3_bucket_lifecycle_configuration.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_lifecycle_configuration) | resource |
 | [aws_s3_bucket_lifecycle_configuration.replication](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_lifecycle_configuration) | resource |
 | [aws_s3_bucket_logging.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_logging) | resource |
+| [aws_s3_bucket_notification.bucket_notification](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_notification) | resource |
+| [aws_s3_bucket_notification.bucket_notification_replication](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_notification) | resource |
 | [aws_s3_bucket_ownership_controls.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_ownership_controls) | resource |
 | [aws_s3_bucket_policy.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy) | resource |
 | [aws_s3_bucket_policy.replication](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy) | resource |
@@ -134,6 +136,9 @@ No modules.
 | <a name="input_lifecycle_rule"></a> [lifecycle\_rule](#input\_lifecycle\_rule) | List of maps containing configuration of object lifecycle management. | `any` | <pre>[<br>  {<br>    "enabled": "Enabled",<br>    "expiration": {<br>      "days": 730<br>    },<br>    "id": "main",<br>    "noncurrent_version_expiration": {<br>      "days": 730<br>    },<br>    "noncurrent_version_transition": [<br>      {<br>        "days": 90,<br>        "storage_class": "STANDARD_IA"<br>      },<br>      {<br>        "days": 365,<br>        "storage_class": "GLACIER"<br>      }<br>    ],<br>    "prefix": "",<br>    "tags": {<br>      "autoclean": "true",<br>      "rule": "log"<br>    },<br>    "transition": [<br>      {<br>        "days": 90,<br>        "storage_class": "STANDARD_IA"<br>      },<br>      {<br>        "days": 365,<br>        "storage_class": "GLACIER"<br>      }<br>    ]<br>  }<br>]</pre> | no |
 | <a name="input_log_bucket"></a> [log\_bucket](#input\_log\_bucket) | Bucket for server access logging, if applicable | `string` | `""` | no |
 | <a name="input_log_prefix"></a> [log\_prefix](#input\_log\_prefix) | Prefix to use for server access logging, if applicable | `string` | `""` | no |
+| <a name="input_notification_enabled"></a> [notification\_enabled](#input\_notification\_enabled) | Activate S3 bucket notification | `bool` | `false` | no |
+| <a name="input_notification_events"></a> [notification\_events](#input\_notification\_events) | The event for which we send notifications | `list(string)` | <pre>[<br>  ""<br>]</pre> | no |
+| <a name="input_notification_sns_arn"></a> [notification\_sns\_arn](#input\_notification\_sns\_arn) | The arn for the bucket notification SNS topic | `string` | `""` | no |
 | <a name="input_ownership_controls"></a> [ownership\_controls](#input\_ownership\_controls) | Bucket Ownership Controls - for use WITH acl var above options are 'BucketOwnerPreferred' or 'ObjectWriter'. To disable ACLs and use new AWS recommended controls set this to 'BucketOwnerEnforced' and which will disabled ACLs and ignore var.acl | `string` | `"ObjectWriter"` | no |
 | <a name="input_replication_enabled"></a> [replication\_enabled](#input\_replication\_enabled) | Activate S3 bucket replication | `bool` | `false` | no |
 | <a name="input_replication_region"></a> [replication\_region](#input\_replication\_region) | Region to create S3 replication bucket | `string` | `"eu-west-2"` | no |
