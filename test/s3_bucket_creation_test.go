@@ -7,6 +7,8 @@ import (
 	"github.com/gruntwork-io/terratest/modules/aws"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/stretchr/testify/assert"
+	"fmt"
+
 )
 
 func TestS3Creation(t *testing.T) {
@@ -40,4 +42,10 @@ func TestS3Creation(t *testing.T) {
 	actualStatus := aws.GetS3BucketVersioning(t, awsRegion, bucketID)
 	expectedStatus := "Enabled"
 	assert.Equal(t, expectedStatus, actualStatus)
+
+	// Verify bucket notification is sent
+	bucketNotification := terraform.Output(t, terraformOptions, "bucket_notification")
+	if bucketNotification != "" {
+			fmt.Println("OK")
+	} else {fmt.Println("NOOOO")}
 }

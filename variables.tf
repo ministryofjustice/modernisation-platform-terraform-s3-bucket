@@ -160,9 +160,3 @@ variable "notification_events" {
   description = "The event for which we send notifications"
   default     = [""]
 }
-
-# variable "notification_enabled" {
-#   type        = bool
-#   description = "Activate S3 bucket notification"
-#   default     = false
-# }

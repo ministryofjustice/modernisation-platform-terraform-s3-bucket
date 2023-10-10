@@ -1,7 +1,7 @@
 data "aws_caller_identity" "current" {}
 
 resource "aws_s3_bucket_notification" "bucket_notification" {
-  count  = var.notification_sns_arn != [""] && var.notification_events != [""] ? 1 : 0
+  count  = var.notification_sns_arn != "" && var.notification_events != [""] ? 1 : 0
   bucket = aws_s3_bucket.default.id
 
   topic {
@@ -239,9 +239,7 @@ data "aws_iam_policy_document" "default" {
 }
 
 resource "aws_s3_bucket_notification" "bucket_notification_replication" {
-  #count  = var.notification_sns_arn != [""] && var.notification_events != [""] ? 1 : 0
-  #count  = var.replication_enabled && var.notification_enabled ? 1 : 0
-  count  = var.replication_enabled &&  var.notification_sns_arn != [""] ? 1 : 0
+  count  = var.replication_enabled &&  var.notification_events != [""] ? 1 : 0
   bucket = aws_s3_bucket.replication[count.index]
 
   topic {
