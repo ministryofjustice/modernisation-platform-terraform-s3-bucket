@@ -21,7 +21,7 @@ module "s3_with_AES256" {
 }
 
 module "s3_bucket_notification" {
-source = "../.."
+  source = "../.."
   providers = {
     aws.bucket-replication = aws
   }
