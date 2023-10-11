@@ -155,6 +155,12 @@ variable "notification_sns_arn" {
   default     = ""
 }
 
+variable "notification_enabled" {
+  type        = bool
+  description = "Boolean indicating if a notification resource is required for the bucket"
+  default     = false
+}
+
 variable "notification_events" {
   type        = list(string)
   description = "The event for which we send notifications"

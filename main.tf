@@ -1,7 +1,7 @@
 data "aws_caller_identity" "current" {}
 
 resource "aws_s3_bucket_notification" "bucket_notification" {
-  count  = var.notification_sns_arn != "" && var.notification_events != [""] ? 1 : 0
+  count  = var.notification_enabled == true ? 1 : 0
   bucket = aws_s3_bucket.default.id
 
   topic {
@@ -235,16 +235,6 @@ data "aws_iam_policy_document" "default" {
       variable = "aws:SecureTransport"
       values   = ["false"]
     }
-  }
-}
-
-resource "aws_s3_bucket_notification" "bucket_notification_replication" {
-  count  = var.replication_enabled && var.notification_events != [""] ? 1 : 0
-  bucket = aws_s3_bucket.replication[count.index]
-
-  topic {
-    topic_arn = var.notification_sns_arn
-    events    = var.notification_events
   }
 }
 
