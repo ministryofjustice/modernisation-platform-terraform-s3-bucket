@@ -20,12 +20,12 @@ module "s3_with_AES256" {
   tags          = local.tags
 }
 
-module "s3_bucket_notification" {
-  source = "../.."
-  providers = {
+resource "aws_sns_topic" "my_topic" {}
+  module "my_module" {
+    source = "../.."
+    providers = {
     aws.bucket-replication = aws
   }
-  bucket_prefix = "s3-bucket"
-  force_destroy = true
-  tags          = local.tags
+    notification_sns_arn = aws_sns_topic.my_topic.arn
+    tags          = local.tags
 }

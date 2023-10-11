@@ -1,7 +1,7 @@
 data "aws_caller_identity" "current" {}
 
 resource "aws_s3_bucket_notification" "bucket_notification" {
-  count  = var.notification_sns_arn != "" && var.notification_events != [""] ? 1 : 0
+  count  = var.notification_sns_arn != "" && var.notification_events != [""] ? 1 : 0 
   bucket = aws_s3_bucket.default.id
 
   topic {
