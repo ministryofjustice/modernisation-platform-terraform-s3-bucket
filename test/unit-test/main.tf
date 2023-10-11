@@ -21,11 +21,11 @@ module "s3_with_AES256" {
 }
 
 resource "aws_sns_topic" "my_topic" {}
-  module "my_module" {
-    source = "../.."
-    providers = {
+module "my_module" {
+  source = "../.."
+  providers = {
     aws.bucket-replication = aws
   }
-    notification_sns_arn = aws_sns_topic.my_topic.arn
-    tags          = local.tags
+  notification_sns_arn = aws_sns_topic.my_topic.arn
+  tags                 = local.tags
 }
