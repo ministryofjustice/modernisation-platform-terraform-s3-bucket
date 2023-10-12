@@ -33,7 +33,7 @@ func TestS3Creation(t *testing.T) {
 	bucketAES256 := terraform.Output(t, terraformOptions, "bucket_aes256")
 	assert.Regexp(t, regexp.MustCompile(`AES256`), bucketAES256)
 
-	assert.Regexp(t, regexp.MustCompile(`^arn:aws:s3:::s3-bucket-*`), bucketArn)
+	assert.Regexp(t, regexp.MustCompile(`arn:aws:s3:::unit-test-bucket*`), bucketArn)
 	// Verify that our Bucket has a policy attached
 	aws.AssertS3BucketPolicyExists(t, awsRegion, bucketID)
 
