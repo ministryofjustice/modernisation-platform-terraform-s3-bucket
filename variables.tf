@@ -148,3 +148,21 @@ variable "sse_algorithm" {
   description = "The server-side encryption algorithm to use"
   default     = "aws:kms"
 }
+
+variable "notification_sns_arn" {
+  type        = string
+  description = "The arn for the bucket notification SNS topic"
+  default     = ""
+}
+
+variable "notification_enabled" {
+  type        = bool
+  description = "Boolean indicating if a notification resource is required for the bucket"
+  default     = false
+}
+
+variable "notification_events" {
+  type        = list(string)
+  description = "The event for which we send notifications"
+  default     = [""]
+}

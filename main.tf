@@ -1,5 +1,15 @@
 data "aws_caller_identity" "current" {}
 
+resource "aws_s3_bucket_notification" "bucket_notification" {
+  count  = var.notification_enabled == true ? 1 : 0
+  bucket = aws_s3_bucket.default.id
+
+  topic {
+    topic_arn = var.notification_sns_arn
+    events    = var.notification_events
+  }
+}
+
 # Main S3 bucket, that is replicated from (rather than to)
 # KMS Encryption handled by aws_s3_bucket_server_side_encryption_configuration resource
 # Logging handled by aws_s3_bucket_logging resource
@@ -37,6 +47,7 @@ resource "aws_s3_bucket_acl" "default" {
 
 # Configure bucket lifecycle rules
 resource "aws_s3_bucket_lifecycle_configuration" "default" {
+  #checkov:skip=CKV_AWS_300: "Ensure S3 lifecycle configuration sets period for aborting failed uploads"
   bucket = aws_s3_bucket.default.id
 
   dynamic "rule" {
@@ -227,6 +238,15 @@ data "aws_iam_policy_document" "default" {
   }
 }
 
+resource "aws_s3_bucket_notification" "bucket_notification_replication" {
+  count  = var.replication_enabled && var.notification_events != [""] ? 1 : 0
+  bucket = aws_s3_bucket.replication[count.index]
+
+  topic {
+    topic_arn = var.notification_sns_arn
+    events    = var.notification_events
+  }
+}
 # Replication S3 bucket, to replicate to (rather than from)
 # Logging not deemed required for replication bucket
 # tfsec:ignore:aws-s3-enable-bucket-logging
@@ -255,7 +275,9 @@ resource "aws_s3_bucket_acl" "replication" {
 }
 
 # Configure bucket lifecycle rules
+
 resource "aws_s3_bucket_lifecycle_configuration" "replication" {
+  #checkov:skip=CKV_AWS_300: "Ensure S3 lifecycle configuration sets period for aborting failed uploads"
   count = var.replication_enabled ? 1 : 0
 
   provider = aws.bucket-replication
