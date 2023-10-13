@@ -7,7 +7,6 @@ import (
 	"github.com/gruntwork-io/terratest/modules/aws"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/stretchr/testify/assert"
-
 )
 
 func TestS3Creation(t *testing.T) {
@@ -33,7 +32,7 @@ func TestS3Creation(t *testing.T) {
 	bucketAES256 := terraform.Output(t, terraformOptions, "bucket_aes256")
 	assert.Regexp(t, regexp.MustCompile(`AES256`), bucketAES256)
 
-	assert.Regexp(t, regexp.MustCompile(`arn:aws:s3:::unit-test-bucket*`), bucketArn)
+	assert.Regexp(t, regexp.MustCompile(`^arn:aws:s3:::s3-bucket-*`), bucketArn)
 	// Verify that our Bucket has a policy attached
 	aws.AssertS3BucketPolicyExists(t, awsRegion, bucketID)
 
@@ -41,10 +40,4 @@ func TestS3Creation(t *testing.T) {
 	actualStatus := aws.GetS3BucketVersioning(t, awsRegion, bucketID)
 	expectedStatus := "Enabled"
 	assert.Equal(t, expectedStatus, actualStatus)
-
-	// Verify bucket notification is created
-	//bucketNotification := terraform.Output(t, terraformOptions, "bucket_notification")
-	//if bucketNotification != "" {
-	//		fmt.Println("OK")
-	//} else {fmt.Println("NOOOO")}
 }
