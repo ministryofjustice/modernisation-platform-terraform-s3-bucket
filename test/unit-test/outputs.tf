@@ -16,3 +16,8 @@ output "bucket_aes256" {
   value       = element(module.s3_with_AES256.bucket_server_side_encryption.rule[*].apply_server_side_encryption_by_default[0].sse_algorithm, 0)
   description = "SSE Algorithm"
 }
+
+output "bucket_notifications" {
+  value       = element(module.s3_with_notification.bucket_notifications, 0).bucket
+  description = "Retrieve name of bucket with notifications enabled"
+}

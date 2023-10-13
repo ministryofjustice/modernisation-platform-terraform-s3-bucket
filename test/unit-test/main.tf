@@ -45,10 +45,10 @@ module "s3_with_notification" {
   providers = {
     aws.bucket-replication = aws
   }
-  bucket_prefix = "unit-test-bucket"
-  force_destroy = true
+  bucket_prefix        = "unit-test-bucket"
+  force_destroy        = true
   notification_enabled = true
-  notification_events = ["s3:ObjectCreated:*"]
+  notification_events  = ["s3:ObjectCreated:*"]
   notification_sns_arn = aws_sns_topic.topic.arn
-  tags          = local.tags
+  tags                 = local.tags
 }
