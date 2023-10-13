@@ -42,9 +42,7 @@ func TestS3Creation(t *testing.T) {
 	expectedStatus := "Enabled"
 	assert.Equal(t, expectedStatus, actualStatus)
 
-	// Verify bucket notification is created
-	//bucketNotification := terraform.Output(t, terraformOptions, "bucket_notification")
-	//if bucketNotification != "" {
-	//		fmt.Println("OK")
-	//} else {fmt.Println("NOOOO")}
+	// Verify that a bucket notification outputs a bucket name
+	bucketNotification := terraform.Output(t, terraformOptions, "bucket_notifications")
+	assert.Regexp(t, regexp.MustCompile(`unit-test-bucket*`), bucketNotification)
 }

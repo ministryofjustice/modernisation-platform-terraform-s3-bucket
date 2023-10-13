@@ -7,3 +7,7 @@ output "bucket_server_side_encryption" {
   value       = aws_s3_bucket_server_side_encryption_configuration.default
   description = "Bucket server-side encryption configuration"
 }
+
+output "bucket_notifications" {
+  value = [for i in aws_s3_bucket_notification.bucket_notification : i]
+}
