@@ -152,6 +152,7 @@ No modules.
 | Name | Description |
 |------|-------------|
 | <a name="output_bucket"></a> [bucket](#output\_bucket) | Direct aws\_s3\_bucket resource with all attributes |
+| <a name="output_bucket_notifications"></a> [bucket\_notifications](#output\_bucket\_notifications) | n/a |
 | <a name="output_bucket_server_side_encryption"></a> [bucket\_server\_side\_encryption](#output\_bucket\_server\_side\_encryption) | Bucket server-side encryption configuration |
 <!-- END_TF_DOCS -->
 
