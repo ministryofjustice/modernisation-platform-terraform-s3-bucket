@@ -35,8 +35,7 @@ data "aws_iam_policy_document" "topic" {
   }
 }
 resource "aws_sns_topic" "topic" {
-  # Encryption not required as topic only available during test run
-  #checkov:skip=CKV_AWS_26: "Ensure all data stored in the SNS topic is encrypted"
+  #checkov:skip=CKV_AWS_26: "Encryption not required as topic only available during test run"
   name   = "s3-event-notification-topic"
   policy = data.aws_iam_policy_document.topic.json
 }
