@@ -34,9 +34,12 @@ data "aws_iam_policy_document" "topic" {
 
   }
 }
+
+#AWS managed KMS key is fine for unit tests
+#tfsec:ignore:aws-sns-topic-encryption-use-cmk
 resource "aws_sns_topic" "topic" {
-  #checkov:skip=CKV_AWS_26: "Encryption not required as topic only available during test run"
   name   = "s3-event-notification-topic"
+  kms_master_key_id = "alias/aws/sns"
   policy = data.aws_iam_policy_document.topic.json
 }
 
