@@ -38,9 +38,9 @@ data "aws_iam_policy_document" "topic" {
 #AWS managed KMS key is fine for unit tests
 #tfsec:ignore:aws-sns-topic-encryption-use-cmk
 resource "aws_sns_topic" "topic" {
-  name   = "s3-event-notification-topic"
+  name              = "s3-event-notification-topic"
   kms_master_key_id = "alias/aws/sns"
-  policy = data.aws_iam_policy_document.topic.json
+  policy            = data.aws_iam_policy_document.topic.json
 }
 
 module "s3_with_notification" {
