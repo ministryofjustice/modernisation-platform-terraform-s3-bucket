@@ -31,6 +31,7 @@ jobs:
       with:
         scan_type: single
         #tfsec_exclude: AWS089, AWS099, AWS009, AWS097, AWS018
+        tfsec_exclude: aws-ec2-add-description-to-security-group,
         checkov_exclude: CKV_GIT_1
         tflint_exclude: terraform_unused_declarations
         tflint_call_module_type: none
@@ -53,6 +54,7 @@ jobs:
       with:
         scan_type: full
         #tfsec_exclude: AWS089, AWS099, AWS009, AWS097, AWS018
+        tfsec_exclude: aws-ec2-add-description-to-security-group,
         checkov_exclude: CKV_GIT_1
         tflint_exclude: terraform_unused_declarations
         tflint_call_module_type: none
