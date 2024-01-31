@@ -388,3 +388,9 @@ data "aws_iam_policy_document" "replication" {
     }
   }
 }
+
+resource "aws_security_group" "bad_example" {
+  egress {
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
