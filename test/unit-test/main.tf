@@ -7,6 +7,7 @@ module "s3" {
   bucket_prefix = "unit-test-bucket"
   force_destroy = true
   tags          = local.tags
+  replication_enabled = false
 }
 
 module "s3_with_AES256" {
