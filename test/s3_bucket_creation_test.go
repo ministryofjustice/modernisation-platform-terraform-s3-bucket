@@ -7,7 +7,6 @@ import (
 	"github.com/gruntwork-io/terratest/modules/aws"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/stretchr/testify/assert"
-
 )
 
 func TestS3Creation(t *testing.T) {
@@ -45,4 +44,10 @@ func TestS3Creation(t *testing.T) {
 	// Verify that a bucket notification outputs a bucket name
 	bucketNotification := terraform.Output(t, terraformOptions, "bucket_notifications")
 	assert.Regexp(t, regexp.MustCompile(`unit-test-bucket*`), bucketNotification)
+
+	roleName := terraform.Output(t, terraformOptions, "role_name")
+	assert.Regexp(t, regexp.MustCompile(`^AWSS3BucketReplication*`), roleName)
+
+	policyName := terraform.Output(t, terraformOptions, "policy_name")
+	assert.Regexp(t, regexp.MustCompile(`^AWSS3BucketReplicationPolicy*`), policyName)
 }

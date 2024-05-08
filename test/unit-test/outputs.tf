@@ -21,3 +21,13 @@ output "bucket_notifications" {
   value       = element(module.s3_with_notification.bucket_notifications, 0).bucket
   description = "Retrieve name of bucket with notifications enabled"
 }
+
+output "role_name" {
+  value       = module.s3.role.name
+  description = "Direct aws_iam_role resource with all attributes"
+}
+
+output "policy_name" {
+  value       = module.s3.policy.name
+  description = "Direct aws_iam_policy resource with all attributes"
+}

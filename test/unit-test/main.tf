@@ -4,9 +4,10 @@ module "s3" {
   providers = {
     aws.bucket-replication = aws
   }
-  bucket_prefix = "unit-test-bucket"
-  force_destroy = true
-  tags          = local.tags
+  bucket_prefix       = "unit-test-bucket"
+  force_destroy       = true
+  tags                = local.tags
+  replication_enabled = false
 }
 
 module "s3_with_AES256" {

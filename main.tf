@@ -1,3 +1,9 @@
+resource "random_string" "s3_rnd" {
+  length  = 8
+  special = false
+  upper   = false
+}
+
 data "aws_caller_identity" "current" {}
 
 resource "aws_s3_bucket_notification" "bucket_notification" {
@@ -142,7 +148,7 @@ resource "aws_s3_bucket_policy" "default" {
 resource "aws_s3_bucket_replication_configuration" "default" {
   for_each = var.replication_enabled ? toset(["run"]) : []
   bucket   = aws_s3_bucket.default.id
-  role     = try(var.replication_role_arn, "null")
+  role     = aws_iam_role.replication_role
 
   rule {
     id       = "default"
@@ -160,7 +166,7 @@ resource "aws_s3_bucket_replication_configuration" "default" {
 
     source_selection_criteria {
       sse_kms_encrypted_objects {
-        status = (var.custom_replication_kms_key != "") ? "Enabled" : ""
+        status = (var.custom_replication_kms_key != "") ? "Enabled" : "Disabled"
       }
     }
   }
@@ -265,14 +271,14 @@ resource "aws_s3_bucket" "replication" {
   tags          = var.tags
 }
 
-# Configure bucket ACL
-resource "aws_s3_bucket_acl" "replication" {
-  count = var.replication_enabled ? 1 : 0
+# # Configure bucket ACL
+# resource "aws_s3_bucket_acl" "replication" {
+#   count = var.replication_enabled ? 1 : 0
 
-  provider = aws.bucket-replication
-  bucket   = aws_s3_bucket.replication[count.index].id
-  acl      = "private"
-}
+#   provider = aws.bucket-replication
+#   bucket   = aws_s3_bucket.replication[count.index].id
+#   acl      = "private"
+# }
 
 # Configure bucket lifecycle rules
 
@@ -387,4 +393,87 @@ data "aws_iam_policy_document" "replication" {
       values   = ["false"]
     }
   }
+
+}
+
+# S3 bucket replication: role
+resource "aws_iam_role" "replication_role" {
+  name               = format("%s-%s", "AWSS3BucketReplication", random_string.s3_rnd.result)
+  assume_role_policy = data.aws_iam_policy_document.s3-assume-role-policy.json
+  tags               = var.tags
+}
+
+
+# S3 bucket replication: assume role policy
+data "aws_iam_policy_document" "s3-assume-role-policy" {
+  version = "2012-10-17"
+  statement {
+    effect  = "Allow"
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["s3.amazonaws.com"]
+    }
+  }
+}
+resource "aws_iam_policy" "replication_policy" {
+  name   = format("%s-%s", "AWSS3BucketReplicationPolicy", random_string.s3_rnd.result)
+  policy = data.aws_iam_policy_document.default-policy.json
+}
+
+# S3 bucket replication: role policy
+# tfsec:ignore:aws-iam-no-policy-wildcards
+data "aws_iam_policy_document" "default-policy" {
+  version = "2012-10-17"
+  statement {
+    effect = "Allow"
+    actions = [
+      "s3:GetReplicationConfiguration",
+      "s3:ListBucket"
+
+    ]
+    resources = [aws_s3_bucket.default.arn]
+  }
+
+  statement {
+    effect = "Allow"
+    actions = [
+      "s3:GetObjectVersion",
+      "s3:GetObjectVersionAcl",
+      "s3:GetObjectVersionForReplication",
+      "s3:GetObjectLegalHold",
+      "s3:GetObjectRetention",
+      "s3:GetObjectVersionTagging"
+    ]
+    resources = ["${aws_s3_bucket.default.arn}/*"]
+  }
+
+  statement {
+    effect = "Allow"
+    actions = [
+      "s3:ReplicateObject",
+      "s3:ReplicateDelete",
+      "s3:ReplicateTags",
+      "s3:GetObjectVersionTagging",
+      "s3:ObjectOwnerOverrideToBucketOwner"
+    ]
+
+    # resources = [var.replication_enabled ? aws_s3_bucket.replication[0] : "*"]
+    resources = ["*"]
+
+    condition {
+      test     = "StringLikeIfExists"
+      variable = "s3:x-amz-server-side-encryption"
+      values = [
+        "aws:kms",
+        "AES256"
+      ]
+    }
+  }
+
+}
+resource "aws_iam_role_policy_attachment" "default" {
+  role       = aws_iam_role.replication_role.name
+  policy_arn = aws_iam_policy.replication_policy.arn
 }
