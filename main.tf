@@ -393,12 +393,12 @@ data "aws_iam_policy_document" "replication" {
       values   = ["false"]
     }
   }
-   
+
 }
 
 # S3 bucket replication: role
 resource "aws_iam_role" "replication_role" {
-  name               = format("%s-%s",  "AWSS3BucketReplication", random_string.s3_rnd.result)
+  name               = format("%s-%s", "AWSS3BucketReplication", random_string.s3_rnd.result)
   assume_role_policy = data.aws_iam_policy_document.s3-assume-role-policy.json
   tags               = var.tags
 }
@@ -426,7 +426,7 @@ resource "aws_iam_policy" "replication_policy" {
 # tfsec:ignore:aws-iam-no-policy-wildcards
 data "aws_iam_policy_document" "default-policy" {
   version = "2012-10-17"
- statement {
+  statement {
     effect = "Allow"
     actions = [
       "s3:GetReplicationConfiguration",
@@ -460,7 +460,7 @@ data "aws_iam_policy_document" "default-policy" {
     ]
 
     # resources = [var.replication_enabled ? aws_s3_bucket.replication[0] : "*"]
-      resources = ["*"]
+    resources = ["*"]
 
     condition {
       test     = "StringLikeIfExists"
