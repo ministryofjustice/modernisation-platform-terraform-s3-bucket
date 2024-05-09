@@ -4,9 +4,9 @@ module "s3" {
   providers = {
     aws.bucket-replication = aws
   }
-  bucket_prefix       = "unit-test-bucket"
-  force_destroy       = true
-  tags                = local.tags
+  bucket_prefix = "unit-test-bucket"
+  force_destroy = true
+  tags          = local.tags
   replication_enabled = false
 }
 
@@ -56,4 +56,41 @@ module "s3_with_notification" {
   notification_events  = ["s3:ObjectCreated:*"]
   notification_sns_arn = aws_sns_topic.topic.arn
   tags                 = local.tags
+}
+
+
+# KMS Source
+resource "aws_kms_key" "kms_primary_s3" {
+  description             = "kms_primary_s3"
+  policy                  = data.aws_iam_policy_document.kms_policy_s3.json
+  enable_key_rotation     = true
+  deletion_window_in_days = 30
+}
+resource "aws_kms_alias" "kms_primary_alias" {
+  name          = "alias/kms_primary_alias"
+  target_key_id = aws_kms_key.kms_primary_s3.id
+}
+data "aws_iam_policy_document" "kms_policy_s3" {
+
+  # checkov:skip=CKV_AWS_111: "policy is directly related to the resource"
+  # checkov:skip=CKV_AWS_356: "policy is directly related to the resource"
+  # checkov:skip=CKV_AWS_109: "role is resticted by limited actions in member account"
+
+
+  statement {
+    sid    = "Allow use of the key including encryption"
+    effect = "Allow"
+    actions = [
+      "kms:ReEncrypt*",
+      "kms:GenerateDataKey*",
+      "kms:Encrypt*",
+      "kms:Describe*",
+      "kms:Decrypt*"
+    ]
+    resources = ["*"]
+    principals {
+      type        = "Service"
+      identifiers = ["logging.s3.amazonaws.com"]
+    }
+  }
 }
