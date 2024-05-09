@@ -62,7 +62,7 @@ module "s3_with_notification" {
 # KMS Source
 resource "aws_kms_key" "kms_primary_s3" {
   description             = "kms_primary_s3"
-  policy                  = data.aws_iam_policy_document.kms_policy_s3.json
+  # policy                  = data.aws_iam_policy_document.kms_policy_s3.json
   enable_key_rotation     = true
   deletion_window_in_days = 30
 }
