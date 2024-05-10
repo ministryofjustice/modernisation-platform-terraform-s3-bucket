@@ -58,6 +58,7 @@ module "s3_with_notification" {
   tags                 = local.tags
 }
 
+data "aws_caller_identity" "current" {}
 
 # KMS Source
 resource "aws_kms_key" "kms_primary_s3" {
@@ -76,7 +77,22 @@ data "aws_iam_policy_document" "kms_policy_s3" {
   # checkov:skip=CKV_AWS_356: "policy is directly related to the resource"
   # checkov:skip=CKV_AWS_109: "role is resticted by limited actions in member account"
 
-
+ statement {
+    sid    = "Allow management access of the key to the logging account"
+    effect = "Allow"
+    actions = [
+      "kms:*"
+    ]
+    resources = [
+      "*"
+    ]
+    principals {
+      type = "AWS"
+      identifiers = [
+        data.aws_caller_identity.current.account_id
+      ]
+    }
+  }
   statement {
     sid    = "Allow use of the key including encryption"
     effect = "Allow"
