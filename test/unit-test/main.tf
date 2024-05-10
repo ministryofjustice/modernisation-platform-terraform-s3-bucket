@@ -77,7 +77,7 @@ data "aws_iam_policy_document" "kms_policy_s3" {
   # checkov:skip=CKV_AWS_356: "policy is directly related to the resource"
   # checkov:skip=CKV_AWS_109: "role is resticted by limited actions in member account"
 
- statement {
+  statement {
     sid    = "Allow management access of the key to the logging account"
     effect = "Allow"
     actions = [
