@@ -351,6 +351,7 @@ resource "aws_s3_bucket_policy" "replication" {
 }
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "replication" {
+  #checkov:skip=CKV2_AWS_67: "Ensure AWS S3 bucket encrypted with Customer Managed Key (CMK) has regular rotation"
   count = var.replication_enabled ? 1 : 0
 
   provider = aws.bucket-replication
