@@ -20,7 +20,7 @@ module "s3-bucket" {
   replication_enabled                      = false
   # Below two variables and providers configuration are only relevant if 'replication_enabled' is set to true
   # replication_region                       = "eu-west-2"
-  # replication_role_arn                     = module.s3-bucket-replication-role.role.arn
+  # replication_role_arn                     = module.s3-bucket.role.arn
   providers = {
     # Here we use the default provider Region for replication. Destination buckets can be within the same Region as the
     # source bucket. On the other hand, if you need to enable cross-region replication, please contact the Modernisation
@@ -185,7 +185,7 @@ If replication is enabled then:
 
 There are two ways to create the IAM role for replication:
 
-- use the [modernisation-platform-terraform-s3-bucket-replication-role](https://github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket-replication-role) to configure a role based on bucket ARNs
+- use the [modernisation-platform-terraform-s3-bucket](https://github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket) to configure a role based on bucket ARNs
 - create one yourself, by following the [Setting up permissions for replication](https://docs.aws.amazon.com/AmazonS3/latest/dev/setting-repl-config-perm-overview.html) guide on AWS
 
 ## Outputs
