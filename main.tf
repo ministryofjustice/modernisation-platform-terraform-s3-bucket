@@ -148,7 +148,7 @@ resource "aws_s3_bucket_policy" "default" {
 resource "aws_s3_bucket_replication_configuration" "default" {
   for_each = var.replication_enabled ? toset(["run"]) : []
   bucket   = aws_s3_bucket.default.id
-  role     = aws_iam_role.replication_role
+  role     = aws_iam_role.replication_role.arn
 
   rule {
     id       = "default"
