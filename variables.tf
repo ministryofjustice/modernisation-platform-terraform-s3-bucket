@@ -126,11 +126,11 @@ variable "log_prefix" {
   default     = ""
 }
 
-# variable "replication_role_arn" {
-#   type        = string
-#   description = "Role ARN to access S3 and replicate objects"
-#   default     = ""
-# }
+variable "replication_role_arn" {
+  type        = string
+  description = "Role ARN to access S3 and replicate objects"
+  default     = ""
+}
 
 variable "tags" {
   type        = map(any)

@@ -148,7 +148,7 @@ resource "aws_s3_bucket_policy" "default" {
 resource "aws_s3_bucket_replication_configuration" "default" {
   for_each = var.replication_enabled ? toset(["run"]) : []
   bucket   = aws_s3_bucket.default.id
-  role     = aws_iam_role.replication_role
+  role     = aws_iam_role.replication_role.arn
 
   rule {
     id       = "default"
@@ -175,6 +175,8 @@ resource "aws_s3_bucket_replication_configuration" "default" {
 # AWS-provided KMS acceptable compromise in absence of customer provided key
 # tfsec:ignore:aws-s3-encryption-customer-key
 resource "aws_s3_bucket_server_side_encryption_configuration" "default" {
+  #checkov:skip=CKV2_AWS_67: "Ensure AWS S3 bucket encrypted with Customer Managed Key (CMK) has regular rotation"
+
   bucket = aws_s3_bucket.default.id
   rule {
     apply_server_side_encryption_by_default {
@@ -349,6 +351,7 @@ resource "aws_s3_bucket_policy" "replication" {
 }
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "replication" {
+  #checkov:skip=CKV2_AWS_67: "Ensure AWS S3 bucket encrypted with Customer Managed Key (CMK) has regular rotation"
   count = var.replication_enabled ? 1 : 0
 
   provider = aws.bucket-replication
