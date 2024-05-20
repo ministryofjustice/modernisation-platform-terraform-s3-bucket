@@ -166,3 +166,9 @@ variable "notification_events" {
   description = "The event for which we send notifications"
   default     = [""]
 }
+
+variable "conditions" {
+  description = "Conditions for the bucket policy"
+  type        = map(any)
+  default     = {}
+}

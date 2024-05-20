@@ -246,6 +246,24 @@ data "aws_iam_policy_document" "default" {
   }
 }
 
+resource "aws_s3_bucket_policy" "this" {
+  bucket = aws_s3_bucket.default.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = "*"
+        Action   = "s3:GetObject"
+        Resource = "${aws_s3_bucket.default.arn}/*"
+        Condition = var.conditions
+      }
+    ]
+  })
+}
+
+
 resource "aws_s3_bucket_notification" "bucket_notification_replication" {
   count  = var.replication_enabled && var.notification_enabled ? 1 : 0
   bucket = aws_s3_bucket.replication[count.index]
