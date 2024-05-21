@@ -31,3 +31,6 @@ output "policy_name" {
   value       = module.s3.policy.name
   description = "Direct aws_iam_policy resource with all attributes"
 }
+
+
+

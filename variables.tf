@@ -166,3 +166,13 @@ variable "notification_events" {
   description = "The event for which we send notifications"
   default     = [""]
 }
+variable "suffix_name" {
+  type        = string
+  default     = ""
+  description = "Suffix for role and policy names"
+}
+variable "replication_bucket" {
+  type        = string
+  description = "Name of bucket used for replication - if not specified then * will be used in the policy"
+  default     = ""
+}
