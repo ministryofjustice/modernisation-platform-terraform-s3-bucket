@@ -1,12 +1,6 @@
 locals {
   replication_bucket = "arn:aws:s3:::${var.replication_bucket}/*"
 }
-resource "random_string" "s3_rnd" {
-  length  = 8
-  special = false
-  upper   = false
-}
-
 
 data "aws_caller_identity" "current" {}
 
@@ -141,66 +135,40 @@ resource "aws_s3_bucket_public_access_block" "default" {
 # Merge and attach policies to the S3 bucket
 # This ensures every bucket created via this module
 # doesn't allow any actions that aren't over SecureTransport methods (i.e. HTTP)
-# resource "aws_s3_bucket_policy" "default" {
-#   bucket = aws_s3_bucket.default.id
-#   policy = data.aws_iam_policy_document.default.json
+resource "aws_s3_bucket_policy" "default" {
+  bucket = aws_s3_bucket.default.id
+  policy = data.aws_iam_policy_document.default.json
 
-#   # Create the Public Access Block before the policy is added
-#   depends_on = [aws_s3_bucket_public_access_block.default]
-# }
+  # Create the Public Access Block before the policy is added
+  depends_on = [aws_s3_bucket_public_access_block.default]
+}
 
-# resource "aws_s3_bucket_replication_configuration" "default" {
-#   for_each = var.replication_enabled ? toset(["run"]) : []
-#   bucket   = aws_s3_bucket.default.id
-#   role     = aws_iam_role.replication_role.arn
-
-#   rule {
-#     id       = "default"
-#     status   = var.replication_enabled ? "Enabled" : "Disabled"
-#     priority = 0
-
-#     destination {
-#       bucket        = var.replication_enabled ? aws_s3_bucket.replication[0].arn : aws_s3_bucket.replication[0].arn
-#       storage_class = "STANDARD"
-#       encryption_configuration {
-#         replica_kms_key_id = (var.custom_replication_kms_key != "") ? var.custom_replication_kms_key : "arn:aws:kms:${var.replication_region}:${data.aws_caller_identity.current.account_id}:alias/aws/s3"
-#       }
-
-#     }
-
- resource "aws_s3_bucket_replication_configuration" "default" {
+resource "aws_s3_bucket_replication_configuration" "default" {
   for_each = var.replication_enabled ? toset(["run"]) : []
   bucket   = aws_s3_bucket.default.id
-  role     = aws_iam_role.replication_role.arn
-
+  role     = aws_iam_role.replication_role[0].arn 
   rule {
     id       = "default"
     status   = var.replication_enabled ? "Enabled" : "Disabled"
     priority = 0
 
     destination {
-      bucket        = aws_s3_bucket.replication[0].arn
+      bucket        = var.replication_enabled ? aws_s3_bucket.replication[0].arn : aws_s3_bucket.replication[0].arn
       storage_class = "STANDARD"
       encryption_configuration {
         replica_kms_key_id = (var.custom_replication_kms_key != "") ? var.custom_replication_kms_key : "arn:aws:kms:${var.replication_region}:${data.aws_caller_identity.current.account_id}:alias/aws/s3"
       }
+
     }
+
 
     source_selection_criteria {
       sse_kms_encrypted_objects {
-        status = (var.custom_replication_kms_key != "") ? "Enabled" : "Disabled"
+        status = (var.replication_enabled != false) ? "Enabled" : "Disabled"
       }
     }
   }
 }
-
-#     source_selection_criteria {
-#       sse_kms_encrypted_objects {
-#         status = (var.custom_replication_kms_key != "") ? "Enabled" : "Disabled"
-#       }
-#     }
-#   }
-# }
 
 # AWS-provided KMS acceptable compromise in absence of customer provided key
 # tfsec:ignore:aws-s3-encryption-customer-key
@@ -431,6 +399,7 @@ data "aws_iam_policy_document" "replication" {
 
 # S3 bucket replication: role
 resource "aws_iam_role" "replication_role" {
+  count = var.replication_enabled ? 1 : 0
   name = "AWSS3BucketReplication${var.suffix_name}"
   assume_role_policy = data.aws_iam_policy_document.s3-assume-role-policy.json
   tags               = var.tags
@@ -452,7 +421,8 @@ data "aws_iam_policy_document" "s3-assume-role-policy" {
 }
 resource "aws_iam_policy" "replication_policy" {
   # name = "AWSS3BucketReplicatioPolicy${var.suffix_name}"
-  name = var.replication_enabled ? "AWSS3BucketReplicationPolicy${var.suffix_name}" :  "null"
+  count = var.replication_enabled ? 1 : 0
+  name = "AWSS3BucketReplication${var.suffix_name}"
   policy = data.aws_iam_policy_document.default-policy.json
 }
 
@@ -510,6 +480,6 @@ data "aws_iam_policy_document" "default-policy" {
 }
 resource "aws_iam_role_policy_attachment" "default" {
   count = var.replication_enabled ? 1 : 0
-  role       = aws_iam_role.replication_role.name
-  policy_arn = aws_iam_policy.replication_policy.arn
+  role       = aws_iam_role.replication_role[count.index].name
+  policy_arn = aws_iam_policy.replication_policy[count.index].arn
 }
