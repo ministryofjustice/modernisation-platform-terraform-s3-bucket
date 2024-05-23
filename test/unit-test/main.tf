@@ -8,48 +8,12 @@ module "s3" {
   force_destroy       = true
   tags                = local.tags
   replication_enabled = true
-  # versioning_enabled  = true
-  # ownership_controls  = ""
+  ownership_controls  = "BucketOwnerEnforced"
+  suffix_name         = "edd"
 }
 
-#    lifecycle_rule = [
-#     {
-#       id      = "main"
-#       enabled = "Enabled"
-#       tags    = {}
-#       transition = [
-#         {
-#           days          = 90
-#           storage_class = "STANDARD_IA"
-#           }, {
-#           days          = 365
-#           storage_class = "GLACIER"
-#         }
-#       ]
-#       expiration = {
-#         days = 730
-#       }
-#       noncurrent_version_transition = [
-#         {
-#           days          = 90
-#           storage_class = "STANDARD_IA"
-#           }, {
-#           days          = 365
-#           storage_class = "GLACIER"
-#         }
-#       ]
-#       noncurrent_version_expiration = {
-#         days = 730
-#       }
-#     }
-#   ]
-
-
-# }
-
-
 module "s3_with_AES256" {
-  source = "../.."
+  source = "../.."  
   providers = {
     aws.bucket-replication = aws
   }
