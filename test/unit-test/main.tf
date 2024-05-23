@@ -9,7 +9,7 @@ module "s3" {
   tags                = local.tags
   replication_enabled = true
   # versioning_enabled  = true
-  ownership_controls  = "BucketOwnerPreferred"
+  # ownership_controls  = ""
 }
 
 #    lifecycle_rule = [

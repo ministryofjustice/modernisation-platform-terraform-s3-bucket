@@ -23,12 +23,12 @@ output "bucket_notifications" {
 }
 
 output "role_name" {
-  value = try(module.s3.role.name, "")
+  value = module.s3.role[0].name
   description = "Direct aws_iam_role resource with all attributes"
 }
 
 output "policy_name" {
-  value = try(module.s3.policy.name, "")
+  value = module.s3.policy[0].name
   description = "Direct aws_iam_policy resource with all attributes"
  
 }
