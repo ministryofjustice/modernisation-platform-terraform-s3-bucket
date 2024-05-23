@@ -271,63 +271,23 @@ resource "aws_s3_bucket" "replication" {
   tags          = var.tags
 }
 
-# # Configure bucket ACL
-# resource "aws_s3_bucket_acl" "replication" {
-#   count = var.replication_enabled ? 1 : 0
-
-#   provider = aws.bucket-replication
-#   bucket   = aws_s3_bucket.replication[count.index].id
-#   acl      = "private"
-# }
-
-resource "aws_s3_bucket_acl" "replication" {
-  count  = var.ownership_controls == "BucketOwnerEnforced" ? 0 : 1
-  bucket = aws_s3_bucket.default.id
-  acl    = var.acl
-  depends_on = [
-    aws_s3_bucket_ownership_controls.default
-  ]
+resource "aws_s3_bucket_ownership_controls" "replication" {
+  count = var.replication_enabled ? 1 : 0
+  bucket = aws_s3_bucket.replication[0].id
+  rule {
+    object_ownership = var.ownership_controls
+  }
 }
 
-# data "aws_iam_policy_document" "s3_bucket_policy" {
-
-#   statement {
-#     sid       = "AllowListBucketACL"
-#     effect    = "Allow"
-#     actions   = ["s3:GetBucketAcl"]
-#     resources = ["${aws_s3_bucket.default.arn}"]
-
-#   }
-#   statement {
-#     sid       = "AllowOnlyEncryptedObjects"
-#     effect    = "Deny"
-#     actions   = ["s3:PutObject"]
-#     resources = ["${aws_s3_bucket.default.arn}/*"]
-
-#     principals {
-#       type        = "AWS"
-#       identifiers = ["*"]
-#     }
-#     condition {
-#       test     = "Null"
-#       variable = "s3:x-amz-server-side-encryption"
-#       values   = ["true"]
-#     }
-#   }
-#   statement {
-#     sid       = "DenyUnencryptedData"
-#     effect    = "Allow"
-#     actions   = ["s3:PutObject"]
-#     resources = ["${aws_s3_bucket.default.arn}/*"]
-  
-#     condition {
-#       test     = "StringEquals"
-#       variable = "s3:x-amz-acl"
-#       values   = ["bucket-owner-full-control"]
-#     }
-#   }
-# }
-
+# Configure bucket ACL
+resource "aws_s3_bucket_acl" "replication" {
+  count = var.replication_enabled && var.ownership_controls != "BucketOwnerEnforced" ? 1 : 0
+  bucket = length(aws_s3_bucket.replication) > 0 ? aws_s3_bucket.replication[0].id : ""
+  acl    = var.acl
+  depends_on = [
+    aws_s3_bucket_ownership_controls.replication
+  ]
+}
 # Configure bucket lifecycle rules
 
 resource "aws_s3_bucket_lifecycle_configuration" "replication" {
