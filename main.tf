@@ -156,7 +156,7 @@ resource "aws_s3_bucket_replication_configuration" "default" {
       bucket        = var.replication_enabled ? aws_s3_bucket.replication[0].arn : aws_s3_bucket.replication[0].arn
       storage_class = "STANDARD"
       encryption_configuration {
-        replica_kms_key_id = (var.custom_replication_kms_key != "") ? var.custom_replication_kms_key : "arn:aws:kms:${var.replication_region}:${data.aws_caller_identity.current.account_id}:alias/aws/s3"
+        replica_kms_key_id = (var.custom_replication_kms_key != "") ? var.custom_replication_kms_key : "arn:aws:kms:${var.replication_region}:${data.aws_caller_identity.current.account_id}:alias/aws/sns"
       }
 
     }
@@ -262,11 +262,11 @@ resource "aws_s3_bucket" "replication" {
   #checkov:skip=CKV_AWS_21: "Versioning handled in versioning configuration resource"
   #checkov:skip=CKV_AWS_145: "Encryption handled in encryption configuration resource"
 
-  count = var.replication_enabled ? 1 : 0
 
+  count         = var.replication_enabled ? 1 : 0
   provider      = aws.bucket-replication
-  bucket        = (var.bucket_name != null) ? "${var.bucket_name}-replication" : null
-  bucket_prefix = (var.bucket_prefix != null) ? "${var.bucket_prefix}-replication" : null
+  bucket        = var.bucket_name != null ? "${var.bucket_name}-replication" : null
+  bucket_prefix = var.bucket_prefix != null ? "${var.bucket_prefix}-replication" : null
   force_destroy = var.force_destroy
   tags          = var.tags
 }
@@ -279,15 +279,19 @@ resource "aws_s3_bucket_ownership_controls" "replication" {
   }
 }
 
+
 # Configure bucket ACL
 resource "aws_s3_bucket_acl" "replication" {
   count = var.replication_enabled && var.ownership_controls != "BucketOwnerEnforced" ? 1 : 0
+
+  provider = aws.bucket-replication
   bucket = length(aws_s3_bucket.replication) > 0 ? aws_s3_bucket.replication[0].id : ""
   acl    = var.acl
   depends_on = [
     aws_s3_bucket_ownership_controls.replication
   ]
 }
+
 # Configure bucket lifecycle rules
 
 resource "aws_s3_bucket_lifecycle_configuration" "replication" {

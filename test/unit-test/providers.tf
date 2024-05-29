@@ -5,6 +5,13 @@ provider "aws" {
     role_arn = "arn:aws:iam::${local.environment_management.account_ids["testing-test"]}:role/MemberInfrastructureAccess"
   }
 }
+provider "aws" {
+  alias  = "eu-west-1"
+  region = "eu-west-1"
+  assume_role {
+    role_arn = "arn:aws:iam::${local.environment_management.account_ids["testing-test"]}:role/MemberInfrastructureAccess"
+  }
+}
 
 # AWS provider for the testing-ci user (testing-test account), to get things from there if required
 provider "aws" {
@@ -29,3 +36,4 @@ provider "aws" {
     role_arn = "arn:aws:iam::${local.environment_management.account_ids["core-network-services-production"]}:role/modify-dns-records"
   }
 }
+

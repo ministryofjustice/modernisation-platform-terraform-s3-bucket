@@ -8,8 +8,9 @@ module "s3" {
   force_destroy       = true
   tags                = local.tags
   replication_enabled = true
+  replication_region  = "eu-west-1"
+  versioning_enabled  = true
   ownership_controls  = "BucketOwnerEnforced"
-  suffix_name         = "edd"
 }
 
 module "s3_with_AES256" {
