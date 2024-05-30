@@ -148,7 +148,7 @@ resource "aws_s3_bucket_replication_configuration" "default" {
   bucket   = aws_s3_bucket.default.id
   role     = aws_iam_role.replication_role[0].arn 
   rule {
-    id       = "default"
+    id       = "SourceToDestinationReplication"
     status   = var.replication_enabled ? "Enabled" : "Disabled"
     priority = 0
 
@@ -156,11 +156,9 @@ resource "aws_s3_bucket_replication_configuration" "default" {
       bucket        = var.replication_enabled ? aws_s3_bucket.replication[0].arn : aws_s3_bucket.replication[0].arn
       storage_class = "STANDARD"
       encryption_configuration {
-        replica_kms_key_id = (var.custom_replication_kms_key != "") ? var.custom_replication_kms_key : "arn:aws:kms:${var.replication_region}:${data.aws_caller_identity.current.account_id}:alias/aws/sns"
+        replica_kms_key_id = (var.custom_replication_kms_key != "") ? var.custom_replication_kms_key : "arn:aws:kms:${var.replication_region}:${data.aws_caller_identity.current.account_id}:alias/aws/s3"
       }
-
     }
-
 
     source_selection_criteria {
       sse_kms_encrypted_objects {
@@ -266,7 +264,6 @@ resource "aws_s3_bucket" "replication" {
   #checkov:skip=CKV_AWS_21: "Versioning handled in versioning configuration resource"
   #checkov:skip=CKV_AWS_145: "Encryption handled in encryption configuration resource"
 
-
   count         = var.replication_enabled ? 1 : 0
   provider      = aws.bucket-replication
   bucket        = var.bucket_name != null ? "${var.bucket_name}-replication" : null
@@ -283,7 +280,6 @@ resource "aws_s3_bucket_ownership_controls" "replication" {
     object_ownership = var.ownership_controls
   }
 }
-
 
 # Configure bucket ACL
 resource "aws_s3_bucket_acl" "replication" {
@@ -302,7 +298,6 @@ resource "aws_s3_bucket_acl" "replication" {
 resource "aws_s3_bucket_lifecycle_configuration" "replication" {
   #checkov:skip=CKV_AWS_300: "Ensure S3 lifecycle configuration sets period for aborting failed uploads"
   count = var.replication_enabled ? 1 : 0
-
   provider = aws.bucket-replication
   bucket   = aws_s3_bucket.replication[count.index].id
   rule {
@@ -385,7 +380,7 @@ resource "aws_s3_bucket_versioning" "replication" {
   provider = aws.bucket-replication
   bucket   = aws_s3_bucket.replication[count.index].id
   versioning_configuration {
-    status = (var.versioning_enabled != true) ? "Suspended" : "Enabled"
+    status = "Enabled"
   }
 }
 

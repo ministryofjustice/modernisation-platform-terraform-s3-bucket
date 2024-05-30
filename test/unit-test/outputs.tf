@@ -22,15 +22,21 @@ output "bucket_notifications" {
   description = "Retrieve name of bucket with notifications enabled"
 }
 
+# output "role_name" {
+#   value = module.s3.role[0].name
+#   description = "Direct aws_iam_role resource with all attributes"
+# }
+# output "policy_name" {
+#   value = module.s3.policy[0].name
+#   description = "Direct aws_iam_policy resource with all attributes"
+# }
+
 output "role_name" {
-  value = module.s3.role[*].name
-  description = "Direct aws_iam_role resource with all attributes"
+  value = length(module.s3.role) > 0 ? module.s3.role[0].name : ""
+  description = "Name of the IAM role for S3 replication"
 }
 
 output "policy_name" {
-  value = module.s3.policy[*].name
-  description = "Direct aws_iam_policy resource with all attributes"
- 
+  value = length(module.s3.policy) > 0 ? module.s3.policy[0].name : ""
+  description = "Name of the IAM policy for S3 replication"
 }
-
-
