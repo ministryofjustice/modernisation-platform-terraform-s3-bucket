@@ -168,6 +168,9 @@ resource "aws_s3_bucket_replication_configuration" "default" {
       }
     }
   }
+  depends_on = [
+    aws_s3_bucket_versioning.default
+  ]
 }
 
 # AWS-provided KMS acceptable compromise in absence of customer provided key
@@ -246,6 +249,7 @@ data "aws_iam_policy_document" "default" {
 
 resource "aws_s3_bucket_notification" "bucket_notification_replication" {
   count  = var.replication_enabled && var.notification_enabled ? 1 : 0
+  provider = aws.bucket-replication
   bucket = aws_s3_bucket.replication[count.index]
 
   topic {
@@ -273,6 +277,7 @@ resource "aws_s3_bucket" "replication" {
 
 resource "aws_s3_bucket_ownership_controls" "replication" {
   count = var.replication_enabled ? 1 : 0
+  provider = aws.bucket-replication
   bucket = aws_s3_bucket.replication[0].id
   rule {
     object_ownership = var.ownership_controls
@@ -386,6 +391,7 @@ resource "aws_s3_bucket_versioning" "replication" {
 
 data "aws_iam_policy_document" "replication" {
   count = var.replication_enabled ? 1 : 0
+  provider = aws.bucket-replication
 
   statement {
     effect  = "Deny"
@@ -411,6 +417,7 @@ data "aws_iam_policy_document" "replication" {
 
 # S3 bucket replication: role
 resource "aws_iam_role" "replication_role" {
+  provider = aws.bucket-replication
   count = var.replication_enabled ? 1 : 0
   name = "AWSS3BucketReplication${var.suffix_name}"
   assume_role_policy = data.aws_iam_policy_document.s3-assume-role-policy.json
@@ -434,6 +441,7 @@ data "aws_iam_policy_document" "s3-assume-role-policy" {
 resource "aws_iam_policy" "replication_policy" {
   # name = "AWSS3BucketReplicatioPolicy${var.suffix_name}"
   count = var.replication_enabled ? 1 : 0
+  provider = aws.bucket-replication
   name = "AWSS3BucketReplication${var.suffix_name}"
   policy = data.aws_iam_policy_document.default-policy.json
 }
@@ -490,8 +498,9 @@ data "aws_iam_policy_document" "default-policy" {
   }
 
 }
-resource "aws_iam_role_policy_attachment" "default" {
+resource "aws_iam_role_policy_attachment" "replication" {
   count = var.replication_enabled ? 1 : 0
+  provider = aws.bucket-replication
   role       = aws_iam_role.replication_role[count.index].name
   policy_arn = aws_iam_policy.replication_policy[count.index].arn
 }

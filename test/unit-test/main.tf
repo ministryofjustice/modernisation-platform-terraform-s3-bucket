@@ -2,7 +2,7 @@ module "s3" {
   #checkov:skip=CKV_AWS_300: "Ensure S3 lifecycle configuration sets period for aborting failed uploads - This is not needed in our tests"
   source = "../.."
   providers = {
-    aws.bucket-replication = aws
+    aws.bucket-replication = aws.eu-west-1
   }
   bucket_prefix       = "unit-test-bucket"
   force_destroy       = true
@@ -16,7 +16,7 @@ module "s3" {
 module "s3_with_AES256" {
   source = "../.."  
   providers = {
-    aws.bucket-replication = aws
+    aws.bucket-replication = aws.eu-west-1
   }
   bucket_prefix = "unit-test-bucket"
   force_destroy = true

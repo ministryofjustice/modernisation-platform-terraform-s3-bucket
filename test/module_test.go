@@ -64,7 +64,7 @@ func TestS3Creation(t *testing.T) {
 		assert.Equal(t, "", policyName, "Policy name should be empty when replication is not enabled.")
 	} else {
 		// Replication is enabled, assert that the role name and policy name match the expected patterns
-		assert.Regexp(t, regexp.MustCompile(`^AWSS3BucketReplication.*`), roleName)
-		assert.Regexp(t, regexp.MustCompile(`^AWSS3BucketPolicy.*`), policyName)
+		assert.Regexp(t, regexp.MustCompile("^AWSS3BucketReplication*"), roleName)
+		assert.Regexp(t, regexp.MustCompile("^AWSS3BucketPolicy*"), policyName)
 	}
 }
