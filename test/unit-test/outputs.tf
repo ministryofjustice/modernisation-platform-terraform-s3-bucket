@@ -24,12 +24,12 @@ output "bucket_notifications" {
 }
 
 output "policy_name" {
-  value = length(module.s3.policy) > 0 ? module.s3.policy[0].name : ""
+  value       = length(module.s3.policy) > 0 ? module.s3.policy[0].name : ""
   description = "Name of the IAM policy for S3 replication"
 }
 
 output "role_name" {
-  value = length(module.s3.role) > 0 ? module.s3.role[0].name : ""
+  value       = length(module.s3.role) > 0 ? module.s3.role[0].name : ""
   description = "Name of the IAM role for S3 replication"
 }
 

@@ -5,9 +5,9 @@ locals {
 data "aws_caller_identity" "current" {}
 
 resource "aws_s3_bucket_notification" "bucket_notification_replication" {
-  count  = var.replication_enabled && var.notification_enabled ? 1 : 0
+  count    = var.replication_enabled && var.notification_enabled ? 1 : 0
   provider = aws.bucket-replication
-  bucket = aws_s3_bucket.replication[count.index]
+  bucket   = aws_s3_bucket.replication[count.index]
 
   topic {
     topic_arn = var.notification_sns_arn
@@ -32,9 +32,9 @@ resource "aws_s3_bucket" "replication" {
 }
 
 resource "aws_s3_bucket_ownership_controls" "replication" {
-  count = var.replication_enabled ? 1 : 0
+  count    = var.replication_enabled ? 1 : 0
   provider = aws.bucket-replication
-  bucket = aws_s3_bucket.replication[0].id
+  bucket   = aws_s3_bucket.replication[0].id
   rule {
     object_ownership = var.ownership_controls
   }
@@ -45,8 +45,8 @@ resource "aws_s3_bucket_acl" "replication" {
   count = var.replication_enabled && var.ownership_controls != "BucketOwnerEnforced" ? 1 : 0
 
   provider = aws.bucket-replication
-  bucket = length(aws_s3_bucket.replication) > 0 ? aws_s3_bucket.replication[0].id : ""
-  acl    = var.acl
+  bucket   = length(aws_s3_bucket.replication) > 0 ? aws_s3_bucket.replication[0].id : ""
+  acl      = var.acl
   depends_on = [
     aws_s3_bucket_ownership_controls.replication
   ]
@@ -56,7 +56,7 @@ resource "aws_s3_bucket_acl" "replication" {
 
 resource "aws_s3_bucket_lifecycle_configuration" "replication" {
   #checkov:skip=CKV_AWS_300: "Ensure S3 lifecycle configuration sets period for aborting failed uploads"
-  count = var.replication_enabled ? 1 : 0
+  count    = var.replication_enabled ? 1 : 0
   provider = aws.bucket-replication
   bucket   = aws_s3_bucket.replication[count.index].id
   rule {
@@ -144,7 +144,7 @@ resource "aws_s3_bucket_versioning" "replication" {
 }
 
 data "aws_iam_policy_document" "replication" {
-  count = var.replication_enabled ? 1 : 0
+  count    = var.replication_enabled ? 1 : 0
   provider = aws.bucket-replication
 
   statement {
@@ -171,9 +171,9 @@ data "aws_iam_policy_document" "replication" {
 
 # S3 bucket replication: role
 resource "aws_iam_role" "replication_role" {
-  provider = aws.bucket-replication
-  count = var.replication_enabled ? 1 : 0
-  name = "AWSS3BucketReplication${var.suffix_name}"
+  provider           = aws.bucket-replication
+  count              = var.replication_enabled ? 1 : 0
+  name               = "AWSS3BucketReplication${var.suffix_name}"
   assume_role_policy = data.aws_iam_policy_document.s3-assume-role-policy.json
   tags               = var.tags
 }
@@ -194,10 +194,10 @@ data "aws_iam_policy_document" "s3-assume-role-policy" {
 }
 resource "aws_iam_policy" "replication_policy" {
   # name = "AWSS3BucketReplicatioPolicy${var.suffix_name}"
-  count = var.replication_enabled ? 1 : 0
+  count    = var.replication_enabled ? 1 : 0
   provider = aws.bucket-replication
-  name = "AWSS3BucketReplication${var.suffix_name}"
-  policy = data.aws_iam_policy_document.replication-policy.json
+  name     = "AWSS3BucketReplication${var.suffix_name}"
+  policy   = data.aws_iam_policy_document.replication-policy.json
 }
 
 # S3 bucket replication: role policy
@@ -237,7 +237,7 @@ data "aws_iam_policy_document" "replication-policy" {
       "s3:ObjectOwnerOverrideToBucketOwner"
     ]
 
-   resources = [var.replication_bucket != "" ? local.replication_bucket : "*"]
+    resources = [var.replication_bucket != "" ? local.replication_bucket : "*"]
 
 
 
@@ -253,8 +253,8 @@ data "aws_iam_policy_document" "replication-policy" {
 }
 
 resource "aws_iam_role_policy_attachment" "replication" {
-  count = var.replication_enabled ? 1 : 0
-  provider = aws.bucket-replication
+  count      = var.replication_enabled ? 1 : 0
+  provider   = aws.bucket-replication
   role       = aws_iam_role.replication_role[count.index].name
   policy_arn = aws_iam_policy.replication_policy[count.index].arn
 }
@@ -262,7 +262,7 @@ resource "aws_iam_role_policy_attachment" "replication" {
 resource "aws_s3_bucket_replication_configuration" "default" {
   for_each = var.replication_enabled ? toset(["run"]) : []
   bucket   = aws_s3_bucket.default.id
-  role     = aws_iam_role.replication_role[0].arn 
+  role     = aws_iam_role.replication_role[0].arn
   rule {
     id       = "SourceToDestinationReplication"
     status   = var.replication_enabled ? "Enabled" : "Disabled"
