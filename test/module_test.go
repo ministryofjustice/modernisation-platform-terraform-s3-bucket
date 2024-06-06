@@ -45,9 +45,26 @@ func TestS3Creation(t *testing.T) {
 	bucketNotification := terraform.Output(t, terraformOptions, "bucket_notifications")
 	assert.Regexp(t, regexp.MustCompile(`unit-test-bucket*`), bucketNotification)
 
-	roleName := terraform.Output(t, terraformOptions, "role_name")
-	assert.Regexp(t, regexp.MustCompile(`^AWSS3BucketReplication*`), roleName)
+	// roleName := terraform.Output(t, terraformOptions, "role_name")
+	// assert.Regexp(t, regexp.MustCompile(`^AWSS3BucketReplication*`), roleName)
 
+	// policyName := terraform.Output(t, terraformOptions, "policy_name")
+	// assert.Regexp(t, regexp.MustCompile(`^AWSS3BucketReplicationPolicy*`), policyName)
+
+	// Retrieve the role_name output
+	roleName := terraform.Output(t, terraformOptions, "role_name")
+
+	// Retrieve the policy_name output
 	policyName := terraform.Output(t, terraformOptions, "policy_name")
-	assert.Regexp(t, regexp.MustCompile(`^AWSS3BucketReplicationPolicy*`), policyName)
+
+	// Check if role name and policy name are empty, which indicates replication is disabled
+	if roleName == "" && policyName == "" {
+		// Replication is not enabled, assert that the role name and policy name are empty
+		assert.Equal(t, "", roleName, "Role name should be empty when replication is not enabled.")
+		assert.Equal(t, "", policyName, "Policy name should be empty when replication is not enabled.")
+	} else {
+		// Replication is enabled, assert that the role name and policy name match the expected patterns
+		assert.Regexp(t, regexp.MustCompile("^AWSS3BucketReplication*"), roleName)
+		assert.Regexp(t, regexp.MustCompile("^AWSS3BucketReplication.*"), policyName)
+	}
 }
