@@ -18,9 +18,8 @@ module "s3-bucket" {
 
   # Refer to the below section "Replication" before enabling replication
   replication_enabled                      = false
-  # Below two variables and providers configuration are only relevant if 'replication_enabled' is set to true
+  # Below variable and providers configuration is only relevant if 'replication_enabled' is set to true
   # replication_region                       = "eu-west-2"
-  # replication_role_arn                     = module.s3-bucket.role.arn
   providers = {
     # Here we use the default provider Region for replication. Destination buckets can be within the same Region as the
     # source bucket. On the other hand, if you need to enable cross-region replication, please contact the Modernisation
@@ -179,14 +178,17 @@ Regardless of whether a custom bucket policy is set as part of this module, we w
 
 If replication is enabled then:
 
-- 'custom_replication_kms_key' variable is required, this key must allow access for S3
-- 'versioning_enabled' variable must be set to enabled
-- 'replication_role_arn' variable must be set to relevant arn for iam role
+- Define a provider configuration for the replication region by setting 'aws.bucket-replication' to the desired region e.g.'aws.bucket-replication' = 'aws.replication-region'
+- provide either'custom_replication_kms_key' or use default AWS KMS key. The KMS key must be in the same region as the destination bucket and must allow access for S3.
+- 'versioning_enabled' variable must be set to enabled. Both source and destination buckets must have versioning enabled.
+- 'replication_region' variable must be set to desired destination region.
+- 'ownership_controls' variable must be set to 'BucketOwnerEnforced' for full control of all objects in the bucket and to disable ACLs.
+
 
 There are two ways to create the IAM role for replication:
 
-- use the [modernisation-platform-terraform-s3-bucket](https://github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket) to configure a role based on bucket ARNs
-- create one yourself, by following the [Setting up permissions for replication](https://docs.aws.amazon.com/AmazonS3/latest/dev/setting-repl-config-perm-overview.html) guide on AWS
+- use the [modernisation-platform-terraform-s3-bucket](https://github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket) to configure a role based on bucket ARNs.
+- create one yourself, by following the [Setting up permissions for replication](https://docs.aws.amazon.com/AmazonS3/latest/dev/setting-repl-config-perm-overview.html) guide on AWS.
 
 ## Outputs
 
