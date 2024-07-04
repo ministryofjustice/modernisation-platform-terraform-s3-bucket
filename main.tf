@@ -137,6 +137,7 @@ resource "aws_s3_bucket_policy" "default" {
 }
 # AWS-provided KMS acceptable compromise in absence of customer provided key
 # tfsec:ignore:aws-s3-encryption-customer-key
+#tfsec:ignore:avd-aws-0132 S3 encryption should use Custom Managed Keys, KMS is acceptable compromise 
 resource "aws_s3_bucket_server_side_encryption_configuration" "default" {
   #checkov:skip=CKV2_AWS_67: "Ensure AWS S3 bucket encrypted with Customer Managed Key (CMK) has regular rotation"
 
