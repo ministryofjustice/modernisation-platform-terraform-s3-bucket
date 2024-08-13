@@ -126,6 +126,17 @@ variable "log_prefix" {
   default     = ""
 }
 
+variable "log_partition_date_source" {
+  type    = string
+  default = "None"
+  description = "Partition logs by date. Allowed values are 'EventTime', 'DeliveryTime', or 'None'."
+
+  validation {
+    condition     = contains(["EventTime", "DeliveryTime", "None"], var.log_partition_date_source)
+    error_message = "log_partition_date_source must be either 'EventTime', 'DeliveryTime', or 'None'."
+  }
+}
+
 variable "replication_role_arn" {
   type        = string
   description = "Role ARN to access S3 and replicate objects"

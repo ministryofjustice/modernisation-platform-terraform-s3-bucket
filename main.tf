@@ -114,6 +114,15 @@ resource "aws_s3_bucket_logging" "default" {
   bucket        = aws_s3_bucket.default.id
   target_bucket = var.log_bucket
   target_prefix = var.log_prefix
+
+  dynamic "target_object_key_format" {
+    for_each = (var.log_partition_date_source != "None") ? [1] : []
+    content {
+      partitioned_prefix {
+        partition_date_source = var.log_partition_date_source
+      }
+    }
+  }
 }
 
 # Block public access policies for this bucket
