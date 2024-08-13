@@ -120,6 +120,17 @@ variable "log_bucket" {
   default     = ""
 }
 
+variable "log_partition_date_source" {
+  type        = string
+  default     = "None"
+  description = "Partition logs by date. Allowed values are 'EventTime', 'DeliveryTime', or 'None'."
+
+  validation {
+    condition     = contains(["EventTime", "DeliveryTime", "None"], var.log_partition_date_source)
+    error_message = "log_partition_date_source must be either 'EventTime', 'DeliveryTime', or 'None'."
+  }
+}
+
 variable "log_prefix" {
   type        = string
   description = "Prefix to use for server access logging, if applicable"
