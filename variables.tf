@@ -121,8 +121,8 @@ variable "log_bucket" {
 }
 
 variable "log_partition_date_source" {
-  type    = string
-  default = "None"
+  type        = string
+  default     = "None"
   description = "Partition logs by date. Allowed values are 'EventTime', 'DeliveryTime', or 'None'."
 
   validation {
