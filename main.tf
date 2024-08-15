@@ -199,7 +199,7 @@ data "aws_iam_policy_document" "default" {
   override_policy_documents = concat(var.bucket_policy, [data.aws_iam_policy_document.bucket_policy_v2.json])
 
   statement {
-    sid = "EnforceTLSv12orHigher"
+    sid     = "EnforceTLSv12orHigher"
     effect  = "Deny"
     actions = ["s3:*"]
     resources = [
