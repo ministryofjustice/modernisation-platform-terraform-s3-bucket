@@ -199,22 +199,21 @@ data "aws_iam_policy_document" "default" {
   override_policy_documents = concat(var.bucket_policy, [data.aws_iam_policy_document.bucket_policy_v2.json])
 
   statement {
+    sid = "EnforceTLSv12orHigher"
     effect  = "Deny"
     actions = ["s3:*"]
     resources = [
       aws_s3_bucket.default.arn,
       "${aws_s3_bucket.default.arn}/*"
     ]
-
     principals {
       identifiers = ["*"]
       type        = "AWS"
     }
-
     condition {
-      test     = "Bool"
-      variable = "aws:SecureTransport"
-      values   = ["false"]
+      test     = "NumericLessThan"
+      variable = "s3:TlsVersion"
+      values   = [1.2]
     }
   }
 }
