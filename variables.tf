@@ -187,3 +187,9 @@ variable "replication_bucket" {
   description = "Name of bucket used for replication - if not specified then * will be used in the policy"
   default     = ""
 }
+
+variable "conditions" {
+  description = "Conditions for the bucket policy"
+  type        = map(any)
+  default     = {}
+}
