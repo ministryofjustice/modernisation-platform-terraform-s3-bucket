@@ -137,6 +137,7 @@ resource "aws_s3_bucket_public_access_block" "default" {
 # Merge and attach policies to the S3 bucket
 # This ensures every bucket created via this module
 # doesn't allow any actions that aren't over SecureTransport methods (i.e. HTTP)
+# Bucket Policy
 resource "aws_s3_bucket_policy" "default" {
   bucket = aws_s3_bucket.default.id
   policy = data.aws_iam_policy_document.default.json
@@ -149,7 +150,6 @@ resource "aws_s3_bucket_policy" "default" {
 #tfsec:ignore:avd-aws-0132 S3 encryption should use Custom Managed Keys, KMS is acceptable compromise 
 resource "aws_s3_bucket_server_side_encryption_configuration" "default" {
   #checkov:skip=CKV2_AWS_67: "Ensure AWS S3 bucket encrypted with Customer Managed Key (CMK) has regular rotation"
-
   bucket = aws_s3_bucket.default.id
   rule {
     apply_server_side_encryption_by_default {
@@ -217,4 +217,3 @@ data "aws_iam_policy_document" "default" {
     }
   }
 }
-

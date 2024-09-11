@@ -20,4 +20,7 @@ output "role" {
   value       = aws_iam_role.replication_role
   description = "Direct aws_iam_role resource with all attributes"
 }
-
+output "replication_role_arn" {
+  value       = aws_iam_role.replication_role[0].arn
+  description = "The ARN of the replication role"
+}

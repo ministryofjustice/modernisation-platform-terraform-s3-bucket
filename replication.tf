@@ -209,7 +209,6 @@ data "aws_iam_policy_document" "replication-policy" {
     actions = [
       "s3:GetReplicationConfiguration",
       "s3:ListBucket"
-
     ]
     resources = [aws_s3_bucket.default.arn]
   }
@@ -236,11 +235,8 @@ data "aws_iam_policy_document" "replication-policy" {
       "s3:GetObjectVersionTagging",
       "s3:ObjectOwnerOverrideToBucketOwner"
     ]
-
     resources = [var.replication_bucket != "" ? local.replication_bucket : "*"]
-
-
-
+    
     condition {
       test     = "StringLikeIfExists"
       variable = "s3:x-amz-server-side-encryption"
@@ -248,6 +244,25 @@ data "aws_iam_policy_document" "replication-policy" {
         "aws:kms",
         "AES256"
       ]
+    }
+  }
+
+  # Add a statement for cross-account access
+  statement {
+    effect = "Allow"
+    actions = [
+      "s3:ReplicateObject",
+      "s3:ReplicateDelete",
+      "s3:ReplicateTags",
+      "s3:GetObjectVersionTagging",
+      "s3:ObjectOwnerOverrideToBucketOwner"
+    ]
+    resources = ["arn:aws:s3:::${var.replication_bucket}/*"]
+
+    condition {
+      test     = "StringEquals"
+      variable = "aws:PrincipalAccount"
+      values   = [var.replication_account_id]
     }
   }
 }
@@ -269,10 +284,18 @@ resource "aws_s3_bucket_replication_configuration" "default" {
     priority = 0
 
     destination {
-      bucket        = var.replication_enabled ? aws_s3_bucket.replication[0].arn : aws_s3_bucket.replication[0].arn
+      bucket = var.cross_account_replication_enabled 
+        ? "arn:aws:s3:::${var.replication_bucket}" 
+        : (var.replication_bucket != "" 
+            ? "arn:aws:s3:::${var.replication_bucket}" 
+            : aws_s3_bucket.replication[0].arn)
+
       storage_class = "STANDARD"
+
       encryption_configuration {
-        replica_kms_key_id = (var.custom_replication_kms_key != "") ? var.custom_replication_kms_key : "arn:aws:kms:${var.replication_region}:${data.aws_caller_identity.current.account_id}:alias/aws/s3"
+        replica_kms_key_id = (var.custom_replication_kms_key != "") 
+          ? var.custom_replication_kms_key 
+          : "arn:aws:kms:${var.replication_region}:${data.aws_caller_identity.current.account_id}:alias/aws/s3"
       }
     }
 
@@ -282,6 +305,7 @@ resource "aws_s3_bucket_replication_configuration" "default" {
       }
     }
   }
+
   depends_on = [
     aws_s3_bucket_versioning.default
   ]
