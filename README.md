@@ -135,6 +135,7 @@ No modules.
 | <a name="input_bucket_policy"></a> [bucket\_policy](#input\_bucket\_policy) | JSON for the bucket policy | `list(string)` | <pre>[<br>  "{}"<br>]</pre> | no |
 | <a name="input_bucket_policy_v2"></a> [bucket\_policy\_v2](#input\_bucket\_policy\_v2) | Alternative to bucket\_policy.  Define policies directly without needing to know the bucket ARN | <pre>list(object({<br>    effect  = string<br>    actions = list(string)<br>    principals = optional(object({<br>      type        = string<br>      identifiers = list(string)<br>    }))<br>    conditions = optional(list(object({<br>      test     = string<br>      variable = string<br>      values   = list(string)<br>    })), [])<br>  }))</pre> | `[]` | no |
 | <a name="input_bucket_prefix"></a> [bucket\_prefix](#input\_bucket\_prefix) | Bucket prefix, which will include a randomised suffix to ensure globally unique names | `string` | `null` | no |
+| <a name="input_cross_account_replication_enabled"></a> [cross\_account\_replication\_enabled](#input\_cross\_account\_replication\_enabled) | Enable cross-account replication if true. Make sure to set the correct replication account ID | `bool` | `false` | no |
 | <a name="input_custom_kms_key"></a> [custom\_kms\_key](#input\_custom\_kms\_key) | KMS key ARN to use | `string` | `""` | no |
 | <a name="input_custom_replication_kms_key"></a> [custom\_replication\_kms\_key](#input\_custom\_replication\_kms\_key) | KMS key ARN to use for replication to eu-west-2 | `string` | `""` | no |
 | <a name="input_force_destroy"></a> [force\_destroy](#input\_force\_destroy) | A boolean that indicates all objects (including any locked objects) should be deleted from the bucket so that the bucket can be destroyed without error. These objects are not recoverable. | `bool` | `false` | no |
@@ -146,6 +147,7 @@ No modules.
 | <a name="input_notification_events"></a> [notification\_events](#input\_notification\_events) | The event for which we send notifications | `list(string)` | <pre>[<br>  ""<br>]</pre> | no |
 | <a name="input_notification_sns_arn"></a> [notification\_sns\_arn](#input\_notification\_sns\_arn) | The arn for the bucket notification SNS topic | `string` | `""` | no |
 | <a name="input_ownership_controls"></a> [ownership\_controls](#input\_ownership\_controls) | Bucket Ownership Controls - for use WITH acl var above options are 'BucketOwnerPreferred' or 'ObjectWriter'. To disable ACLs and use new AWS recommended controls set this to 'BucketOwnerEnforced' and which will disabled ACLs and ignore var.acl | `string` | `"ObjectWriter"` | no |
+| <a name="input_replication_account_id"></a> [replication\_account\_id](#input\_replication\_account\_id) | AWS Account ID of the destination account for cross-account replication | `string` | `""` | no |
 | <a name="input_replication_bucket"></a> [replication\_bucket](#input\_replication\_bucket) | Name of bucket used for replication - if not specified then * will be used in the policy | `string` | `""` | no |
 | <a name="input_replication_enabled"></a> [replication\_enabled](#input\_replication\_enabled) | Activate S3 bucket replication | `bool` | `false` | no |
 | <a name="input_replication_region"></a> [replication\_region](#input\_replication\_region) | Region to create S3 replication bucket | `string` | `"eu-west-2"` | no |
@@ -163,6 +165,7 @@ No modules.
 | <a name="output_bucket_notifications"></a> [bucket\_notifications](#output\_bucket\_notifications) | n/a |
 | <a name="output_bucket_server_side_encryption"></a> [bucket\_server\_side\_encryption](#output\_bucket\_server\_side\_encryption) | Bucket server-side encryption configuration |
 | <a name="output_policy"></a> [policy](#output\_policy) | Direct aws\_iam\_policy resource with all attributes |
+| <a name="output_replication_role_arn"></a> [replication\_role\_arn](#output\_replication\_role\_arn) | The ARN of the replication role |
 | <a name="output_role"></a> [role](#output\_role) | Direct aws\_iam\_role resource with all attributes |
 <!-- END_TF_DOCS -->
 
