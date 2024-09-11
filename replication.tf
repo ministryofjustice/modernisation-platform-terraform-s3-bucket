@@ -1,5 +1,6 @@
 locals {
-  replication_bucket = "arn:aws:s3:::${var.replication_bucket}/*"
+  # Determine the ARN for the replication bucket
+  destination_bucket_arn = var.cross_account_replication_enabled ? "arn:aws:s3:::${var.replication_bucket}" : aws_s3_bucket.replication[0].arn
 }
 
 data "aws_caller_identity" "current" {}
@@ -278,24 +279,18 @@ resource "aws_s3_bucket_replication_configuration" "default" {
   for_each = var.replication_enabled ? toset(["run"]) : []
   bucket   = aws_s3_bucket.default.id
   role     = aws_iam_role.replication_role[0].arn
+
   rule {
     id       = "SourceToDestinationReplication"
     status   = var.replication_enabled ? "Enabled" : "Disabled"
     priority = 0
 
     destination {
-      bucket = var.cross_account_replication_enabled 
-        ? "arn:aws:s3:::${var.replication_bucket}" 
-        : (var.replication_bucket != "" 
-            ? "arn:aws:s3:::${var.replication_bucket}" 
-            : aws_s3_bucket.replication[0].arn)
-
+      bucket        = local.destination_bucket_arn
       storage_class = "STANDARD"
 
       encryption_configuration {
-        replica_kms_key_id = (var.custom_replication_kms_key != "") 
-          ? var.custom_replication_kms_key 
-          : "arn:aws:kms:${var.replication_region}:${data.aws_caller_identity.current.account_id}:alias/aws/s3"
+        replica_kms_key_id = (var.custom_replication_kms_key != "") ? var.custom_replication_kms_key : "arn:aws:kms:${var.replication_region}:${data.aws_caller_identity.current.account_id}:alias/aws/s3"
       }
     }
 
