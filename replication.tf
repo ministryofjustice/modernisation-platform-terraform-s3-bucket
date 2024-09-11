@@ -237,7 +237,7 @@ data "aws_iam_policy_document" "replication-policy" {
       "s3:ObjectOwnerOverrideToBucketOwner"
     ]
     resources = [local.replication_bucket_arn]
-    
+
     condition {
       test     = "StringLikeIfExists"
       variable = "s3:x-amz-server-side-encryption"
