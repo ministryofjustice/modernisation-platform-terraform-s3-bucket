@@ -1,6 +1,6 @@
 locals {
   # Determine the ARN for the replication bucket
-  destination_bucket_arn = var.cross_account_replication_enabled ? "arn:aws:s3:::${var.replication_bucket}" : aws_s3_bucket.replication[0].arn
+  replication_bucket_arn = var.cross_account_replication_enabled ? "arn:aws:s3:::${var.replication_bucket}" : aws_s3_bucket.replication[0].arn
 }
 
 data "aws_caller_identity" "current" {}
@@ -236,8 +236,13 @@ data "aws_iam_policy_document" "replication-policy" {
       "s3:GetObjectVersionTagging",
       "s3:ObjectOwnerOverrideToBucketOwner"
     ]
+<<<<<<< HEAD
     resources = [var.replication_bucket != "" ? local.replication_bucket : "*"]
 
+=======
+    resources = [local.replication_bucket_arn]
+    
+>>>>>>> 9bc20bb (replication-bucket)
     condition {
       test     = "StringLikeIfExists"
       variable = "s3:x-amz-server-side-encryption"
@@ -258,7 +263,7 @@ data "aws_iam_policy_document" "replication-policy" {
       "s3:GetObjectVersionTagging",
       "s3:ObjectOwnerOverrideToBucketOwner"
     ]
-    resources = ["arn:aws:s3:::${var.replication_bucket}/*"]
+    resources = ["${local.replication_bucket_arn}/*"]
 
     condition {
       test     = "StringEquals"
@@ -286,7 +291,7 @@ resource "aws_s3_bucket_replication_configuration" "default" {
     priority = 0
 
     destination {
-      bucket        = local.destination_bucket_arn
+      bucket        = local.replication_bucket_arn
       storage_class = "STANDARD"
 
       encryption_configuration {
