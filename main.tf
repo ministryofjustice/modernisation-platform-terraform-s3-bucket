@@ -110,10 +110,11 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
 
 # Configure bucket access logging
 resource "aws_s3_bucket_logging" "default" {
-  for_each      = (length(var.log_bucket) > 0) ? toset([var.log_bucket]) : []
+  for_each = var.log_buckets != null ? var.log_buckets : {}
+
   bucket        = aws_s3_bucket.default.id
-  target_bucket = var.log_bucket
-  target_prefix = var.log_prefix
+  target_bucket = each.value.id
+  target_prefix = each.value.prefix != null ? each.value.prefix : var.log_prefix
 
   dynamic "target_object_key_format" {
     for_each = (var.log_partition_date_source != "None") ? [1] : []

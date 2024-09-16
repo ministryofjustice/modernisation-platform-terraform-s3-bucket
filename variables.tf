@@ -114,10 +114,13 @@ variable "lifecycle_rule" {
   }]
 }
 
-variable "log_bucket" {
-  type        = string
-  description = "Bucket for server access logging, if applicable"
-  default     = ""
+variable "log_buckets" {
+  type = map(object({
+    id     = string
+    prefix = optional(string, null) # Allow optional prefix
+  }))
+  description = "Object for server access logging, containing bucket name and optional prefix"
+  default     = null
 }
 
 variable "log_partition_date_source" {
