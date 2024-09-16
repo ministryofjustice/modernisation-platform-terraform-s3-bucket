@@ -187,3 +187,14 @@ variable "replication_bucket" {
   description = "Name of bucket used for replication - if not specified then * will be used in the policy"
   default     = ""
 }
+variable "replication_account_id" {
+  type        = string
+  description = "AWS Account ID of the destination account for cross-account replication"
+  default     = ""
+}
+
+variable "cross_account_replication_enabled" {
+  type        = bool
+  description = "Enable cross-account replication if true. Make sure to set the correct replication account ID"
+  default     = false
+}
