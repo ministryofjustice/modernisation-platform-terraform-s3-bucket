@@ -110,7 +110,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
 
 # Configure bucket access logging for buckets in the same account
 resource "aws_s3_bucket_logging" "default_single_name" {
-  for_each = (length(var.log_bucket) > 0) ? toset([var.log_bucket]) : []
+  for_each      = (length(var.log_bucket) > 0) ? toset([var.log_bucket]) : []
   bucket        = aws_s3_bucket.default.id
   target_bucket = var.log_bucket
   target_prefix = var.log_prefix
