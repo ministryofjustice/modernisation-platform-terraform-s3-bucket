@@ -59,10 +59,24 @@ module "s3_with_notification" {
 }
 
 resource "aws_s3_bucket" "non-modulised-bucket" {
+  #checkov:skip=CKV_AWS_6: "Ensure that S3 bucket has a Public Access block - This is not needed in our tests"
+  #checkov:skip=CKV_AWS_18: "Ensure the S3 bucket has access logging enabled - This is not needed in our tests"
+  #checkov:skip=CKV_AWS_21: "Ensure all data stored in the S3 bucket have versioning enabled - This is not needed in our tests"
+  #checkov:skip=CKV_AWS_61: "Ensure that an S3 bucket has a lifecycle configuration - This is not needed in our tests"
+  #checkov:skip=CKV_AWS_62: "Ensure S3 buckets should have event notifications enabled - This is not needed in our tests"
+  #checkov:skip=CKV_AWS_144: "Ensure that S3 bucket has cross-region replication enabled - This is not needed in our tests"
+  #checkov:skip=CKV_AWS_145: "Ensure that S3 buckets are encrypted with KMS by default - This is not needed in our tests"
   bucket = "log-test-bucket-051683332738327"
 }
 
 resource "aws_s3_bucket" "non-modulised-bucket-2" {
+  #checkov:skip=CKV_AWS_6: "Ensure that S3 bucket has a Public Access block - This is not needed in our tests"
+  #checkov:skip=CKV_AWS_18: "Ensure the S3 bucket has access logging enabled - This is not needed in our tests"
+  #checkov:skip=CKV_AWS_21: "Ensure all data stored in the S3 bucket have versioning enabled - This is not needed in our tests"
+  #checkov:skip=CKV_AWS_61: "Ensure that an S3 bucket has a lifecycle configuration - This is not needed in our tests"
+  #checkov:skip=CKV_AWS_62: "Ensure S3 buckets should have event notifications enabled - This is not needed in our tests"
+  #checkov:skip=CKV_AWS_144: "Ensure that S3 bucket has cross-region replication enabled - This is not needed in our tests"
+  #checkov:skip=CKV_AWS_145: "Ensure that S3 buckets are encrypted with KMS by default - This is not needed in our tests"
   bucket = "log-test-bucket-2-051683332738327"
 }
 
