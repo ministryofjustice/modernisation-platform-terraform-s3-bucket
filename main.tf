@@ -110,7 +110,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
 
 # Configure bucket access logging
 resource "aws_s3_bucket_logging" "default" {
-  for_each      = var.log_buckets != null ? var.log_buckets : {}
+  for_each = var.log_buckets != null ? var.log_buckets : {}
 
   bucket        = aws_s3_bucket.default.id
   target_bucket = each.value.id
