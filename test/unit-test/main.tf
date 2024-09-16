@@ -58,5 +58,27 @@ module "s3_with_notification" {
 
 }
 
-data "aws_caller_identity" "current" {}
+module "dummy_s3_log_bucket" {
+  #checkov:skip=CKV_AWS_300: "Ensure S3 lifecycle configuration sets period for aborting failed uploads - This is not needed in our tests"
+  source = "../.."
+  providers = {
+    aws.bucket-replication = aws
+  }
+  bucket_prefix = "unit-test-log-bucket"
+  force_destroy = true
+  tags          = local.tags
+}
 
+module "s3_with_log_bucket" {
+  #checkov:skip=CKV_AWS_300: "Ensure S3 lifecycle configuration sets period for aborting failed uploads - This is not needed in our tests"
+  source = "../.."
+  providers = {
+    aws.bucket-replication = aws
+  }
+  bucket_prefix        = "unit-test-bucket-with-logs"
+  force_destroy        = true
+  log_buckets = tomap({"main_log_bucket": module.dummy_s3_log_bucket.bucket})
+  tags                 = local.tags
+}
+
+data "aws_caller_identity" "current" {}
