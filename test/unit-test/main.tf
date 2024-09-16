@@ -66,6 +66,12 @@ resource "aws_s3_bucket" "non-modulised-bucket" {
   #checkov:skip=CKV2_AWS_62: "Ensure S3 buckets should have event notifications enabled - This is not needed in our tests"
   #checkov:skip=CKV_AWS_144: "Ensure that S3 bucket has cross-region replication enabled - This is not needed in our tests"
   #checkov:skip=CKV_AWS_145: "Ensure that S3 buckets are encrypted with KMS by default - This is not needed in our tests"
+  #trivy:ignore:AVD-AWS-0086
+  #trivy:ignore:AVD-AWS-0087
+  #trivy:ignore:AVD-AWS-0088
+  #trivy:ignore:AVD-AWS-0091
+  #trivy:ignore:AVD-AWS-0093
+  #trivy:ignore:AVD-AWS-0132
   bucket = "log-test-bucket-051683332738327"
 }
 
@@ -77,6 +83,12 @@ resource "aws_s3_bucket" "non-modulised-bucket-2" {
   #checkov:skip=CKV2_AWS_62: "Ensure S3 buckets should have event notifications enabled - This is not needed in our tests"
   #checkov:skip=CKV_AWS_144: "Ensure that S3 bucket has cross-region replication enabled - This is not needed in our tests"
   #checkov:skip=CKV_AWS_145: "Ensure that S3 buckets are encrypted with KMS by default - This is not needed in our tests"
+  #trivy:ignore:AVD-AWS-0086
+  #trivy:ignore:AVD-AWS-0087
+  #trivy:ignore:AVD-AWS-0088
+  #trivy:ignore:AVD-AWS-0091
+  #trivy:ignore:AVD-AWS-0093
+  #trivy:ignore:AVD-AWS-0132
   bucket = "log-test-bucket-2-051683332738327"
 }
 
