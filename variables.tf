@@ -116,8 +116,8 @@ variable "lifecycle_rule" {
 
 variable "log_bucket" {
   type = object({
-    name    = string
-    prefix  = optional(string, null)  # Allow optional prefix
+    name   = string
+    prefix = optional(string, null) # Allow optional prefix
   })
   description = "Object for server access logging, containing bucket name and optional prefix"
   default = {
