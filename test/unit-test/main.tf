@@ -1,3 +1,7 @@
+locals {
+  timestamp = formatdate("YYYYMMDDhhmmss", timestamp())
+}
+
 module "s3" {
   #checkov:skip=CKV_AWS_300: "Ensure S3 lifecycle configuration sets period for aborting failed uploads - This is not needed in our tests"
   source = "../.."
@@ -59,11 +63,11 @@ module "s3_with_notification" {
 }
 
 resource "aws_s3_bucket" "non-modulised-bucket" {
-  bucket = "log-test-bucket"
+  bucket = "log-test-bucket-${local.timestamp}"
 }
 
 resource "aws_s3_bucket" "non-modulised-bucket-2" {
-  bucket = "log-test-bucket-2"
+  bucket = "log-test-bucket-2-${local.timestamp}"
 }
 
 module "dummy_s3_log_bucket" {
@@ -86,9 +90,9 @@ module "s3_with_log_bucket" {
   bucket_prefix    = "unit-test-bucket-with-logs"
   force_destroy    = true
   log_buckets      = tomap({ "main_log_bucket" : module.dummy_s3_log_bucket.bucket })
-  log_bucket_names = toset(["log-test-bucket"])
-  log_bucket       = "log-test-bucket"
-  log_prefix       = "log-test-bucket-2"
+  log_bucket_names = toset(["log-test-bucket-${local.timestamp}"])
+  log_bucket       = "log-test-bucket-2-${local.timestamp}"
+  log_prefix       = "logs/"
   tags             = local.tags
 }
 
