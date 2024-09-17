@@ -108,13 +108,49 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
   }
 }
 
-# Configure bucket access logging
-resource "aws_s3_bucket_logging" "default" {
+# Configure bucket access logging for buckets in the same account
+resource "aws_s3_bucket_logging" "default_single_name" {
+  for_each      = var.log_bucket != null ? toset([var.log_bucket]) : []
+  bucket        = aws_s3_bucket.default.id
+  target_bucket = var.log_bucket
+  target_prefix = var.log_prefix
+
+  dynamic "target_object_key_format" {
+    for_each = (var.log_partition_date_source != "None") ? [1] : []
+    content {
+      partitioned_prefix {
+        partition_date_source = var.log_partition_date_source
+      }
+    }
+  }
+}
+
+
+# Configure bucket access logging for buckets in the same account
+resource "aws_s3_bucket_logging" "default_bucket_objects" {
   for_each = var.log_buckets != null ? var.log_buckets : {}
 
   bucket        = aws_s3_bucket.default.id
   target_bucket = each.value.id
-  target_prefix = each.value.prefix != null ? each.value.prefix : var.log_prefix
+  target_prefix = var.log_prefix
+
+  dynamic "target_object_key_format" {
+    for_each = (var.log_partition_date_source != "None") ? [1] : []
+    content {
+      partitioned_prefix {
+        partition_date_source = var.log_partition_date_source
+      }
+    }
+  }
+}
+
+# Configure bucket access logging
+resource "aws_s3_bucket_logging" "default_many_names" {
+  for_each = var.log_bucket_names != null ? var.log_bucket_names : []
+
+  bucket        = aws_s3_bucket.default.id
+  target_bucket = each.value
+  target_prefix = var.log_prefix
 
   dynamic "target_object_key_format" {
     for_each = (var.log_partition_date_source != "None") ? [1] : []

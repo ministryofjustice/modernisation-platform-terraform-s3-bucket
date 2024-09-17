@@ -116,11 +116,25 @@ variable "lifecycle_rule" {
 
 variable "log_buckets" {
   type = map(object({
-    id     = string
-    prefix = optional(string, null) # Allow optional prefix
+    id = string
   }))
-  description = "Object for server access logging, containing bucket name and optional prefix"
+  description = "Object for logging into (i.e. a log bucket), containing bucket name"
   default     = null
+  nullable    = true
+}
+
+variable "log_bucket" {
+  type        = string
+  description = "Unique name of s3 bucket to log to (not defined in terraform)"
+  default     = null
+  nullable    = true
+}
+
+variable "log_bucket_names" {
+  type        = set(string)
+  description = "Unique names of s3 bucket to log to (not defined in terraform)"
+  default     = null
+  nullable    = true
 }
 
 variable "log_partition_date_source" {
@@ -136,8 +150,9 @@ variable "log_partition_date_source" {
 
 variable "log_prefix" {
   type        = string
-  description = "Prefix to use for server access logging, if applicable"
-  default     = ""
+  description = "Prefix for all log object keys."
+  default     = null
+  nullable    = true
 }
 
 variable "replication_role_arn" {

@@ -58,6 +58,45 @@ module "s3_with_notification" {
 
 }
 
+#trivy:ignore:AVD-AWS-0086
+#trivy:ignore:AVD-AWS-0087
+#trivy:ignore:AVD-AWS-0088
+#trivy:ignore:AVD-AWS-0090
+#trivy:ignore:AVD-AWS-0091
+#trivy:ignore:AVD-AWS-0093
+#trivy:ignore:AVD-AWS-0094
+#trivy:ignore:AVD-AWS-0132
+resource "aws_s3_bucket" "non-modulised-bucket" {
+  #checkov:skip=CKV2_AWS_6: "Ensure that S3 bucket has a Public Access block - This is not needed in our tests"
+  #checkov:skip=CKV_AWS_18: "Ensure the S3 bucket has access logging enabled - This is not needed in our tests"
+  #checkov:skip=CKV_AWS_21: "Ensure all data stored in the S3 bucket have versioning enabled - This is not needed in our tests"
+  #checkov:skip=CKV2_AWS_61: "Ensure that an S3 bucket has a lifecycle configuration - This is not needed in our tests"
+  #checkov:skip=CKV2_AWS_62: "Ensure S3 buckets should have event notifications enabled - This is not needed in our tests"
+  #checkov:skip=CKV_AWS_144: "Ensure that S3 bucket has cross-region replication enabled - This is not needed in our tests"
+  #checkov:skip=CKV_AWS_145: "Ensure that S3 buckets are encrypted with KMS by default - This is not needed in our tests"
+  bucket = "log-test-bucket-051683332738327"
+}
+
+#trivy:ignore:AVD-AWS-0086
+#trivy:ignore:AVD-AWS-0087
+#trivy:ignore:AVD-AWS-0088
+#trivy:ignore:AVD-AWS-0090
+#trivy:ignore:AVD-AWS-0091
+#trivy:ignore:AVD-AWS-0093
+#trivy:ignore:AVD-AWS-0094
+#trivy:ignore:AVD-AWS-0132
+resource "aws_s3_bucket" "non-modulised-bucket-2" {
+  #checkov:skip=CKV2_AWS_6: "Ensure that S3 bucket has a Public Access block - This is not needed in our tests"
+  #checkov:skip=CKV_AWS_18: "Ensure the S3 bucket has access logging enabled - This is not needed in our tests"
+  #checkov:skip=CKV_AWS_21: "Ensure all data stored in the S3 bucket have versioning enabled - This is not needed in our tests"
+  #checkov:skip=CKV2_AWS_61: "Ensure that an S3 bucket has a lifecycle configuration - This is not needed in our tests"
+  #checkov:skip=CKV2_AWS_62: "Ensure S3 buckets should have event notifications enabled - This is not needed in our tests"
+  #checkov:skip=CKV_AWS_144: "Ensure that S3 bucket has cross-region replication enabled - This is not needed in our tests"
+  #checkov:skip=CKV_AWS_145: "Ensure that S3 buckets are encrypted with KMS by default - This is not needed in our tests"
+
+  bucket = "log-test-bucket-2-051683332738327"
+}
+
 module "dummy_s3_log_bucket" {
   #checkov:skip=CKV_AWS_300: "Ensure S3 lifecycle configuration sets period for aborting failed uploads - This is not needed in our tests"
   source = "../.."
@@ -75,10 +114,13 @@ module "s3_with_log_bucket" {
   providers = {
     aws.bucket-replication = aws
   }
-  bucket_prefix = "unit-test-bucket-with-logs"
-  force_destroy = true
-  log_buckets   = tomap({ "main_log_bucket" : module.dummy_s3_log_bucket.bucket })
-  tags          = local.tags
+  bucket_prefix    = "unit-test-bucket-with-logs"
+  force_destroy    = true
+  log_buckets      = tomap({ "main_log_bucket" : module.dummy_s3_log_bucket.bucket })
+  log_bucket_names = toset(["log-test-bucket-051683332738327"])
+  log_bucket       = "log-test-bucket-2-051683332738327"
+  log_prefix       = "logs/"
+  tags             = local.tags
 }
 
 data "aws_caller_identity" "current" {}
