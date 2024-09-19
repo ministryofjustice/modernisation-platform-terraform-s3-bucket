@@ -255,12 +255,6 @@ data "aws_iam_policy_document" "default" {
   }
 }
 
-# retrieve to the log bucket's policy if it exists
-data "aws_s3_bucket_policy" "log_bucket_policy" {
-  for_each = var.log_buckets != null ? var.log_buckets : {}
-  bucket   = each.value.id
-}
-
 # locally merge the two policies
 locals {
   new_policy_statements = var.log_buckets != null ? {
