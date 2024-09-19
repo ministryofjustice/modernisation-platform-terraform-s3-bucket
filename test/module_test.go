@@ -83,11 +83,11 @@ func TestS3Logging(t *testing.T) {
 
 	// Retrieve the source bucket and log bucket from the output
     sourceBucket := terraform.Output(t, terraformOptions, "log_source_bucket")
-    logBucketName := terraform.Output(t, terraformOptions, "log_bucket_name")
+    logBucket := terraform.Output(t, terraformOptions, "log_bucket_name")
 
 	// Retrieve the name of the log bucket target of source bucket
-	sourceLogBucketName := aws.GetS3BucketLoggingTarget(t, awsRegion, sourceBucket)
+	sourceLogBucket := aws.GetS3BucketLoggingTarget(t, awsRegion, sourceBucket)
 
 	// Verify that names are the same
-	assert.Equal(t, sourceLogBucketName, logBucketName, "Log bucket should contain log")
+	assert.Equal(t, sourceLogBucket, logBucket, "Log bucket should contain log")
 }
