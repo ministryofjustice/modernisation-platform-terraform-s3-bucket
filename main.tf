@@ -273,9 +273,9 @@ locals {
       Action    = "s3:PutObject"
       Resource  = "${bucket.arn}/*"
       Condition = {
-        StringEquals = {
-          "s3:x-amz-acl" = "bucket-owner-full-control"
-        }
+        ArnLike = {
+          "aws:SourceArn" = aws_s3_bucket.default.arn
+        },
       }
     }
   } : {}
