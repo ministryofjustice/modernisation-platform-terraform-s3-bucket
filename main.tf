@@ -270,13 +270,8 @@ locals {
       Principal = {
         Service = "logging.s3.amazonaws.com"
       }
-<<<<<<< HEAD
       Action    = "s3:PutObject"
-      Resource  = "${bucket.value.arn}/*"
-=======
-      Action   = "s3:PutObject"
-      Resource = "${bucket.arn}/*"
->>>>>>> 773afb0517d94cf21cf61e3c7a36c72c0cb1c55f
+      Resource  = "${bucket.arn}/*"
       Condition = {
         StringEquals = {
           "s3:x-amz-acl" = "bucket-owner-full-control"
