@@ -33,4 +33,12 @@ output "role_name" {
   description = "Name of the IAM role for S3 replication"
 }
 
+output "log_source_bucket" {
+  value       = module.s3_with_log_bucket.bucket
+  description = "The source bucket for the logs"
+}
 
+output "log_bucket_name" {
+  value       = module.dummy_s3_log_bucket.bucket.id
+  description = "Name of the log bucket"
+}

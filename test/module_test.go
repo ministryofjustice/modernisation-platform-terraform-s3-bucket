@@ -3,7 +3,6 @@ package main
 import (
 	"regexp"
 	"testing"
-	"time"
 
 	"github.com/gruntwork-io/terratest/modules/aws"
 	"github.com/gruntwork-io/terratest/modules/terraform"
@@ -88,7 +87,7 @@ func TestS3Logging(t *testing.T) {
     logBucketName := terraform.Output(t, terraformOptions, "log_bucket_name")
 
 	// Retrieve the name of the log bucket target of source bucket
-	sourceLogBucketName := aws.GetS3BucketLoggingTarget(t, "eu-west-2", sourceBucket)
+	sourceLogBucketName := aws.GetS3BucketLoggingTarget(t, awsRegion, sourceBucket)
 
 	// Verify that names are the same
 	assert.Equal(sourceLogBucketName, logBucketName, "Log bucket should contain log")
