@@ -90,5 +90,5 @@ func TestS3Logging(t *testing.T) {
 	sourceLogBucketName := aws.GetS3BucketLoggingTarget(t, awsRegion, sourceBucket)
 
 	// Verify that names are the same
-	assert.Equal(sourceLogBucketName, logBucketName, "Log bucket should contain log")
+	assert.Equal(t, sourceLogBucketName, logBucketName, "Log bucket should contain log")
 }
