@@ -263,7 +263,7 @@ data "aws_s3_bucket_policy" "log_bucket_policy" {
 
 # locally merge the two policies
 locals {
-  new_policy_statements = {
+  new_policy_statements = var.log_buckets != null ? {
     for bucket_key, bucket in var.log_buckets : bucket_key => {
       Sid    = "AllowS3Logging"
       Effect = "Allow"
@@ -278,9 +278,9 @@ locals {
         }
       }
     }
-  }
+  } : {}
 
-  updated_policies = {
+  updated_policies = var.log_buckets != null ? {
     for bucket_key, bucket in var.log_buckets : bucket_key => merge(
       jsondecode(
         coalesce(
@@ -306,7 +306,7 @@ locals {
         )
       }
     )
-  }
+  } : {}
 }
 
 
