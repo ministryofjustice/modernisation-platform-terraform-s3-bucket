@@ -39,6 +39,6 @@ output "log_source_bucket" {
 }
 
 output "log_bucket_name" {
-  value       = module.dummy_s3_log_bucket.bucket.id
+  value       = module.dummy_s3_log_bucket.bucket
   description = "Name of the log bucket"
 }
