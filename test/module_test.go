@@ -70,7 +70,6 @@ func TestS3Creation(t *testing.T) {
 }
 
 func TestS3Logging(t *testing.T) {
-	t.Parallel()
 
 	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
 		TerraformDir: "./unit-test",
