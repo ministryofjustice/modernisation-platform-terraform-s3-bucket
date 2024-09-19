@@ -3,6 +3,7 @@ package main
 import (
 	"regexp"
 	"testing"
+	"time"
 
 	"github.com/gruntwork-io/terratest/modules/aws"
 	"github.com/gruntwork-io/terratest/modules/terraform"
@@ -67,4 +68,34 @@ func TestS3Creation(t *testing.T) {
 		assert.Regexp(t, regexp.MustCompile("^AWSS3BucketReplication*"), roleName)
 		assert.Regexp(t, regexp.MustCompile("^AWSS3BucketReplication.*"), policyName)
 	}
+}
+
+func TestS3Logging(t *testing.T) {
+	t.Parallel()
+
+	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
+		TerraformDir: "./unit-test",
+	})
+
+	// Ensure that resources are cleaned up at the end of the test
+	defer terraform.Destroy(t, terraformOptions)
+	awsRegion := "eu-west-2"
+	// Deploy the infrastructure
+	terraform.InitAndApply(t, terraformOptions)
+
+	// Retrieve the source bucket and log bucket from the output
+    sourceBucket := terraform.Output(t, terraformOptions, "s3_with_log_bucket")
+    logBucket := terraform.Output(t, terraformOptions, "dummy_s3_log_bucket")
+
+	// Upload a test object to the source bucket to generate logs
+	aws.PutS3Object(t, "eu-west-2", sourceBucket, "test-file.txt", "test file")
+
+	// Wait a bit to allow logging to occur (depends on S3)
+	time.Sleep(15 * time.Second)
+
+	// Check if logs are written to the log bucket
+	objects := aws.ListS3Objects(t, "eu-west-2", logBucket)
+
+	// Verify that log objects exist in the logging bucket
+	assert.NotEmpty(t, objects, "Log bucket should contain log")
 }
