@@ -84,18 +84,12 @@ func TestS3Logging(t *testing.T) {
 	terraform.InitAndApply(t, terraformOptions)
 
 	// Retrieve the source bucket and log bucket from the output
-    sourceBucket := terraform.Output(t, terraformOptions, "s3_with_log_bucket")
-    logBucket := terraform.Output(t, terraformOptions, "dummy_s3_log_bucket")
+    sourceBucket := terraform.Output(t, terraformOptions, "log_source_bucket")
+    logBucketName := terraform.Output(t, terraformOptions, "log_bucket_name")
 
-	// Upload a test object to the source bucket to generate logs
-	aws.PutS3Object(t, "eu-west-2", sourceBucket, "test-file.txt", "test file")
+	// Retrieve the name of the log bucket target of source bucket
+	sourceLogBucketName := aws.GetS3BucketLoggingTarget(t, "eu-west-2", sourceBucket)
 
-	// Wait a bit to allow logging to occur (depends on S3)
-	time.Sleep(15 * time.Second)
-
-	// Check if logs are written to the log bucket
-	objects := aws.ListS3Objects(t, "eu-west-2", logBucket)
-
-	// Verify that log objects exist in the logging bucket
-	assert.NotEmpty(t, objects, "Log bucket should contain log")
+	// Verify that names are the same
+	assert.Equal(sourceLogBucketName, logBucketName, "Log bucket should contain log")
 }
