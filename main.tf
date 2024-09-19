@@ -258,20 +258,20 @@ data "aws_iam_policy_document" "default" {
 # retrieve to the log bucket's policy if it exists
 data "aws_s3_bucket_policy" "log_bucket_policy" {
   for_each = var.log_buckets != null ? var.log_buckets : {}
-  bucket = each.value.id
+  bucket   = each.value.id
 }
 
 # locally merge the two policies
 locals {
   new_policy_statements = {
     for bucket_key, bucket in var.log_buckets : bucket_key => {
-      Sid       = "AllowS3Logging"
-      Effect    = "Allow"
+      Sid    = "AllowS3Logging"
+      Effect = "Allow"
       Principal = {
         Service = "logging.s3.amazonaws.com"
       }
-      Action    = "s3:PutObject"
-      Resource  = "arn:aws:s3:::${bucket.id}/*"
+      Action   = "s3:PutObject"
+      Resource = "arn:aws:s3:::${bucket.id}/*"
       Condition = {
         StringEquals = {
           "s3:x-amz-acl" = "bucket-owner-full-control"
@@ -312,7 +312,7 @@ locals {
 
 data "aws_s3_bucket_policy" "log_bucket_policy" {
   for_each = var.log_buckets != null ? var.log_buckets : {}
-  bucket = each.value.id
+  bucket   = each.value.id
   policy   = jsonencode(local.updated_policies[each.key])
 }
 
