@@ -224,7 +224,6 @@ data "aws_iam_policy_document" "default" {
 
 # locally merge the two policies
 locals {
-  
   log_bucket = var.log_buckets["log_bucket"]
   new_policy_statements = var.log_buckets != null ? {
       Sid    = "AllowS3Logging"
@@ -237,12 +236,12 @@ locals {
       Condition = {
         ArnLike = {
           "aws:SourceArn" = aws_s3_bucket.default.arn
-        },
+        }
       }
   } : {}
 
   updated_policies = var.log_buckets != null ? {
-     merge(
+    merge(
       jsondecode(
         coalesce(
           var.log_buckets["log_bucket_policy"].policy,
