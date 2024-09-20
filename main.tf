@@ -238,7 +238,7 @@ locals {
           "aws:SourceArn" = aws_s3_bucket.default.arn
         }
       }
-  } : {}
+  } : null
 
 updated_policies = var.log_buckets != null ? merge(
     jsondecode(
@@ -264,10 +264,7 @@ updated_policies = var.log_buckets != null ? merge(
         [local.new_policy_statements]
       )
     }
-  ) : {
-    Version   = "2012-10-17",
-    Statement = []
-  }
+  ) : null
 }
 
 
