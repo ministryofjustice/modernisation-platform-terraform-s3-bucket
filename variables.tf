@@ -115,17 +115,7 @@ variable "lifecycle_rule" {
 }
 
 variable "log_buckets" {
-  type = map(
-    object({
-      bucket = object({
-        id  = string
-        arn = string
-      })
-      bucket_policy = object({
-        policy = string
-      })
-    })
-  )
+  type = map
   description = "Map containing log bucket details and its associated bucket policy."
   default     = null
   nullable    = true

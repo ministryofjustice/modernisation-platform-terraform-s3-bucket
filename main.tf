@@ -224,8 +224,8 @@ data "aws_iam_policy_document" "default" {
 
 # locally merge the two policies
 locals {
-  log_bucket_name = var.log_buckets["log_bucket"].id
-  log_bucket_arn = var.log_buckets["log_bucket"].arn
+  log_bucket_name = var.log_buckets != null ? var.log_buckets["log_bucket_name"] : null
+  log_bucket_arn = var.log_buckets != null ? var.log_buckets["log_bucket_arn"] : null
   new_policy_statements = var.log_buckets != null ? {
     Sid    = "AllowS3Logging"
     Effect = "Allow"
@@ -244,7 +244,7 @@ locals {
   updated_policies = var.log_buckets != null ? merge(
     jsondecode(
       coalesce(
-        var.log_buckets["log_bucket_policy"].policy,
+        var.log_buckets["log_bucket_policy"],
         jsonencode({
           Version   = "2012-10-17",
           Statement = []
@@ -255,7 +255,7 @@ locals {
       Statement = concat(
         jsondecode(
           coalesce(
-            var.log_buckets["log_bucket_policy"].policy,
+            var.log_buckets["log_bucket_policy"],
             jsonencode({
               Version   = "2012-10-17",
               Statement = []
