@@ -20,4 +20,8 @@ output "role" {
   value       = aws_iam_role.replication_role
   description = "Direct aws_iam_role resource with all attributes"
 }
+output "bucket_policy" {
+  value       = aws_s3_bucket_policy.default
+  description = "Policy of the bucket"
+}
 

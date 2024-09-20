@@ -108,48 +108,14 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
   }
 }
 
-# Configure bucket access logging for buckets in the same account
-resource "aws_s3_bucket_logging" "default_single_name" {
-  for_each      = var.log_bucket != null ? toset([var.log_bucket]) : []
-  bucket        = aws_s3_bucket.default.id
-  target_bucket = var.log_bucket
-  target_prefix = var.log_prefix
-
-  dynamic "target_object_key_format" {
-    for_each = (var.log_partition_date_source != "None") ? [1] : []
-    content {
-      partitioned_prefix {
-        partition_date_source = var.log_partition_date_source
-      }
-    }
-  }
-}
 
 
 # Configure bucket access logging for buckets in the same account
-resource "aws_s3_bucket_logging" "default_bucket_objects" {
-  for_each = var.log_buckets != null ? var.log_buckets : {}
+resource "aws_s3_bucket_logging" "default_bucket_object" {
+  count = var.log_buckets != null ? 1 : 0
 
   bucket        = aws_s3_bucket.default.id
-  target_bucket = each.value.id
-  target_prefix = var.log_prefix
-
-  dynamic "target_object_key_format" {
-    for_each = (var.log_partition_date_source != "None") ? [1] : []
-    content {
-      partitioned_prefix {
-        partition_date_source = var.log_partition_date_source
-      }
-    }
-  }
-}
-
-# Configure bucket access logging
-resource "aws_s3_bucket_logging" "default_many_names" {
-  for_each = var.log_bucket_names != null ? var.log_bucket_names : []
-
-  bucket        = aws_s3_bucket.default.id
-  target_bucket = each.value
+  target_bucket = local.log_bucket_name
   target_prefix = var.log_prefix
 
   dynamic "target_object_key_format" {
@@ -253,5 +219,59 @@ data "aws_iam_policy_document" "default" {
       values   = [1.2]
     }
   }
+}
+
+
+# locally merge the two policies
+locals {
+  log_bucket_name = var.log_buckets != null ? var.log_buckets["log_bucket_name"] : null
+  log_bucket_arn  = var.log_buckets != null ? var.log_buckets["log_bucket_arn"] : null
+  new_policy_statements = var.log_buckets != null ? {
+    Sid    = "AllowS3Logging"
+    Effect = "Allow"
+    Principal = {
+      Service = "logging.s3.amazonaws.com"
+    }
+    Action   = "s3:PutObject"
+    Resource = "${local.log_bucket_arn}/*"
+    Condition = {
+      ArnLike = {
+        "aws:SourceArn" = aws_s3_bucket.default.arn
+      }
+    }
+  } : null
+
+  updated_policies = var.log_buckets != null ? merge(
+    jsondecode(
+      coalesce(
+        var.log_buckets["log_bucket_policy"],
+        jsonencode({
+          Version   = "2012-10-17",
+          Statement = []
+        })
+      )
+    ),
+    {
+      Statement = concat(
+        jsondecode(
+          coalesce(
+            var.log_buckets["log_bucket_policy"],
+            jsonencode({
+              Version   = "2012-10-17",
+              Statement = []
+            })
+          )
+        ).Statement,
+        [local.new_policy_statements]
+      )
+    }
+  ) : null
+}
+
+
+resource "aws_s3_bucket_policy" "log_bucket_policy" {
+  count  = var.log_buckets != null ? 1 : 0
+  bucket = local.log_bucket_name
+  policy = jsonencode(local.updated_policies)
 }
 

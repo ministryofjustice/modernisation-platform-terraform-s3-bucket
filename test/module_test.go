@@ -68,3 +68,26 @@ func TestS3Creation(t *testing.T) {
 		assert.Regexp(t, regexp.MustCompile("^AWSS3BucketReplication.*"), policyName)
 	}
 }
+
+func TestS3Logging(t *testing.T) {
+
+	terraformOptions := terraform.WithDefaultRetryableErrors(t, &terraform.Options{
+		TerraformDir: "./unit-test",
+	})
+
+	// Ensure that resources are cleaned up at the end of the test
+	defer terraform.Destroy(t, terraformOptions)
+	awsRegion := "eu-west-2"
+	// Deploy the infrastructure
+	terraform.InitAndApply(t, terraformOptions)
+
+	// Retrieve the source bucket and log bucket from the output
+    sourceBucket := terraform.Output(t, terraformOptions, "log_source_bucket_name")
+    logBucket := terraform.Output(t, terraformOptions, "log_bucket_name")
+
+	// Retrieve the name of the log bucket target of source bucket
+	sourceLogBucket := aws.GetS3BucketLoggingTarget(t, awsRegion, sourceBucket)
+
+	// Verify that names are the same
+	assert.Equal(t, sourceLogBucket, logBucket, "Log bucket should contain log")
+}
