@@ -82,7 +82,7 @@ func TestS3Logging(t *testing.T) {
 	terraform.InitAndApply(t, terraformOptions)
 
 	// Retrieve the source bucket and log bucket from the output
-    sourceBucket := terraform.Output(t, terraformOptions, "log_source_bucket")
+    sourceBucket := terraform.Output(t, terraformOptions, "log_source_bucket_name")
     logBucket := terraform.Output(t, terraformOptions, "log_bucket_name")
 
 	// Retrieve the name of the log bucket target of source bucket
