@@ -114,11 +114,11 @@ module "s3_with_log_bucket" {
   providers = {
     aws.bucket-replication = aws
   }
-  bucket_prefix    = "unit-test-bucket-with-logs"
-  force_destroy    = true
-  log_buckets      = tomap({ "log_bucket" : module.dummy_s3_log_bucket.bucket, "log_bucket_policy": module.dummy_s3_log_bucket.bucket_policy})
-  log_prefix       = "logs/"
-  tags             = local.tags
+  bucket_prefix = "unit-test-bucket-with-logs"
+  force_destroy = true
+  log_buckets   = tomap({ "log_bucket" : module.dummy_s3_log_bucket.bucket, "log_bucket_policy" : module.dummy_s3_log_bucket.bucket_policy })
+  log_prefix    = "logs/"
+  tags          = local.tags
 }
 
 data "aws_caller_identity" "current" {}
