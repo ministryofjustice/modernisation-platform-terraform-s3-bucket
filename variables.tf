@@ -115,10 +115,21 @@ variable "lifecycle_rule" {
 }
 
 variable "log_buckets" {
-  type = map(object({
-    id  = string
-    arn = string
-  }))
+  type = map(
+    object(
+      {
+        id  = string
+        arn = string
+      }
+    ),
+    object(
+      {
+        bucket = string
+        id = string
+        policy = string
+      }
+    )
+  )
   description = "Object for logging into (i.e. a log bucket), containing bucket name"
   default     = null
   nullable    = true

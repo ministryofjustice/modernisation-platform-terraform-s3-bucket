@@ -116,9 +116,7 @@ module "s3_with_log_bucket" {
   }
   bucket_prefix    = "unit-test-bucket-with-logs"
   force_destroy    = true
-  log_buckets      = tomap({ "main_log_bucket" : module.dummy_s3_log_bucket.bucket })
-  log_bucket_names = toset(["log-test-bucket-051683332738327"])
-  log_bucket       = "log-test-bucket-2-051683332738327"
+  log_buckets      = tomap({ "log_bucket" : module.dummy_s3_log_bucket.bucket, "log_bucket_policy": module.dummy_s3_log_bucket.bucket_policy})
   log_prefix       = "logs/"
   tags             = local.tags
 }
