@@ -115,7 +115,7 @@ resource "aws_s3_bucket_logging" "default_bucket_object" {
   count = var.log_buckets != null ? 1 : 0
 
   bucket        = aws_s3_bucket.default.id
-  target_bucket = local.log_bucket.id
+  target_bucket = local.log_bucket_name
   target_prefix = var.log_prefix
 
   dynamic "target_object_key_format" {
@@ -224,7 +224,8 @@ data "aws_iam_policy_document" "default" {
 
 # locally merge the two policies
 locals {
-  log_bucket = var.log_buckets.bucket
+  log_bucket_name = var.log_buckets.bucket.id
+  log_bucket_arn = var.log_buckets.bucket.arn
   new_policy_statements = var.log_buckets != null ? {
     Sid    = "AllowS3Logging"
     Effect = "Allow"
@@ -232,7 +233,7 @@ locals {
       Service = "logging.s3.amazonaws.com"
     }
     Action   = "s3:PutObject"
-    Resource = "${local.log_bucket.arn}/*"
+    Resource = "${local.log_bucket_arn}/*"
     Condition = {
       ArnLike = {
         "aws:SourceArn" = aws_s3_bucket.default.arn
@@ -270,7 +271,7 @@ locals {
 
 resource "aws_s3_bucket_policy" "log_bucket_policy" {
   count  = var.log_buckets != null ? 1 : 0
-  bucket = local.log_bucket.id
+  bucket = local.log_bucket_name
   policy = jsonencode(local.updated_policies)
 }
 
