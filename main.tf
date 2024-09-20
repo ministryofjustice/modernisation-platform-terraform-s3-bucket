@@ -226,21 +226,21 @@ data "aws_iam_policy_document" "default" {
 locals {
   log_bucket = var.log_buckets["log_bucket"]
   new_policy_statements = var.log_buckets != null ? {
-      Sid    = "AllowS3Logging"
-      Effect = "Allow"
-      Principal = {
-        Service = "logging.s3.amazonaws.com"
+    Sid    = "AllowS3Logging"
+    Effect = "Allow"
+    Principal = {
+      Service = "logging.s3.amazonaws.com"
+    }
+    Action   = "s3:PutObject"
+    Resource = "${local.log_bucket.arn}/*"
+    Condition = {
+      ArnLike = {
+        "aws:SourceArn" = aws_s3_bucket.default.arn
       }
-      Action   = "s3:PutObject"
-      Resource = "${local.log_bucket.arn}/*"
-      Condition = {
-        ArnLike = {
-          "aws:SourceArn" = aws_s3_bucket.default.arn
-        }
-      }
+    }
   } : null
 
-updated_policies = var.log_buckets != null ? merge(
+  updated_policies = var.log_buckets != null ? merge(
     jsondecode(
       coalesce(
         var.log_buckets["log_bucket_policy"].policy,
@@ -269,8 +269,8 @@ updated_policies = var.log_buckets != null ? merge(
 
 
 resource "aws_s3_bucket_policy" "log_bucket_policy" {
-  count = var.log_buckets != null ? 1 : 0
-  bucket   = local.log_bucket.id
-  policy   = jsonencode(local.updated_policies)
+  count  = var.log_buckets != null ? 1 : 0
+  bucket = local.log_bucket.id
+  policy = jsonencode(local.updated_policies)
 }
 
