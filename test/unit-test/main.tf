@@ -116,13 +116,13 @@ module "s3_with_log_bucket" {
   }
   bucket_prefix = "unit-test-bucket-with-logs"
   force_destroy = true
-  log_buckets   = tomap({
+  log_buckets = tomap({
     "log_bucket_name" : module.dummy_s3_log_bucket.bucket.id,
     "log_bucket_arn" : module.dummy_s3_log_bucket.bucket.arn,
     "log_bucket_policy" : module.dummy_s3_log_bucket.bucket_policy.policy,
-    })
-  log_prefix    = "logs/"
-  tags          = local.tags
+  })
+  log_prefix = "logs/"
+  tags       = local.tags
 }
 
 data "aws_caller_identity" "current" {}

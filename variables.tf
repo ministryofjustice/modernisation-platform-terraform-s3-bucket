@@ -115,7 +115,7 @@ variable "lifecycle_rule" {
 }
 
 variable "log_buckets" {
-  type = map
+  type        = map(any)
   description = "Map containing log bucket details and its associated bucket policy."
   default     = null
   nullable    = true
