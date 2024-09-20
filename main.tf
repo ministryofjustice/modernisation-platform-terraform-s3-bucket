@@ -262,7 +262,7 @@ locals {
               })
             )
           ).Statement,
-          [local.new_policy_statements]
+          local.new_policy_statements
         )
       }
     )

@@ -116,25 +116,20 @@ variable "lifecycle_rule" {
 
 variable "log_buckets" {
   type = map(
-    object(
-      {
+    object({
+      bucket = object({
         id  = string
         arn = string
-      }
-    ),
-    object(
-      {
-        bucket = string
-        id = string
+      })
+      bucket_policy = object({
         policy = string
-      }
-    )
+      })
+    })
   )
-  description = "Object for logging into (i.e. a log bucket), containing bucket name"
+  description = "Map containing log bucket details and its associated bucket policy."
   default     = null
   nullable    = true
 }
-
 variable "log_bucket" {
   type        = string
   description = "Unique name of s3 bucket to log to (not defined in terraform)"
