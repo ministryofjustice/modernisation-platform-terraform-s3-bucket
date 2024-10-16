@@ -240,24 +240,21 @@ locals {
       }
     }
   } : null
-
+  decoded_log_policy = var.log_buckets != null && can(
+    jsondecode(
+      var.log_buckets["log_bucket_policy"]
+    )
+    ) ? jsondecode(
+    var.log_buckets["log_bucket_policy"]
+    ) : {
+    Version   = "2012-10-17",
+    Statement = []
+  }
   updated_policies = var.log_buckets != null ? merge(
-    coalesce(
-      var.log_buckets["log_bucket_policy"],
-      {
-        Version   = "2012-10-17",
-        Statement = []
-      }
-    ),
+    local.decoded_log_policy,
     {
       Statement = distinct(concat(
-        coalesce(
-          var.log_buckets["log_bucket_policy"],
-          {
-            Version   = "2012-10-17",
-            Statement = []
-          }
-        ).Statement,
+        local.decoded_log_policy.Statement,
         local.new_policy_statements
       ))
     }
