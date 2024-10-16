@@ -242,25 +242,21 @@ locals {
   } : null
 
   updated_policies = var.log_buckets != null ? merge(
-    jsondecode(
-      coalesce(
-        var.log_buckets["log_bucket_policy"],
-        jsonencode({
-          Version   = "2012-10-17",
-          Statement = []
-        })
-      )
+    coalesce(
+      var.log_buckets["log_bucket_policy"],
+      {
+        Version   = "2012-10-17",
+        Statement = []
+      }
     ),
     {
       Statement = distinct(concat(
-        jsondecode(
-          coalesce(
-            var.log_buckets["log_bucket_policy"],
-            jsonencode({
-              Version   = "2012-10-17",
-              Statement = []
-            })
-          )
+        coalesce(
+          var.log_buckets["log_bucket_policy"],
+          {
+            Version   = "2012-10-17",
+            Statement = []
+          }
         ).Statement,
         local.new_policy_statements
       ))
