@@ -252,20 +252,18 @@ locals {
       )
     ),
     {
-      Statement = distinct(
-        concat(
-          jsondecode(
-            coalesce(
-              var.log_buckets["log_bucket_policy"],
-              jsonencode({
-                Version   = "2012-10-17",
-                Statement = []
-              })
-            )
-          ).Statement,
-          [local.new_policy_statements]
-        )
-      )
+      Statement = distinct(concat(
+        jsondecode(
+          coalesce(
+            var.log_buckets["log_bucket_policy"],
+            jsonencode({
+              Version   = "2012-10-17",
+              Statement = []
+            })
+          )
+        ).Statement,
+        local.new_policy_statements
+      ))
     }
   ) : null
 }
