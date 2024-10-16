@@ -255,7 +255,7 @@ locals {
     {
       Statement = distinct(concat(
         local.decoded_log_policy.Statement,
-        local.new_policy_statements
+        [local.new_policy_statements]
       ))
     }
   ) : null
