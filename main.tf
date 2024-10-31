@@ -27,6 +27,7 @@ resource "aws_s3_bucket" "default" {
 }
 
 resource "aws_s3_bucket_ownership_controls" "default" {
+
   bucket = aws_s3_bucket.default.id
   rule {
     object_ownership = var.ownership_controls
@@ -274,4 +275,5 @@ resource "aws_s3_bucket_policy" "log_bucket_policy" {
   bucket = local.log_bucket_name
   policy = jsonencode(local.updated_policies)
 }
+
 
