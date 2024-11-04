@@ -20,7 +20,9 @@ resource "aws_s3_bucket" "default" {
   #checkov:skip=CKV_AWS_145: "Encryption handled in encryption configuration resource"
 
   bucket        = var.bucket_name
+
   bucket_prefix = var.bucket_prefix
+  
   force_destroy = var.force_destroy
 
   tags = var.tags
