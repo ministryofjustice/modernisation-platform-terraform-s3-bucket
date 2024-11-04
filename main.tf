@@ -36,7 +36,7 @@ resource "aws_s3_bucket_ownership_controls" "default" {
 
 # Configure bucket ACL
 resource "aws_s3_bucket_acl" "default" {
-  
+
   count  = var.ownership_controls == "BucketOwnerEnforced" ? 0 : 1
   bucket = aws_s3_bucket.default.id
   acl    = var.acl
@@ -276,4 +276,3 @@ resource "aws_s3_bucket_policy" "log_bucket_policy" {
   bucket = local.log_bucket_name
   policy = jsonencode(local.updated_policies)
 }
-
