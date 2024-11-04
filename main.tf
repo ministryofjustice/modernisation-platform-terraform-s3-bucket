@@ -27,6 +27,7 @@ resource "aws_s3_bucket" "default" {
 }
 
 resource "aws_s3_bucket_ownership_controls" "default" {
+
   bucket = aws_s3_bucket.default.id
   rule {
     object_ownership = var.ownership_controls
@@ -35,6 +36,7 @@ resource "aws_s3_bucket_ownership_controls" "default" {
 
 # Configure bucket ACL
 resource "aws_s3_bucket_acl" "default" {
+  
   count  = var.ownership_controls == "BucketOwnerEnforced" ? 0 : 1
   bucket = aws_s3_bucket.default.id
   acl    = var.acl
