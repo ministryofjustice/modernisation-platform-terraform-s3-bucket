@@ -59,9 +59,6 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
           prefix = filter.value
         }
       }
-      #filter {
-      #  prefix = lookup(rule.value, "prefix", null)
-      #}
       status = lookup(rule.value, "enabled", null)
 
       abort_incomplete_multipart_upload {
