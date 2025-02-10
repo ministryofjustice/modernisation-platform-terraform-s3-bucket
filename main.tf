@@ -45,7 +45,7 @@ resource "aws_s3_bucket_acl" "default" {
 
 # Configure bucket lifecycle rules
 resource "aws_s3_bucket_lifecycle_configuration" "default" {
-  #checkov:skip=CKV_AWS_300: "Ensure S3 lifecycle configuration sets period for aborting failed uploads"
+  depends_on = [aws_s3_bucket.default]
   bucket = aws_s3_bucket.default.id
 
   dynamic "rule" {
@@ -53,9 +53,15 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
 
     content {
       id = lookup(rule.value, "id", null)
-      filter {
-        prefix = lookup(rule.value, "prefix", null)
+      dynamic "filter" {
+      for_each = rule.value.prefix != null ? [rule.value.prefix] : []
+        content {
+          prefix = filter.value
+        }
       }
+      #filter {
+      #  prefix = lookup(rule.value, "prefix", null)
+      #}
       status = lookup(rule.value, "enabled", null)
 
       abort_incomplete_multipart_upload {
@@ -107,8 +113,6 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
     }
   }
 }
-
-
 
 # Configure bucket access logging for buckets in the same account
 resource "aws_s3_bucket_logging" "default_bucket_object" {

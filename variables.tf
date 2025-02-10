@@ -82,7 +82,7 @@ variable "lifecycle_rule" {
   default = [{
     id      = "main"
     enabled = "Enabled"
-    prefix  = ""
+    prefix  = null
     tags = {
       rule      = "log"
       autoclean = "true"
