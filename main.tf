@@ -48,6 +48,8 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
   #checkov:skip=CKV_AWS_300: "Ensure S3 lifecycle configuration sets period for aborting failed uploads"
   bucket = aws_s3_bucket.default.id
 
+  depends_on = [aws_s3_bucket.default]
+
   dynamic "rule" {
     for_each = try(jsondecode(var.lifecycle_rule), var.lifecycle_rule)
 
