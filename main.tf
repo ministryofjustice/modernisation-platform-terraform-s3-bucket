@@ -226,7 +226,7 @@ data "aws_iam_policy_document" "default" {
 locals {
   log_bucket_name = var.log_buckets != null ? var.log_buckets["log_bucket_name"] : null
   log_bucket_arn  = var.log_buckets != null ? var.log_buckets["log_bucket_arn"] : null
-  new_policy_statements = var.log_buckets != null ? {
+  new_policy_statements = var.log_buckets != null ? tolist([{
     Sid    = "AllowS3Logging"
     Effect = "Allow"
     Principal = {
@@ -239,31 +239,24 @@ locals {
         "aws:SourceArn" = aws_s3_bucket.default.arn
       }
     }
-  } : null
-
-  updated_policies = var.log_buckets != null ? merge(
+  }]) : null
+  decoded_log_policy = var.log_buckets != null && can(
     jsondecode(
-      coalesce(
-        var.log_buckets["log_bucket_policy"],
-        jsonencode({
-          Version   = "2012-10-17",
-          Statement = []
-        })
-      )
-    ),
+      var.log_buckets["log_bucket_policy"]
+    )
+    ) ? jsondecode(
+    var.log_buckets["log_bucket_policy"]
+    ) : {
+    Version   = "2012-10-17",
+    Statement = []
+  }
+  updated_policies = var.log_buckets != null ? merge(
+    local.decoded_log_policy,
     {
-      Statement = concat(
-        jsondecode(
-          coalesce(
-            var.log_buckets["log_bucket_policy"],
-            jsonencode({
-              Version   = "2012-10-17",
-              Statement = []
-            })
-          )
-        ).Statement,
-        [local.new_policy_statements]
-      )
+      Statement = distinct(concat(
+        local.decoded_log_policy.Statement,
+        local.new_policy_statements
+      ))
     }
   ) : null
 }
