@@ -56,7 +56,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "default" {
 
       dynamic "filter" {
         for_each = [lookup(rule.value, "prefix", null)]
-          content {
+        content {
           prefix = filter.value
         }
       }
