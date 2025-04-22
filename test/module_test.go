@@ -45,12 +45,6 @@ func TestS3Creation(t *testing.T) {
 	bucketNotification := terraform.Output(t, terraformOptions, "bucket_notifications")
 	assert.Regexp(t, regexp.MustCompile(`unit-test-bucket*`), bucketNotification)
 
-	// roleName := terraform.Output(t, terraformOptions, "role_name")
-	// assert.Regexp(t, regexp.MustCompile(`^AWSS3BucketReplication*`), roleName)
-
-	// policyName := terraform.Output(t, terraformOptions, "policy_name")
-	// assert.Regexp(t, regexp.MustCompile(`^AWSS3BucketReplicationPolicy*`), policyName)
-
 	// Retrieve the role_name output
 	roleName := terraform.Output(t, terraformOptions, "role_name")
 
