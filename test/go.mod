@@ -3,7 +3,7 @@ module github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket
 go 1.23.0
 
 require (
-	github.com/gruntwork-io/terratest v0.48.2
+	github.com/gruntwork-io/terratest v0.49.0
 	github.com/stretchr/testify v1.10.0
 )
 
