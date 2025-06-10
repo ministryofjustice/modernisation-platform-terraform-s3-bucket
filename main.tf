@@ -2,9 +2,23 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
   count  = var.notification_enabled == true ? 1 : 0
   bucket = aws_s3_bucket.default.id
 
-  topic {
-    topic_arn = var.notification_sns_arn
-    events    = var.notification_events
+  dynamic "topic" {
+    for_each = var.notification_sns_arn != "" ? [1] : []
+    content {
+      topic_arn = var.notification_sns_arn
+      events    = var.notification_events
+    }
+  }
+
+  dynamic "queue" {
+    for_each = var.notification_sqs_queues
+    content {
+      events        = each.value.events
+      filter_prefix = each.value.filter_prefix
+      filter_suffix = each.value.filter_suffix
+      id            = each.key
+      queue_arn     = aws_sqs_queue.notification_sqs_queues[each.key].arn
+    }
   }
 }
 
@@ -149,7 +163,7 @@ resource "aws_s3_bucket_policy" "default" {
 }
 # AWS-provided KMS acceptable compromise in absence of customer provided key
 # tfsec:ignore:aws-s3-encryption-customer-key
-#tfsec:ignore:avd-aws-0132 S3 encryption should use Custom Managed Keys, KMS is acceptable compromise 
+#tfsec:ignore:avd-aws-0132 S3 encryption should use Custom Managed Keys, KMS is acceptable compromise
 resource "aws_s3_bucket_server_side_encryption_configuration" "default" {
   #checkov:skip=CKV2_AWS_67: "Ensure AWS S3 bucket encrypted with Customer Managed Key (CMK) has regular rotation"
 
@@ -275,3 +289,35 @@ resource "aws_s3_bucket_policy" "log_bucket_policy" {
   policy = jsonencode(local.updated_policies)
 }
 
+resource "aws_sqs_queue" "notification_sqs_queues" {
+  for_each = var.notification_sqs_queues
+
+  name                    = each.key
+  sqs_managed_sse_enabled = true
+  tags                    = var.tags
+}
+
+data "aws_iam_policy_document" "notification_sqs_queues" {
+  for_each = var.notification_sqs_queues
+  statement {
+    sid    = "AllowSendMessage"
+    effect = "Allow"
+    principals {
+      type        = "Service"
+      identifiers = ["s3.amazonaws.com"]
+    }
+    actions   = ["sqs:SendMessage"]
+    resources = [aws_sqs_queue.notification_sqs_queues[each.key].arn]
+    condition {
+      test     = "ArnEquals"
+      variable = "aws:SourceArn"
+      values   = [aws_s3_bucket.default[each.key].arn]
+    }
+  }
+}
+
+resource "aws_sqs_queue_policy" "notification_sqs_queues" {
+  for_each  = var.notification_sqs_queues
+  policy    = data.aws_iam_policy_document.notification_sqs_queues[each.key].json
+  queue_url = aws_sqs_queue.notification_sqs_queues[each.key].url
+}
