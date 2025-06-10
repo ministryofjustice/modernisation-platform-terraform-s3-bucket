@@ -25,3 +25,7 @@ output "bucket_policy" {
   description = "Policy of the bucket"
 }
 
+output "notification_sqs_queues" {
+  value       = aws_sqs_queues.notification_sqs_queues
+  description = "map of sqs queues created corresponding to notification_sqs_queues variable"
+}
