@@ -17,7 +17,7 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
       filter_prefix = queue.value.filter_prefix
       filter_suffix = queue.value.filter_suffix
       id            = queue.key
-      queue_arn     = aws_sqs_queue.notification_sqs_queues[each.key].arn
+      queue_arn     = aws_sqs_queue.notification_sqs_queues[queue.key].arn
     }
   }
 }
