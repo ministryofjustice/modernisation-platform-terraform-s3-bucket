@@ -311,7 +311,7 @@ data "aws_iam_policy_document" "notification_sqs_queues" {
     condition {
       test     = "ArnEquals"
       variable = "aws:SourceArn"
-      values   = [aws_s3_bucket.default[each.key].arn]
+      values   = [aws_s3_bucket.default.arn]
     }
   }
 }
