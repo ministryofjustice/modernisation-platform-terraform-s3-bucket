@@ -314,6 +314,30 @@ data "aws_iam_policy_document" "notification_sqs_queues" {
       values   = [aws_s3_bucket.default.arn]
     }
   }
+
+  dynamic "statement" {
+    for_each = each.policy_statements
+    content {
+      effect    = statement.value.effect
+      actions   = statement.value.actions
+      resources = [aws_sqs_queue.notification_sqs_queues[each.key].arn]
+      dynamic "principals" {
+        for_each = statement.value.principals != null ? [statement.value.principals] : []
+        content {
+          type        = principals.value.type
+          identifiers = principals.value.identifiers
+        }
+      }
+      dynamic "condition" {
+        for_each = statement.value.conditions
+        content {
+          test     = condition.value.test
+          variable = condition.value.variable
+          values   = condition.value.values
+        }
+      }
+    }
+  }
 }
 
 resource "aws_sqs_queue_policy" "notification_sqs_queues" {

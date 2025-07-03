@@ -195,9 +195,22 @@ variable "notification_events" {
 
 variable "notification_sqs_queues" {
   type = map(object({
-    events        = list(string)     # e.g. ["s3:ObjectCreated:*"]
-    filter_prefix = optional(string) # e.g. "images/"
-    filter_suffix = optional(string) # e.g. ".gz"
+    events        = list(string)      # e.g. ["s3:ObjectCreated:*"]
+    filter_prefix = optional(string)  # e.g. "images/"
+    filter_suffix = optional(string)  # e.g. ".gz"
+    policy_statements = list(object({ # add policy statements to the SQS policy, e.g. granting receive access
+      effect  = string
+      actions = list(string)
+      principals = optional(object({
+        type        = string
+        identifiers = list(string)
+      }))
+      conditions = optional(list(object({
+        test     = string
+        variable = string
+        values   = list(string)
+      })), [])
+    }))
   }))
   description = "a map of SQS notification queues to create where the map key is the sqs queue name; set notification_enabled to true to enable bucket notifications; use this option for Cortex Xsiam S3 integration"
   default     = {}
