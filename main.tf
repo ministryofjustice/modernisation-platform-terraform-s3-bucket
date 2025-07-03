@@ -316,7 +316,7 @@ data "aws_iam_policy_document" "notification_sqs_queues" {
   }
 
   dynamic "statement" {
-    for_each = each.policy_statements
+    for_each = each.value.policy_statements
     content {
       effect    = statement.value.effect
       actions   = statement.value.actions
