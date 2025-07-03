@@ -73,6 +73,33 @@ module "s3-bucket" {
 }
 ```
 
+The following example shows how to add an SQS queue for CortexXDR S3 log collection:
+
+```
+module "s3-bucket" {
+  ...
+  s3_notification_sqs_queues = {
+    mybucketname-cortex-xdr = {
+      events = ["s3:ObjectCreated:*"]
+      policy_statements = [{
+        effect = "Allow"
+        actions = [
+          "sqs:ChangeMessageVisibility",
+          "sqs:DeleteMessage",
+          "sqs:ReceiveMessage"
+        ]
+        principals = {
+          type        = "AWS"
+          identifiers = ["arn:aws:iam::MyAccountId:role/MyCortexXdrAssumedRole"]
+        }
+      }]
+    }
+  }
+  ...
+}
+```
+
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
