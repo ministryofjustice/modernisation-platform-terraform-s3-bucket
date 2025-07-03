@@ -78,6 +78,8 @@ The following example shows how to add an SQS queue for CortexXDR S3 log collect
 ```
 module "s3-bucket" {
   ...
+  notification_enabled = true
+
   s3_notification_sqs_queues = {
     mybucketname-cortex-xdr = {
       events = ["s3:ObjectCreated:*"]
