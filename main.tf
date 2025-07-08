@@ -11,7 +11,7 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
   }
 
   dynamic "queue" {
-    for_each = var.notification_sqs_queues
+    for_each = var.notification_queues
     content {
       events        = queue.value.events
       filter_prefix = queue.value.filter_prefix
