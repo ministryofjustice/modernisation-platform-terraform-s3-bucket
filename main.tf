@@ -2,9 +2,23 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
   count  = var.notification_enabled == true ? 1 : 0
   bucket = aws_s3_bucket.default.id
 
-  topic {
-    topic_arn = var.notification_sns_arn
-    events    = var.notification_events
+  dynamic "topic" {
+    for_each = var.notification_sns_arn != "" ? [1] : []
+    content {
+      topic_arn = var.notification_sns_arn
+      events    = var.notification_events
+    }
+  }
+
+  dynamic "queue" {
+    for_each = var.notification_queues
+    content {
+      events        = queue.value.events
+      filter_prefix = queue.value.filter_prefix
+      filter_suffix = queue.value.filter_suffix
+      id            = queue.key
+      queue_arn     = queue.value.queue_arn
+    }
   }
 }
 
