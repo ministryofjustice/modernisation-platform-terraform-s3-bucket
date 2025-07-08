@@ -204,7 +204,6 @@ variable "notification_queues" {
   default     = {}
 }
 
-
 variable "suffix_name" {
   type        = string
   default     = ""
