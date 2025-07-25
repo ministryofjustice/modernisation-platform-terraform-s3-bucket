@@ -8,3 +8,4 @@ terraform.tfstate.backup
 tmp/
 .vscode/
 .idea/
+megalinter-reports
