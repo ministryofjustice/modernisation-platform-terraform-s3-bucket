@@ -189,9 +189,21 @@ variable "notification_enabled" {
 
 variable "notification_events" {
   type        = list(string)
-  description = "The event for which we send notifications"
+  description = "The event for which we send topic notifications"
   default     = [""]
 }
+
+variable "notification_queues" {
+  type = map(object({
+    events        = list(string)     # e.g. ["s3:ObjectCreated:*"]
+    filter_prefix = optional(string) # e.g. "images/"
+    filter_suffix = optional(string) # e.g. ".gz"
+    queue_arn     = string
+  }))
+  description = "a map of bucket notification queues where the map key is used as the configuration id"
+  default     = {}
+}
+
 variable "suffix_name" {
   type        = string
   default     = ""
