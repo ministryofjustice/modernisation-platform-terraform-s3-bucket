@@ -1,6 +1,10 @@
-resource "aws_s3_bucket_object_lock_configuration" "this" {
+resource "aws_s3_bucket_object_lock_configuration" "default" {
   count  = var.object_lock_enabled && var.object_lock_days > 0 ? 1 : 0
-  bucket = aws_s3_bucket.this.id
+  bucket = aws_s3_bucket.default.id
+
+  depends_on = [
+    aws_s3_bucket_versioning.default
+  ]
 
   object_lock_configuration {
     object_lock_enabled = "Enabled"
