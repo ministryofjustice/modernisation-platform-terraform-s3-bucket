@@ -6,14 +6,10 @@ resource "aws_s3_bucket_object_lock_configuration" "default" {
     aws_s3_bucket_versioning.default
   ]
 
-  object_lock_configuration {
-    object_lock_enabled = "Enabled"
-
-    rule {
-      default_retention {
-        mode = var.object_lock_mode
-        days = var.object_lock_days
-      }
+  rule {
+    default_retention {
+      mode = var.object_lock_mode
+      days = var.object_lock_days
     }
   }
 }
