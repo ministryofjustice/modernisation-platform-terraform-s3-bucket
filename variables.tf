@@ -214,3 +214,26 @@ variable "replication_bucket" {
   description = "Name of bucket used for replication - if not specified then * will be used in the policy"
   default     = ""
 }
+
+variable "object_lock_enabled" {
+  description = "Enable S3 Object Lock on bucket creation. WARNING: Cannot be changed after bucket is created."
+  type        = bool
+  default     = false
+}
+
+variable "object_lock_mode" {
+  description = "Default retention mode for Object Lock. Valid values: GOVERNANCE or COMPLIANCE."
+  type        = string
+  default     = "GOVERNANCE"
+
+  validation {
+    condition     = contains(["GOVERNANCE", "COMPLIANCE"], var.object_lock_mode)
+    error_message = "object_lock_mode must be GOVERNANCE or COMPLIANCE."
+  }
+}
+
+variable "object_lock_days" {
+  description = "Default retention in days for Object Lock."
+  type        = number
+  default     = 0
+}
