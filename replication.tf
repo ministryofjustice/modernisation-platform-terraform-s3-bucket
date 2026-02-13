@@ -128,6 +128,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "replication" {
       }
     }
 }
+}
 
 # Block public access policies to the replication bucket
 resource "aws_s3_bucket_public_access_block" "replication" {
