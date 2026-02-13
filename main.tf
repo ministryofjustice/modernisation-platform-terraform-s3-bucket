@@ -38,10 +38,17 @@ resource "aws_s3_bucket" "default" {
   force_destroy = var.force_destroy
 
   lifecycle {
+  
     precondition {
       condition     = !(var.replication_object_lock_enabled && !var.replication_enabled)
       error_message = "replication_object_lock_enabled requires replication_enabled = true."
     }
+  
+    precondition {
+      condition     = !(var.replication_object_lock_enabled && var.force_destroy)
+      error_message = "force_destroy cannot be true when object lock is enabled."
+    }
+  
   }
 
   tags = var.tags
