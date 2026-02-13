@@ -1,5 +1,5 @@
 locals {
-  replication_bucket = "arn:aws:s3:::${var.replication_bucket}/*"
+  replication_bucket_arn = "arn:aws:s3:::${var.replication_bucket}/*"
   # When Object Lock is enabled we MUST create a new bucket.
   # AWS does not allow enabling Object Lock on existing buckets.
   replication_bucket_name = var.bucket_name != null ? (
@@ -49,7 +49,7 @@ resource "aws_s3_bucket" "replication" {
       : null
   )
 
-  force_destroy = var.replication_object_lock_enabled ? false : var.force_destroy
+  force_destroy = false
   tags          = var.tags
   object_lock_enabled = var.replication_object_lock_enabled
 
@@ -273,7 +273,7 @@ data "aws_iam_policy_document" "replication-policy" {
       "s3:ObjectOwnerOverrideToBucketOwner"
     ]
 
-    resources = [var.replication_bucket != "" ? local.replication_bucket : "*"]
+    resources = [var.replication_bucket != "" ? local.replication_bucket_arn : "*"]
 
 
 
