@@ -1,23 +1,27 @@
 locals {
   replication_bucket_arn = "arn:aws:s3:::${var.replication_bucket}/*"
+
   # When Object Lock is enabled we MUST create a new bucket.
   # AWS does not allow enabling Object Lock on existing buckets.
   replication_bucket_name = var.bucket_name != null ? (
     var.replication_object_lock_enabled
     ? "${var.bucket_name}-replication-locked-${try(random_id.bucket[0].hex, "")}"
-    : "${var.bucket_name}-replication"
-  ) : null
+    : "${var.bucket_name}-replication-${try(random_id.bucket[0].hex, "")}"
+  ) : (
+    var.replication_object_lock_enabled
+    ? "${var.bucket_prefix}-replication-locked-${try(random_id.bucket[0].hex, "")}"
+    : "${var.bucket_prefix}-replication-${try(random_id.bucket[0].hex, "")}"
+  )
 }
 
 data "aws_caller_identity" "current" {}
 
 resource "random_id" "bucket" {
-  count       = var.replication_enabled && var.replication_object_lock_enabled && var.bucket_name != null ? 1 : 0
+  count = var.replication_enabled ? 1 : 0
   byte_length = 4
 
   keepers = {
-    bucket_name = var.bucket_name
-    object_lock = var.replication_object_lock_enabled
+    bucket_identity = coalesce(var.bucket_name, var.bucket_prefix)
   }
 }
 
@@ -55,7 +59,7 @@ resource "aws_s3_bucket" "replication" {
 
 lifecycle {
   
-    prevent_destroy = var.replication_object_lock_enabled || var.replication_migration_mode
+    prevent_destroy = var.replication_prevent_destroy
   
     precondition {
       condition     = !(var.replication_object_lock_enabled && var.force_destroy)
