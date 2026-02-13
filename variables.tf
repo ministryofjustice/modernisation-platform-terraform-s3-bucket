@@ -219,11 +219,10 @@ variable "replication_object_lock_enabled" {
   type = bool
 
   validation {
-    condition     = var.replication_object_lock_enabled == true
-    error_message = "Object Lock cannot be disabled once enabled."
+    condition     = !(var.replication_object_lock_enabled && !var.replication_enabled)
+    error_message = "replication_object_lock_enabled requires replication_enabled = true."
   }
 }
-
 
 variable "replication_object_lock_mode" {
   type    = string
