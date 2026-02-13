@@ -126,18 +126,18 @@ variable "replication_prevent_destroy" {
 ############################################
 
 variable "sse_algorithm" {
-  type        = string
-  default     = "aws:kms"
+  type    = string
+  default = "aws:kms"
 }
 
 variable "custom_kms_key" {
-  type        = string
-  default     = ""
+  type    = string
+  default = ""
 }
 
 variable "custom_replication_kms_key" {
-  type        = string
-  default     = ""
+  type    = string
+  default = ""
 }
 
 ############################################
@@ -193,6 +193,6 @@ variable "bucket_policy_v2" {
 }
 
 variable "lifecycle_rule" {
-  type = any
+  type    = any
   default = []
 }
