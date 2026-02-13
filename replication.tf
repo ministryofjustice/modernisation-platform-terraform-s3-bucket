@@ -25,10 +25,15 @@ resource "aws_s3_bucket" "replication" {
 
   count         = var.replication_enabled ? 1 : 0
   provider      = aws.bucket-replication
-  bucket        = var.bucket_name != null ? "${var.bucket_name}-replication" : null
+  bucket = var.bucket_name != null ? "${var.bucket_name}-replication-${random_id.bucket.hex}" : null
   bucket_prefix = var.bucket_prefix != null ? "${var.bucket_prefix}-replication" : null
   force_destroy = var.force_destroy
   tags          = var.tags
+  object_lock_enabled = var.replication_object_lock_enabled
+
+  lifecycle {
+    prevent_destroy = var.replication_object_lock_enabled ? true : false
+  }
 }
 
 resource "aws_s3_bucket_ownership_controls" "replication" {
@@ -77,10 +82,6 @@ resource "aws_s3_bucket_lifecycle_configuration" "replication" {
       storage_class = "GLACIER"
     }
 
-    expiration {
-      days = 730
-    }
-
     noncurrent_version_transition {
       noncurrent_days = 90
       storage_class   = "STANDARD_IA"
@@ -91,10 +92,19 @@ resource "aws_s3_bucket_lifecycle_configuration" "replication" {
       storage_class   = "GLACIER"
     }
 
-    noncurrent_version_expiration {
-      noncurrent_days = 730
+    dynamic "expiration" {
+      for_each = var.replication_object_lock_enabled ? [] : [1]
+      content {
+        days = 730
+      }
     }
-  }
+    
+    dynamic "noncurrent_version_expiration" {
+      for_each = var.replication_object_lock_enabled ? [] : [1]
+      content {
+        noncurrent_days = 730
+      }
+    }
 }
 
 # Block public access policies to the replication bucket
@@ -288,5 +298,22 @@ resource "aws_s3_bucket_replication_configuration" "default" {
   }
   depends_on = [
     aws_s3_bucket_versioning.default
+  ]
+}
+
+resource "aws_s3_bucket_object_lock_configuration" "replication" {
+  count    = var.replication_enabled && var.replication_object_lock_enabled ? 1 : 0
+  provider = aws.bucket-replication
+  bucket   = aws_s3_bucket.replication[0].id
+
+  rule {
+    default_retention {
+      mode = var.replication_object_lock_mode
+      days = var.replication_object_lock_days
+    }
+  }
+
+  depends_on = [
+    aws_s3_bucket_versioning.replication
   ]
 }
