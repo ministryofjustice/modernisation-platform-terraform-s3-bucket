@@ -4,8 +4,8 @@ locals {
   # AWS does not allow enabling Object Lock on existing buckets.
   replication_bucket_name = var.bucket_name != null ? (
     var.replication_object_lock_enabled
-      ? "${var.bucket_name}-replication-locked-${try(random_id.bucket[0].hex, "")}"
-      : "${var.bucket_name}-replication"
+    ? "${var.bucket_name}-replication-locked-${try(random_id.bucket[0].hex, "")}"
+    : "${var.bucket_name}-replication"
   ) : null
 }
 
@@ -40,17 +40,17 @@ resource "aws_s3_bucket" "replication" {
   #checkov:skip=CKV_AWS_21: "Versioning handled in versioning configuration resource"
   #checkov:skip=CKV_AWS_145: "Encryption handled in encryption configuration resource"
 
-  count         = var.replication_enabled ? 1 : 0
-  provider      = aws.bucket-replication
-  bucket = local.replication_bucket_name
+  count    = var.replication_enabled ? 1 : 0
+  provider = aws.bucket-replication
+  bucket   = local.replication_bucket_name
   bucket_prefix = (
     var.bucket_name == null && var.bucket_prefix != null
-      ? "${var.bucket_prefix}-replication"
-      : null
+    ? "${var.bucket_prefix}-replication"
+    : null
   )
 
-  force_destroy = false
-  tags          = var.tags
+  force_destroy       = false
+  tags                = var.tags
   object_lock_enabled = var.replication_object_lock_enabled
 
   lifecycle {
@@ -120,14 +120,14 @@ resource "aws_s3_bucket_lifecycle_configuration" "replication" {
         days = 730
       }
     }
-    
+
     dynamic "noncurrent_version_expiration" {
       for_each = var.replication_object_lock_enabled ? [] : [1]
       content {
         noncurrent_days = 730
       }
     }
-}
+  }
 }
 
 # Block public access policies to the replication bucket
