@@ -1,8 +1,25 @@
 locals {
   replication_bucket = "arn:aws:s3:::${var.replication_bucket}/*"
+  # When Object Lock is enabled we MUST create a new bucket.
+  # AWS does not allow enabling Object Lock on existing buckets.
+  replication_bucket_name = var.bucket_name != null ? (
+    var.replication_object_lock_enabled
+      ? "${var.bucket_name}-replication-locked-${random_id.bucket[0].hex}"
+      : "${var.bucket_name}-replication"
+  ) : null
 }
 
 data "aws_caller_identity" "current" {}
+
+resource "random_id" "bucket" {
+  count       = var.replication_enabled && var.replication_object_lock_enabled && var.bucket_name != null ? 1 : 0
+  byte_length = 4
+
+  keepers = {
+    bucket_name = var.bucket_name
+    object_lock = var.replication_object_lock_enabled
+  }
+}
 
 resource "aws_s3_bucket_notification" "bucket_notification_replication" {
   count    = var.replication_enabled && var.notification_enabled ? 1 : 0
@@ -25,14 +42,19 @@ resource "aws_s3_bucket" "replication" {
 
   count         = var.replication_enabled ? 1 : 0
   provider      = aws.bucket-replication
-  bucket = var.bucket_name != null ? "${var.bucket_name}-replication-${random_id.bucket.hex}" : null
-  bucket_prefix = var.bucket_prefix != null ? "${var.bucket_prefix}-replication" : null
-  force_destroy = var.force_destroy
+  bucket = local.replication_bucket_name
+  bucket_prefix = (
+    var.bucket_name == null && var.bucket_prefix != null
+      ? "${var.bucket_prefix}-replication"
+      : null
+  )
+
+  force_destroy = var.replication_object_lock_enabled ? false : var.force_destroy
   tags          = var.tags
   object_lock_enabled = var.replication_object_lock_enabled
 
   lifecycle {
-    prevent_destroy = var.replication_object_lock_enabled ? true : false
+    prevent_destroy = var.replication_object_lock_enabled
   }
 }
 
