@@ -216,12 +216,8 @@ variable "replication_bucket" {
 }
 
 variable "replication_object_lock_enabled" {
-  type = bool
-
-  validation {
-    condition     = !(var.replication_object_lock_enabled && !var.replication_enabled)
-    error_message = "replication_object_lock_enabled requires replication_enabled = true."
-  }
+  type    = bool
+  default = false
 }
 
 variable "replication_object_lock_mode" {
