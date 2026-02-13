@@ -54,7 +54,7 @@ resource "aws_s3_bucket" "replication" {
   object_lock_enabled = var.replication_object_lock_enabled
 
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = var.replication_object_lock_enabled || var.replication_migration_mode
   }
 }
 
@@ -300,8 +300,13 @@ resource "aws_s3_bucket_replication_configuration" "default" {
   for_each = var.replication_enabled ? toset(["run"]) : []
   bucket   = aws_s3_bucket.default.id
   role     = aws_iam_role.replication_role[0].arn
+  delete_marker_replication {
+    status = "Enabled"
+  }
   rule {
-    id       = "SourceToDestinationReplication"
+    id = var.replication_object_lock_enabled
+      ? "SourceToDestinationReplication-v2-object-lock"
+      : "SourceToDestinationReplication-v1"
     status   = var.replication_enabled ? "Enabled" : "Disabled"
     priority = 0
 
@@ -314,10 +319,16 @@ resource "aws_s3_bucket_replication_configuration" "default" {
     }
 
     source_selection_criteria {
+
+      replica_modifications {
+        status = "Enabled"
+      }
+    
       sse_kms_encrypted_objects {
-        status = (var.replication_enabled != false) ? "Enabled" : "Disabled"
+        status = "Enabled"
       }
     }
+
   }
   depends_on = [
     aws_s3_bucket_versioning.default
