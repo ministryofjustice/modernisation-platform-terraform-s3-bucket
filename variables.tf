@@ -234,3 +234,8 @@ variable "replication_migration_mode" {
   type    = bool
   default = false
 }
+
+variable "replication_prevent_destroy" {
+  type    = bool
+  default = true
+}
