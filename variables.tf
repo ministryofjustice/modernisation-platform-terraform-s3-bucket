@@ -214,3 +214,20 @@ variable "replication_bucket" {
   description = "Name of bucket used for replication - if not specified then * will be used in the policy"
   default     = ""
 }
+
+variable "replication_object_lock_enabled" {
+  description = "Enable S3 Object Lock on the replication bucket"
+  type        = bool
+  default     = false
+}
+
+variable "replication_object_lock_mode" {
+  type    = string
+  default = "COMPLIANCE"
+}
+
+variable "replication_object_lock_days" {
+  type    = number
+  default = 30
+}
+
