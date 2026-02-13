@@ -156,7 +156,7 @@ No modules.
 | <a name="input_replication_bucket"></a> [replication\_bucket](#input\_replication\_bucket) | Name of bucket used for replication - if not specified then * will be used in the policy | `string` | `""` | no |
 | <a name="input_replication_enabled"></a> [replication\_enabled](#input\_replication\_enabled) | Activate S3 bucket replication | `bool` | `false` | no |
 | <a name="input_replication_object_lock_days"></a> [replication\_object\_lock\_days](#input\_replication\_object\_lock\_days) | n/a | `number` | `30` | no |
-| <a name="input_replication_object_lock_enabled"></a> [replication\_object\_lock\_enabled](#input\_replication\_object\_lock\_enabled) | n/a | `bool` | n/a | yes |
+| <a name="input_replication_object_lock_enabled"></a> [replication\_object\_lock\_enabled](#input\_replication\_object\_lock\_enabled) | n/a | `bool` | `false` | no |
 | <a name="input_replication_object_lock_mode"></a> [replication\_object\_lock\_mode](#input\_replication\_object\_lock\_mode) | n/a | `string` | `"COMPLIANCE"` | no |
 | <a name="input_replication_region"></a> [replication\_region](#input\_replication\_region) | Region to create S3 replication bucket | `string` | `"eu-west-2"` | no |
 | <a name="input_replication_role_arn"></a> [replication\_role\_arn](#input\_replication\_role\_arn) | Role ARN to access S3 and replicate objects | `string` | `""` | no |
