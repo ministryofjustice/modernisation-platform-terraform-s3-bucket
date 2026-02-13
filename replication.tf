@@ -49,7 +49,7 @@ resource "aws_s3_bucket" "replication" {
   tags                = var.tags
 
   lifecycle {
-    prevent_destroy = var.replication_prevent_destroy
+    prevent_destroy = true
   }
 }
 
