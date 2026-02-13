@@ -311,7 +311,7 @@ resource "aws_s3_bucket_replication_configuration" "default" {
     priority = 0
 
     destination {
-      bucket        = var.replication_enabled ? aws_s3_bucket.replication[0].arn : aws_s3_bucket.replication[0].arn
+      bucket = aws_s3_bucket.replication[0].arn
       storage_class = "STANDARD"
       encryption_configuration {
         replica_kms_key_id = (var.custom_replication_kms_key != "") ? var.custom_replication_kms_key : "arn:aws:kms:${var.replication_region}:${data.aws_caller_identity.current.account_id}:alias/aws/s3"
