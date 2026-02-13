@@ -216,10 +216,14 @@ variable "replication_bucket" {
 }
 
 variable "replication_object_lock_enabled" {
-  description = "Enable S3 Object Lock on the replication bucket"
-  type        = bool
-  default     = false
+  type = bool
+
+  validation {
+    condition     = var.replication_object_lock_enabled == true
+    error_message = "Object Lock cannot be disabled once enabled."
+  }
 }
+
 
 variable "replication_object_lock_mode" {
   type    = string
