@@ -4,7 +4,7 @@ locals {
   # AWS does not allow enabling Object Lock on existing buckets.
   replication_bucket_name = var.bucket_name != null ? (
     var.replication_object_lock_enabled
-      ? "${var.bucket_name}-replication-locked-${random_id.bucket[0].hex}"
+      ? "${var.bucket_name}-replication-locked-${try(random_id.bucket[0].hex, "")}"
       : "${var.bucket_name}-replication"
   ) : null
 }
