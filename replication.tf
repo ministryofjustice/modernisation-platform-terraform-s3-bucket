@@ -53,9 +53,16 @@ resource "aws_s3_bucket" "replication" {
   tags                = var.tags
   object_lock_enabled = var.replication_object_lock_enabled
 
-  lifecycle {
+lifecycle {
+  
     prevent_destroy = var.replication_object_lock_enabled || var.replication_migration_mode
+  
+    precondition {
+      condition     = !(var.replication_object_lock_enabled && var.force_destroy)
+      error_message = "force_destroy cannot be true when Object Lock is enabled."
+    }
   }
+
 }
 
 resource "aws_s3_bucket_ownership_controls" "replication" {
