@@ -54,7 +54,7 @@ resource "aws_s3_bucket" "replication" {
   object_lock_enabled = var.replication_object_lock_enabled
 
   lifecycle {
-    prevent_destroy = var.replication_object_lock_enabled
+    prevent_destroy = true
   }
 }
 
