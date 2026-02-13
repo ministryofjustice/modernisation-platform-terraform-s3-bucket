@@ -230,3 +230,7 @@ variable "replication_object_lock_days" {
   default = 30
 }
 
+variable "replication_migration_mode" {
+  type    = bool
+  default = false
+}
