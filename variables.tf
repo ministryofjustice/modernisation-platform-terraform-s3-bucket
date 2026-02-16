@@ -6,11 +6,6 @@ variable "bucket_prefix" {
   type        = string
   description = "Bucket prefix. A random suffix will be added for global uniqueness."
   default     = null
-
-  validation {
-    condition     = !(var.bucket_prefix != null && var.bucket_name != null)
-    error_message = "Specify either bucket_prefix OR bucket_name — never both."
-  }
 }
 
 variable "bucket_name" {
