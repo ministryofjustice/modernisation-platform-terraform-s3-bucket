@@ -282,6 +282,8 @@ resource "aws_s3_bucket_replication_configuration" "default" {
     status   = "Enabled"
     priority = 0
 
+    filter {} 
+
     delete_marker_replication {
       status = "Enabled"
     }
