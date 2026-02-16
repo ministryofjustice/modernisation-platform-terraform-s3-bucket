@@ -3,9 +3,6 @@
 ############################################
 
 locals {
-  replication_bucket_arn = "arn:aws:s3:::${var.replication_bucket}/*"
-
-  # Always generate deterministic + unique bucket names
   replication_bucket_name = var.bucket_name != null ? (
     var.replication_object_lock_enabled
       ? "${var.bucket_name}-replication-locked-${random_id.bucket[0].hex}"
@@ -18,14 +15,13 @@ locals {
 }
 
 ############################################
-# Random suffix (CRITICAL)
+# Random suffix (forces replacement safely)
 ############################################
 
 resource "random_id" "bucket" {
   count       = var.replication_enabled ? 1 : 0
   byte_length = 4
 
-  # Forces replacement when object lock state changes
   keepers = {
     bucket_identity = coalesce(var.bucket_name, var.bucket_prefix)
     object_lock     = var.replication_object_lock_enabled
@@ -42,10 +38,9 @@ resource "aws_s3_bucket" "replication" {
   count    = var.replication_enabled ? 1 : 0
   provider = aws.bucket-replication
 
-  bucket = local.replication_bucket_name
-
-  force_destroy       = false
+  bucket              = local.replication_bucket_name
   object_lock_enabled = var.replication_object_lock_enabled
+  force_destroy       = false
   tags                = var.tags
 
   lifecycle {
@@ -68,7 +63,7 @@ resource "aws_s3_bucket_ownership_controls" "replication" {
 }
 
 ############################################
-# ACL (only if enabled)
+# ACL (optional)
 ############################################
 
 resource "aws_s3_bucket_acl" "replication" {
@@ -81,7 +76,7 @@ resource "aws_s3_bucket_acl" "replication" {
 }
 
 ############################################
-# Versioning (REQUIRED for replication + object lock)
+# Versioning (required)
 ############################################
 
 resource "aws_s3_bucket_versioning" "replication" {
@@ -105,8 +100,10 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "replication" {
 
   rule {
     apply_server_side_encryption_by_default {
-      sse_algorithm     = var.sse_algorithm
-      kms_master_key_id = var.custom_replication_kms_key != "" ? var.custom_replication_kms_key : null
+      sse_algorithm = var.sse_algorithm
+      kms_master_key_id = var.custom_replication_kms_key != "" ?
+        var.custom_replication_kms_key :
+        null
     }
   }
 }
@@ -190,7 +187,7 @@ resource "aws_s3_bucket_object_lock_configuration" "replication" {
 }
 
 ############################################
-# IAM Role
+# IAM Role for Replication
 ############################################
 
 resource "aws_iam_role" "replication_role" {
@@ -205,7 +202,6 @@ resource "aws_iam_role" "replication_role" {
 data "aws_iam_policy_document" "s3-assume-role-policy" {
   statement {
     effect = "Allow"
-
     actions = ["sts:AssumeRole"]
 
     principals {
@@ -223,18 +219,15 @@ data "aws_iam_policy_document" "replication-policy" {
 
   statement {
     effect = "Allow"
-
     actions = [
       "s3:GetReplicationConfiguration",
       "s3:ListBucket"
     ]
-
     resources = [aws_s3_bucket.default.arn]
   }
 
   statement {
     effect = "Allow"
-
     actions = [
       "s3:GetObjectVersionForReplication",
       "s3:GetObjectVersionAcl",
@@ -242,21 +235,21 @@ data "aws_iam_policy_document" "replication-policy" {
       "s3:GetObjectRetention",
       "s3:GetObjectLegalHold"
     ]
-
     resources = ["${aws_s3_bucket.default.arn}/*"]
   }
 
   statement {
     effect = "Allow"
-
     actions = [
       "s3:ReplicateObject",
       "s3:ReplicateDelete",
       "s3:ReplicateTags",
       "s3:ObjectOwnerOverrideToBucketOwner"
     ]
-
-    resources = [aws_s3_bucket.replication[0].arn, "${aws_s3_bucket.replication[0].arn}/*"]
+    resources = [
+      aws_s3_bucket.replication[0].arn,
+      "${aws_s3_bucket.replication[0].arn}/*"
+    ]
   }
 }
 
@@ -277,7 +270,7 @@ resource "aws_iam_role_policy_attachment" "replication" {
 }
 
 ############################################
-# Replication Rule (Modern / Batch Compatible)
+# Replication Configuration
 ############################################
 
 resource "aws_s3_bucket_replication_configuration" "default" {
