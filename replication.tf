@@ -5,12 +5,12 @@
 locals {
   replication_bucket_name = var.bucket_name != null ? (
     var.replication_object_lock_enabled
-      ? "${var.bucket_name}-replication-locked-${random_id.bucket[0].hex}"
-      : "${var.bucket_name}-replication-${random_id.bucket[0].hex}"
-  ) : (
+    ? "${var.bucket_name}-replication-locked-${random_id.bucket[0].hex}"
+    : "${var.bucket_name}-replication-${random_id.bucket[0].hex}"
+    ) : (
     var.replication_object_lock_enabled
-      ? "${var.bucket_prefix}-replication-locked-${random_id.bucket[0].hex}"
-      : "${var.bucket_prefix}-replication-${random_id.bucket[0].hex}"
+    ? "${var.bucket_prefix}-replication-locked-${random_id.bucket[0].hex}"
+    : "${var.bucket_prefix}-replication-${random_id.bucket[0].hex}"
   )
 }
 
@@ -100,7 +100,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "replication" {
 
   rule {
     apply_server_side_encryption_by_default {
-      sse_algorithm = var.sse_algorithm
+      sse_algorithm     = var.sse_algorithm
       kms_master_key_id = var.custom_replication_kms_key != "" ? var.custom_replication_kms_key : null
     }
   }
@@ -199,7 +199,7 @@ resource "aws_iam_role" "replication_role" {
 
 data "aws_iam_policy_document" "s3-assume-role-policy" {
   statement {
-    effect = "Allow"
+    effect  = "Allow"
     actions = ["sts:AssumeRole"]
 
     principals {
