@@ -191,3 +191,47 @@ variable "lifecycle_rule" {
   type    = any
   default = []
 }
+
+
+variable "log_buckets" {
+  type        = map(any)
+  description = "Map containing log bucket details and its associated bucket policy."
+  default     = null
+  nullable    = true
+}
+
+variable "log_bucket" {
+  type        = string
+  description = "Unique name of s3 bucket to log to (not defined in terraform)"
+  default     = null
+  nullable    = true
+}
+
+variable "log_bucket_names" {
+  type        = set(string)
+  description = "Unique names of s3 bucket to log to (not defined in terraform)"
+  default     = null
+  nullable    = true
+}
+
+variable "log_partition_date_source" {
+  type        = string
+  default     = "None"
+}
+
+variable "log_prefix" {
+  type        = string
+  default     = null
+  nullable    = true
+}
+
+variable "notification_queues" {
+  type = map(object({
+    events        = list(string)
+    filter_prefix = optional(string)
+    filter_suffix = optional(string)
+    queue_arn     = string
+  }))
+  default = {}
+}
+
