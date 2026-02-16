@@ -108,13 +108,11 @@ No modules.
 | [aws_s3_bucket_lifecycle_configuration.replication](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_lifecycle_configuration) | resource |
 | [aws_s3_bucket_logging.default_bucket_object](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_logging) | resource |
 | [aws_s3_bucket_notification.bucket_notification](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_notification) | resource |
-| [aws_s3_bucket_notification.bucket_notification_replication](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_notification) | resource |
 | [aws_s3_bucket_object_lock_configuration.replication](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_object_lock_configuration) | resource |
 | [aws_s3_bucket_ownership_controls.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_ownership_controls) | resource |
 | [aws_s3_bucket_ownership_controls.replication](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_ownership_controls) | resource |
 | [aws_s3_bucket_policy.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy) | resource |
 | [aws_s3_bucket_policy.log_bucket_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy) | resource |
-| [aws_s3_bucket_policy.replication](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy) | resource |
 | [aws_s3_bucket_public_access_block.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_public_access_block) | resource |
 | [aws_s3_bucket_public_access_block.replication](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_public_access_block) | resource |
 | [aws_s3_bucket_replication_configuration.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_replication_configuration) | resource |
@@ -126,7 +124,6 @@ No modules.
 | [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
 | [aws_iam_policy_document.bucket_policy_v2](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.default](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
-| [aws_iam_policy_document.replication](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.replication-policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.s3-assume-role-policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 
@@ -134,35 +131,29 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_acl"></a> [acl](#input\_acl) | Use canned ACL on the bucket instead of BucketOwnerEnforced ownership controls. var.ownership\_controls must be set to corresponding value below. | `string` | `"private"` | no |
-| <a name="input_bucket_name"></a> [bucket\_name](#input\_bucket\_name) | Please use bucket\_prefix instead of bucket\_name to ensure a globally unique name. | `string` | `null` | no |
-| <a name="input_bucket_policy"></a> [bucket\_policy](#input\_bucket\_policy) | JSON for the bucket policy | `list(string)` | <pre>[<br/>  "{}"<br/>]</pre> | no |
-| <a name="input_bucket_policy_v2"></a> [bucket\_policy\_v2](#input\_bucket\_policy\_v2) | Alternative to bucket\_policy.  Define policies directly without needing to know the bucket ARN | <pre>list(object({<br/>    effect  = string<br/>    actions = list(string)<br/>    principals = optional(object({<br/>      type        = string<br/>      identifiers = list(string)<br/>    }))<br/>    conditions = optional(list(object({<br/>      test     = string<br/>      variable = string<br/>      values   = list(string)<br/>    })), [])<br/>  }))</pre> | `[]` | no |
-| <a name="input_bucket_prefix"></a> [bucket\_prefix](#input\_bucket\_prefix) | Bucket prefix, which will include a randomised suffix to ensure globally unique names | `string` | `null` | no |
-| <a name="input_custom_kms_key"></a> [custom\_kms\_key](#input\_custom\_kms\_key) | KMS key ARN to use | `string` | `""` | no |
-| <a name="input_custom_replication_kms_key"></a> [custom\_replication\_kms\_key](#input\_custom\_replication\_kms\_key) | KMS key ARN to use for replication to eu-west-2 | `string` | `""` | no |
-| <a name="input_force_destroy"></a> [force\_destroy](#input\_force\_destroy) | A boolean that indicates all objects (including any locked objects) should be deleted from the bucket so that the bucket can be destroyed without error. These objects are not recoverable. | `bool` | `false` | no |
-| <a name="input_lifecycle_rule"></a> [lifecycle\_rule](#input\_lifecycle\_rule) | List of maps containing configuration of object lifecycle management. | `any` | <pre>[<br/>  {<br/>    "enabled": "Enabled",<br/>    "expiration": {<br/>      "days": 730<br/>    },<br/>    "id": "main",<br/>    "noncurrent_version_expiration": {<br/>      "days": 730<br/>    },<br/>    "noncurrent_version_transition": [<br/>      {<br/>        "days": 90,<br/>        "storage_class": "STANDARD_IA"<br/>      },<br/>      {<br/>        "days": 365,<br/>        "storage_class": "GLACIER"<br/>      }<br/>    ],<br/>    "prefix": "",<br/>    "tags": {<br/>      "autoclean": "true",<br/>      "rule": "log"<br/>    },<br/>    "transition": [<br/>      {<br/>        "days": 90,<br/>        "storage_class": "STANDARD_IA"<br/>      },<br/>      {<br/>        "days": 365,<br/>        "storage_class": "GLACIER"<br/>      }<br/>    ]<br/>  }<br/>]</pre> | no |
-| <a name="input_log_bucket"></a> [log\_bucket](#input\_log\_bucket) | Unique name of s3 bucket to log to (not defined in terraform) | `string` | `null` | no |
-| <a name="input_log_bucket_names"></a> [log\_bucket\_names](#input\_log\_bucket\_names) | Unique names of s3 bucket to log to (not defined in terraform) | `set(string)` | `null` | no |
-| <a name="input_log_buckets"></a> [log\_buckets](#input\_log\_buckets) | Map containing log bucket details and its associated bucket policy. | `map(any)` | `null` | no |
-| <a name="input_log_partition_date_source"></a> [log\_partition\_date\_source](#input\_log\_partition\_date\_source) | Partition logs by date. Allowed values are 'EventTime', 'DeliveryTime', or 'None'. | `string` | `"None"` | no |
-| <a name="input_log_prefix"></a> [log\_prefix](#input\_log\_prefix) | Prefix for all log object keys. | `string` | `null` | no |
-| <a name="input_notification_enabled"></a> [notification\_enabled](#input\_notification\_enabled) | Boolean indicating if a notification resource is required for the bucket | `bool` | `false` | no |
-| <a name="input_notification_events"></a> [notification\_events](#input\_notification\_events) | The event for which we send topic notifications | `list(string)` | <pre>[<br/>  ""<br/>]</pre> | no |
-| <a name="input_notification_queues"></a> [notification\_queues](#input\_notification\_queues) | a map of bucket notification queues where the map key is used as the configuration id | <pre>map(object({<br/>    events        = list(string)     # e.g. ["s3:ObjectCreated:*"]<br/>    filter_prefix = optional(string) # e.g. "images/"<br/>    filter_suffix = optional(string) # e.g. ".gz"<br/>    queue_arn     = string<br/>  }))</pre> | `{}` | no |
-| <a name="input_notification_sns_arn"></a> [notification\_sns\_arn](#input\_notification\_sns\_arn) | The arn for the bucket notification SNS topic | `string` | `""` | no |
-| <a name="input_ownership_controls"></a> [ownership\_controls](#input\_ownership\_controls) | Bucket Ownership Controls - for use WITH acl var above options are 'BucketOwnerPreferred' or 'ObjectWriter'. To disable ACLs and use new AWS recommended controls set this to 'BucketOwnerEnforced' and which will disabled ACLs and ignore var.acl | `string` | `"ObjectWriter"` | no |
-| <a name="input_replication_bucket"></a> [replication\_bucket](#input\_replication\_bucket) | Name of bucket used for replication - if not specified then * will be used in the policy | `string` | `""` | no |
-| <a name="input_replication_enabled"></a> [replication\_enabled](#input\_replication\_enabled) | Activate S3 bucket replication | `bool` | `false` | no |
+| <a name="input_acl"></a> [acl](#input\_acl) | n/a | `string` | `"private"` | no |
+| <a name="input_bucket_name"></a> [bucket\_name](#input\_bucket\_name) | Explicit bucket name. Prefer bucket\_prefix for global uniqueness. | `string` | `null` | no |
+| <a name="input_bucket_policy"></a> [bucket\_policy](#input\_bucket\_policy) | n/a | `list(string)` | <pre>[<br/>  "{}"<br/>]</pre> | no |
+| <a name="input_bucket_policy_v2"></a> [bucket\_policy\_v2](#input\_bucket\_policy\_v2) | n/a | `any` | `[]` | no |
+| <a name="input_bucket_prefix"></a> [bucket\_prefix](#input\_bucket\_prefix) | Bucket prefix. A random suffix will be added for global uniqueness. | `string` | `null` | no |
+| <a name="input_custom_kms_key"></a> [custom\_kms\_key](#input\_custom\_kms\_key) | n/a | `string` | `""` | no |
+| <a name="input_custom_replication_kms_key"></a> [custom\_replication\_kms\_key](#input\_custom\_replication\_kms\_key) | n/a | `string` | `""` | no |
+| <a name="input_force_destroy"></a> [force\_destroy](#input\_force\_destroy) | Delete all objects when destroying bucket (DANGEROUS). | `bool` | `false` | no |
+| <a name="input_lifecycle_rule"></a> [lifecycle\_rule](#input\_lifecycle\_rule) | n/a | `any` | `[]` | no |
+| <a name="input_notification_enabled"></a> [notification\_enabled](#input\_notification\_enabled) | n/a | `bool` | `false` | no |
+| <a name="input_notification_events"></a> [notification\_events](#input\_notification\_events) | n/a | `list(string)` | <pre>[<br/>  ""<br/>]</pre> | no |
+| <a name="input_notification_sns_arn"></a> [notification\_sns\_arn](#input\_notification\_sns\_arn) | n/a | `string` | `""` | no |
+| <a name="input_ownership_controls"></a> [ownership\_controls](#input\_ownership\_controls) | n/a | `string` | `"ObjectWriter"` | no |
+| <a name="input_replication_bucket"></a> [replication\_bucket](#input\_replication\_bucket) | Existing bucket for replication. Leave empty to create one. | `string` | `""` | no |
+| <a name="input_replication_enabled"></a> [replication\_enabled](#input\_replication\_enabled) | Activate S3 replication | `bool` | `false` | no |
 | <a name="input_replication_object_lock_days"></a> [replication\_object\_lock\_days](#input\_replication\_object\_lock\_days) | n/a | `number` | `30` | no |
 | <a name="input_replication_object_lock_enabled"></a> [replication\_object\_lock\_enabled](#input\_replication\_object\_lock\_enabled) | n/a | `bool` | `false` | no |
 | <a name="input_replication_object_lock_mode"></a> [replication\_object\_lock\_mode](#input\_replication\_object\_lock\_mode) | n/a | `string` | `"COMPLIANCE"` | no |
-| <a name="input_replication_region"></a> [replication\_region](#input\_replication\_region) | Region to create S3 replication bucket | `string` | `"eu-west-2"` | no |
-| <a name="input_replication_role_arn"></a> [replication\_role\_arn](#input\_replication\_role\_arn) | Role ARN to access S3 and replicate objects | `string` | `""` | no |
-| <a name="input_sse_algorithm"></a> [sse\_algorithm](#input\_sse\_algorithm) | The server-side encryption algorithm to use | `string` | `"aws:kms"` | no |
-| <a name="input_suffix_name"></a> [suffix\_name](#input\_suffix\_name) | Suffix for role and policy names | `string` | `""` | no |
-| <a name="input_tags"></a> [tags](#input\_tags) | Tags to apply to resources, where applicable | `map(any)` | n/a | yes |
+| <a name="input_replication_prevent_destroy"></a> [replication\_prevent\_destroy](#input\_replication\_prevent\_destroy) | Prevents accidental deletion of replication bucket. | `bool` | `true` | no |
+| <a name="input_replication_region"></a> [replication\_region](#input\_replication\_region) | Region to create replication bucket | `string` | `"eu-west-2"` | no |
+| <a name="input_sse_algorithm"></a> [sse\_algorithm](#input\_sse\_algorithm) | n/a | `string` | `"aws:kms"` | no |
+| <a name="input_suffix_name"></a> [suffix\_name](#input\_suffix\_name) | n/a | `string` | `""` | no |
+| <a name="input_tags"></a> [tags](#input\_tags) | Tags to apply to resources | `map(any)` | n/a | yes |
 | <a name="input_versioning_enabled"></a> [versioning\_enabled](#input\_versioning\_enabled) | Activate S3 bucket versioning | `bool` | `true` | no |
 
 ## Outputs
