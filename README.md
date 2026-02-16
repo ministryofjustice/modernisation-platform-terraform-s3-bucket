@@ -140,8 +140,14 @@ No modules.
 | <a name="input_custom_replication_kms_key"></a> [custom\_replication\_kms\_key](#input\_custom\_replication\_kms\_key) | n/a | `string` | `""` | no |
 | <a name="input_force_destroy"></a> [force\_destroy](#input\_force\_destroy) | Delete all objects when destroying bucket (DANGEROUS). | `bool` | `false` | no |
 | <a name="input_lifecycle_rule"></a> [lifecycle\_rule](#input\_lifecycle\_rule) | n/a | `any` | `[]` | no |
+| <a name="input_log_bucket"></a> [log\_bucket](#input\_log\_bucket) | Unique name of s3 bucket to log to (not defined in terraform) | `string` | `null` | no |
+| <a name="input_log_bucket_names"></a> [log\_bucket\_names](#input\_log\_bucket\_names) | Unique names of s3 bucket to log to (not defined in terraform) | `set(string)` | `null` | no |
+| <a name="input_log_buckets"></a> [log\_buckets](#input\_log\_buckets) | Map containing log bucket details and its associated bucket policy. | `map(any)` | `null` | no |
+| <a name="input_log_partition_date_source"></a> [log\_partition\_date\_source](#input\_log\_partition\_date\_source) | n/a | `string` | `"None"` | no |
+| <a name="input_log_prefix"></a> [log\_prefix](#input\_log\_prefix) | n/a | `string` | `null` | no |
 | <a name="input_notification_enabled"></a> [notification\_enabled](#input\_notification\_enabled) | n/a | `bool` | `false` | no |
 | <a name="input_notification_events"></a> [notification\_events](#input\_notification\_events) | n/a | `list(string)` | <pre>[<br/>  ""<br/>]</pre> | no |
+| <a name="input_notification_queues"></a> [notification\_queues](#input\_notification\_queues) | n/a | <pre>map(object({<br/>    events        = list(string)<br/>    filter_prefix = optional(string)<br/>    filter_suffix = optional(string)<br/>    queue_arn     = string<br/>  }))</pre> | `{}` | no |
 | <a name="input_notification_sns_arn"></a> [notification\_sns\_arn](#input\_notification\_sns\_arn) | n/a | `string` | `""` | no |
 | <a name="input_ownership_controls"></a> [ownership\_controls](#input\_ownership\_controls) | n/a | `string` | `"ObjectWriter"` | no |
 | <a name="input_replication_bucket"></a> [replication\_bucket](#input\_replication\_bucket) | Existing bucket for replication. Leave empty to create one. | `string` | `""` | no |
