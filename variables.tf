@@ -215,14 +215,14 @@ variable "log_bucket_names" {
 }
 
 variable "log_partition_date_source" {
-  type        = string
-  default     = "None"
+  type    = string
+  default = "None"
 }
 
 variable "log_prefix" {
-  type        = string
-  default     = null
-  nullable    = true
+  type     = string
+  default  = null
+  nullable = true
 }
 
 variable "notification_queues" {
