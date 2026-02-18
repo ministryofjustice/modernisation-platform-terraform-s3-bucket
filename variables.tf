@@ -1,14 +1,27 @@
-variable "acl" {
+############################################
+# Bucket Naming
+############################################
+
+variable "bucket_prefix" {
   type        = string
-  description = "Use canned ACL on the bucket instead of BucketOwnerEnforced ownership controls. var.ownership_controls must be set to corresponding value below."
-  default     = "private"
+  description = "Bucket prefix. A random suffix will be added for global uniqueness."
+  default     = null
 }
 
-variable "ownership_controls" {
+variable "bucket_name" {
   type        = string
-  description = "Bucket Ownership Controls - for use WITH acl var above options are 'BucketOwnerPreferred' or 'ObjectWriter'. To disable ACLs and use new AWS recommended controls set this to 'BucketOwnerEnforced' and which will disabled ACLs and ignore var.acl"
-  default     = "ObjectWriter"
+  description = "Explicit bucket name. Prefer bucket_prefix for global uniqueness."
+  default     = null
+
+  validation {
+    condition     = !(var.bucket_prefix != null && var.bucket_name != null)
+    error_message = "Specify either bucket_prefix OR bucket_name — never both."
+  }
 }
+
+############################################
+# Core Bucket Settings
+############################################
 
 variable "versioning_enabled" {
   type        = bool
@@ -16,103 +29,169 @@ variable "versioning_enabled" {
   default     = true
 }
 
+variable "force_destroy" {
+  type        = bool
+  description = "Delete all objects when destroying bucket (DANGEROUS)."
+  default     = false
+}
+
+variable "tags" {
+  type        = map(any)
+  description = "Tags to apply to resources"
+}
+
+############################################
+# Replication
+############################################
+
 variable "replication_enabled" {
   type        = bool
-  description = "Activate S3 bucket replication"
+  description = "Activate S3 replication"
   default     = false
+
+  validation {
+    condition     = !(var.replication_enabled && !var.versioning_enabled)
+    error_message = "Replication requires versioning_enabled = true."
+  }
 }
 
 variable "replication_region" {
   type        = string
-  description = "Region to create S3 replication bucket"
+  description = "Region to create replication bucket"
   default     = "eu-west-2"
 }
 
-variable "bucket_policy" {
-  type        = list(string)
-  description = "JSON for the bucket policy"
-  default     = ["{}"]
-}
-
-variable "bucket_policy_v2" {
-  type = list(object({
-    effect  = string
-    actions = list(string)
-    principals = optional(object({
-      type        = string
-      identifiers = list(string)
-    }))
-    conditions = optional(list(object({
-      test     = string
-      variable = string
-      values   = list(string)
-    })), [])
-  }))
-  description = "Alternative to bucket_policy.  Define policies directly without needing to know the bucket ARN"
-  default     = []
-}
-
-variable "bucket_prefix" {
+variable "replication_bucket" {
   type        = string
-  description = "Bucket prefix, which will include a randomised suffix to ensure globally unique names"
-  default     = null
+  description = "Existing bucket for replication. Leave empty to create one."
+  default     = ""
 }
 
-variable "bucket_name" {
-  type        = string
-  description = "Please use bucket_prefix instead of bucket_name to ensure a globally unique name."
-  default     = null
+############################################
+# Object Lock (CRITICAL SAFETY)
+############################################
+
+variable "replication_object_lock_enabled" {
+  type    = bool
+  default = false
+
+  validation {
+    condition     = !(var.replication_object_lock_enabled && !var.replication_enabled)
+    error_message = "Object Lock requires replication_enabled = true."
+  }
+
+  validation {
+    condition     = !(var.replication_object_lock_enabled && !var.versioning_enabled)
+    error_message = "Object Lock requires versioning_enabled = true."
+  }
+
+  validation {
+    condition     = !(var.replication_object_lock_enabled && var.force_destroy)
+    error_message = "force_destroy cannot be true when Object Lock is enabled."
+  }
+}
+
+variable "replication_object_lock_mode" {
+  type    = string
+  default = "COMPLIANCE"
+
+  validation {
+    condition     = contains(["COMPLIANCE", "GOVERNANCE"], var.replication_object_lock_mode)
+    error_message = "Must be COMPLIANCE or GOVERNANCE."
+  }
+}
+
+variable "replication_object_lock_days" {
+  type    = number
+  default = 30
+}
+
+############################################
+# Safety Controls
+############################################
+
+variable "replication_prevent_destroy" {
+  type        = bool
+  default     = true
+  description = "Prevents accidental deletion of replication bucket."
+}
+
+############################################
+# Encryption
+############################################
+
+variable "sse_algorithm" {
+  type    = string
+  default = "aws:kms"
 }
 
 variable "custom_kms_key" {
-  type        = string
-  description = "KMS key ARN to use"
-  default     = ""
+  type    = string
+  default = ""
 }
 
 variable "custom_replication_kms_key" {
-  type        = string
-  description = "KMS key ARN to use for replication to eu-west-2"
-  default     = ""
+  type    = string
+  default = ""
+}
+
+############################################
+# Ownership / ACL
+############################################
+
+variable "acl" {
+  type    = string
+  default = "private"
+}
+
+variable "ownership_controls" {
+  type    = string
+  default = "ObjectWriter"
+}
+
+############################################
+# Notifications
+############################################
+
+variable "notification_enabled" {
+  type    = bool
+  default = false
+}
+
+variable "notification_sns_arn" {
+  type    = string
+  default = ""
+}
+
+variable "notification_events" {
+  type    = list(string)
+  default = [""]
+}
+
+############################################
+# Misc
+############################################
+
+variable "suffix_name" {
+  type    = string
+  default = ""
+}
+
+variable "bucket_policy" {
+  type    = list(string)
+  default = ["{}"]
+}
+
+variable "bucket_policy_v2" {
+  type    = any
+  default = []
 }
 
 variable "lifecycle_rule" {
-  description = "List of maps containing configuration of object lifecycle management."
-  type        = any
-  default = [{
-    id      = "main"
-    enabled = "Enabled"
-    prefix  = ""
-    tags = {
-      rule      = "log"
-      autoclean = "true"
-    }
-    transition = [
-      {
-        days          = 90
-        storage_class = "STANDARD_IA"
-        }, {
-        days          = 365
-        storage_class = "GLACIER"
-      }
-    ]
-    expiration = {
-      days = 730
-    }
-    noncurrent_version_transition = [
-      {
-        days          = 90
-        storage_class = "STANDARD_IA"
-        }, {
-        days          = 365
-        storage_class = "GLACIER"
-      }
-    ]
-    noncurrent_version_expiration = {
-      days = 730
-    }
-  }]
+  type    = any
+  default = []
 }
+
 
 variable "log_buckets" {
   type        = map(any)
@@ -120,6 +199,7 @@ variable "log_buckets" {
   default     = null
   nullable    = true
 }
+
 variable "log_bucket" {
   type        = string
   description = "Unique name of s3 bucket to log to (not defined in terraform)"
@@ -135,82 +215,23 @@ variable "log_bucket_names" {
 }
 
 variable "log_partition_date_source" {
-  type        = string
-  default     = "None"
-  description = "Partition logs by date. Allowed values are 'EventTime', 'DeliveryTime', or 'None'."
-
-  validation {
-    condition     = contains(["EventTime", "DeliveryTime", "None"], var.log_partition_date_source)
-    error_message = "log_partition_date_source must be either 'EventTime', 'DeliveryTime', or 'None'."
-  }
+  type    = string
+  default = "None"
 }
 
 variable "log_prefix" {
-  type        = string
-  description = "Prefix for all log object keys."
-  default     = null
-  nullable    = true
-}
-
-variable "replication_role_arn" {
-  type        = string
-  description = "Role ARN to access S3 and replicate objects"
-  default     = ""
-}
-
-variable "tags" {
-  type        = map(any)
-  description = "Tags to apply to resources, where applicable"
-}
-
-variable "force_destroy" {
-  type        = bool
-  description = "A boolean that indicates all objects (including any locked objects) should be deleted from the bucket so that the bucket can be destroyed without error. These objects are not recoverable."
-  default     = false
-}
-
-variable "sse_algorithm" {
-  type        = string
-  description = "The server-side encryption algorithm to use"
-  default     = "aws:kms"
-}
-
-variable "notification_sns_arn" {
-  type        = string
-  description = "The arn for the bucket notification SNS topic"
-  default     = ""
-}
-
-variable "notification_enabled" {
-  type        = bool
-  description = "Boolean indicating if a notification resource is required for the bucket"
-  default     = false
-}
-
-variable "notification_events" {
-  type        = list(string)
-  description = "The event for which we send topic notifications"
-  default     = [""]
+  type     = string
+  default  = null
+  nullable = true
 }
 
 variable "notification_queues" {
   type = map(object({
-    events        = list(string)     # e.g. ["s3:ObjectCreated:*"]
-    filter_prefix = optional(string) # e.g. "images/"
-    filter_suffix = optional(string) # e.g. ".gz"
+    events        = list(string)
+    filter_prefix = optional(string)
+    filter_suffix = optional(string)
     queue_arn     = string
   }))
-  description = "a map of bucket notification queues where the map key is used as the configuration id"
-  default     = {}
+  default = {}
 }
 
-variable "suffix_name" {
-  type        = string
-  default     = ""
-  description = "Suffix for role and policy names"
-}
-variable "replication_bucket" {
-  type        = string
-  description = "Name of bucket used for replication - if not specified then * will be used in the policy"
-  default     = ""
-}
