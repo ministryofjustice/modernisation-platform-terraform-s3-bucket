@@ -214,3 +214,9 @@ variable "replication_bucket" {
   description = "Name of bucket used for replication - if not specified then * will be used in the policy"
   default     = ""
 }
+
+variable "object_lock_days" {
+  type        = number
+  description = "The number of days that you want to specify for the default retention period"
+  default     = null
+}
