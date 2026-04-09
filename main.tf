@@ -22,6 +22,18 @@ resource "aws_s3_bucket_notification" "bucket_notification" {
   }
 }
 
+resource "aws_s3_bucket_object_lock_configuration" "s3_bucket_object_lock_configuration" {
+  count  = var.object_lock_days != null ? 1 : 0
+  bucket = aws_s3_bucket.default.id
+
+  rule {
+    default_retention {
+      mode = "COMPLIANCE"
+      days = var.object_lock_days
+    }
+  }
+}
+
 # Main S3 bucket, that is replicated from (rather than to)
 # KMS Encryption handled by aws_s3_bucket_server_side_encryption_configuration resource
 # Logging handled by aws_s3_bucket_logging resource
