@@ -44,6 +44,7 @@ TestS3Creation 2024-05-13T16:46:58+01:00 logger.go:66:
 --- PASS: TestS3Creation (69.46s)
 PASS
 ok  	github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket	69.837s
+
 ```
 
 ## References
