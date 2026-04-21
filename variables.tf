@@ -67,13 +67,18 @@ variable "bucket_name" {
 variable "custom_kms_key" {
   type        = string
   description = "KMS key ARN to use"
-  default     = ""
+  default     = "Customer-managed KMS key ARN to use for bucket encryption"
 }
 
 variable "custom_replication_kms_key" {
   type        = string
-  description = "KMS key ARN to use for replication to eu-west-2"
+  description = "Customer-managed KMS key ARN to use for replication destination bucket encryption"
   default     = ""
+
+  validation {
+    condition     = var.replication_enabled ? var.custom_replication_kms_key != "" : true
+    error_message = "custom_replication_kms_key must be provided when replication_enabled is true."
+  }
 }
 
 variable "lifecycle_rule" {
@@ -167,12 +172,6 @@ variable "force_destroy" {
   type        = bool
   description = "A boolean that indicates all objects (including any locked objects) should be deleted from the bucket so that the bucket can be destroyed without error. These objects are not recoverable."
   default     = false
-}
-
-variable "sse_algorithm" {
-  type        = string
-  description = "The server-side encryption algorithm to use"
-  default     = "aws:kms"
 }
 
 variable "notification_sns_arn" {

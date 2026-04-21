@@ -9,17 +9,6 @@ module "s3" {
   tags          = local.tags
 }
 
-module "s3_with_AES256" {
-  source = "../.."
-  providers = {
-    aws.bucket-replication = aws
-  }
-  bucket_prefix = "unit-test-bucket"
-  force_destroy = true
-  sse_algorithm = "AES256"
-  tags          = local.tags
-}
-
 data "aws_iam_policy_document" "topic" {
   statement {
     effect = "Allow"

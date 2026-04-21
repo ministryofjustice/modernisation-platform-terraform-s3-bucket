@@ -130,9 +130,11 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "replication" {
   provider = aws.bucket-replication
   bucket   = aws_s3_bucket.replication[count.index].id
   rule {
+    bucket_key_enabled = true
+
     apply_server_side_encryption_by_default {
-      sse_algorithm     = var.sse_algorithm
-      kms_master_key_id = (var.custom_replication_kms_key != "") ? var.custom_replication_kms_key : ""
+      sse_algorithm     = "aws:kms"
+      kms_master_key_id = var.custom_replication_kms_key
     }
   }
 }
@@ -249,8 +251,7 @@ data "aws_iam_policy_document" "replication-policy" {
       test     = "StringLikeIfExists"
       variable = "s3:x-amz-server-side-encryption"
       values = [
-        "aws:kms",
-        "AES256"
+        "aws:kms"
       ]
     }
   }
@@ -276,7 +277,7 @@ resource "aws_s3_bucket_replication_configuration" "default" {
       bucket        = var.replication_enabled ? aws_s3_bucket.replication[0].arn : aws_s3_bucket.replication[0].arn
       storage_class = "STANDARD"
       encryption_configuration {
-        replica_kms_key_id = (var.custom_replication_kms_key != "") ? var.custom_replication_kms_key : "arn:aws:kms:${var.replication_region}:${data.aws_caller_identity.current.account_id}:alias/aws/s3"
+        replica_kms_key_id = var.custom_replication_kms_key
       }
     }
 
