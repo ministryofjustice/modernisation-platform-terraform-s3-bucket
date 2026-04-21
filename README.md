@@ -69,6 +69,8 @@ module "s3-bucket" {
     }
   ]
 
+  custom_kms_key = "arn:aws:kms:eu-west-2:123456789012:key/your-key-id"
+
   tags                 = local.tags
 }
 ```
@@ -138,7 +140,7 @@ No modules.
 | <a name="input_bucket_policy_v2"></a> [bucket\_policy\_v2](#input\_bucket\_policy\_v2) | Alternative to bucket\_policy.  Define policies directly without needing to know the bucket ARN | <pre>list(object({<br/>    effect  = string<br/>    actions = list(string)<br/>    principals = optional(object({<br/>      type        = string<br/>      identifiers = list(string)<br/>    }))<br/>    conditions = optional(list(object({<br/>      test     = string<br/>      variable = string<br/>      values   = list(string)<br/>    })), [])<br/>  }))</pre> | `[]` | no |
 | <a name="input_bucket_prefix"></a> [bucket\_prefix](#input\_bucket\_prefix) | Bucket prefix, which will include a randomised suffix to ensure globally unique names | `string` | `null` | no |
 | <a name="input_custom_kms_key"></a> [custom\_kms\_key](#input\_custom\_kms\_key) | Customer-managed KMS key ARN to use for bucket encryption | `string` | n/a | yes |
-| <a name="input_custom_replication_kms_key"></a> [custom\_replication\_kms\_key](#input\_custom\_replication\_kms\_key) | Customer-managed KMS key ARN to use for replication destination bucket encryption | `string` | `""` | no |
+| <a name="input_custom_replication_kms_key"></a> [custom\_replication\_kms\_key](#input\_custom\_replication\_kms\_key) | Customer-managed KMS key ARN to use for replication destination bucket encryption. Required when `replication_enabled` is true. | `string` | `""` | no |
 | <a name="input_force_destroy"></a> [force\_destroy](#input\_force\_destroy) | A boolean that indicates all objects (including any locked objects) should be deleted from the bucket so that the bucket can be destroyed without error. These objects are not recoverable. | `bool` | `false` | no |
 | <a name="input_lifecycle_rule"></a> [lifecycle\_rule](#input\_lifecycle\_rule) | List of maps containing configuration of object lifecycle management. | `any` | <pre>[<br/>  {<br/>    "enabled": "Enabled",<br/>    "expiration": {<br/>      "days": 730<br/>    },<br/>    "id": "main",<br/>    "noncurrent_version_expiration": {<br/>      "days": 730<br/>    },<br/>    "noncurrent_version_transition": [<br/>      {<br/>        "days": 90,<br/>        "storage_class": "STANDARD_IA"<br/>      },<br/>      {<br/>        "days": 365,<br/>        "storage_class": "GLACIER"<br/>      }<br/>    ],<br/>    "prefix": "",<br/>    "tags": {<br/>      "autoclean": "true",<br/>      "rule": "log"<br/>    },<br/>    "transition": [<br/>      {<br/>        "days": 90,<br/>        "storage_class": "STANDARD_IA"<br/>      },<br/>      {<br/>        "days": 365,<br/>        "storage_class": "GLACIER"<br/>      }<br/>    ]<br/>  }<br/>]</pre> | no |
 | <a name="input_log_bucket"></a> [log\_bucket](#input\_log\_bucket) | Unique name of s3 bucket to log to (not defined in terraform) | `string` | `null` | no |
@@ -184,12 +186,28 @@ We have worked to make the change as seamless to your code as possible, but you 
 
 Regardless of whether a custom bucket policy is set as part of this module, we will always include policy `statement` to require the use of SecureTransport (SSL) for every action on and every resource within the bucket.
 
+### Encryption requirements
+
+This module enforces server-side encryption using customer-managed KMS keys (SSE-KMS only):
+
+- `custom_kms_key` must always be provided
+- AES256 encryption is no longer supported
+- AWS-managed KMS keys (e.g. `alias/aws/s3`) are not used
+- Bucket policies enforce:
+  - encryption must be enabled
+  - only `aws:kms` is allowed
+  - the correct KMS key must be used
+
+If replication is enabled:
+
+- `custom_replication_kms_key` must also be provided
+
 ## Replication
 
 If replication is enabled then:
 
 - Define a provider configuration for the replication region by setting 'aws.bucket-replication' to the desired region e.g.'aws.bucket-replication' = 'aws.replication-region'
-- provide either'custom_replication_kms_key' or use default AWS KMS key. The KMS key must be in the same region as the destination bucket and must allow access for S3.
+- provide `custom_replication_kms_key`. AWS-managed KMS keys are no longer supported. The KMS key must be in the same region as the destination bucket and must allow access for S3.
 - 'versioning_enabled' variable must be set to enabled. Both source and destination buckets must have versioning enabled.
 - 'replication_region' variable must be set to desired destination region.
 - 'ownership_controls' variable must be set to 'BucketOwnerEnforced' for full control of all objects in the bucket and to disable ACLs.
