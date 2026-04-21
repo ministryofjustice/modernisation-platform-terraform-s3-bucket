@@ -134,7 +134,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "replication" {
 
     apply_server_side_encryption_by_default {
       sse_algorithm     = "aws:kms"
-      kms_master_key_id = var.custom_replication_kms_key
+      kms_master_key_id = var.replication_enabled ? var.custom_replication_kms_key : null
     }
   }
 }
@@ -277,7 +277,7 @@ resource "aws_s3_bucket_replication_configuration" "default" {
       bucket        = var.replication_enabled ? aws_s3_bucket.replication[0].arn : aws_s3_bucket.replication[0].arn
       storage_class = "STANDARD"
       encryption_configuration {
-        replica_kms_key_id = var.custom_replication_kms_key
+        replica_kms_key_id = var.replication_enabled ? var.custom_replication_kms_key : null
       }
     }
 
