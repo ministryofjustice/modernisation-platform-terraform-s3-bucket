@@ -66,8 +66,7 @@ variable "bucket_name" {
 
 variable "custom_kms_key" {
   type        = string
-  description = "KMS key ARN to use"
-  default     = "Customer-managed KMS key ARN to use for bucket encryption"
+  description = "Customer-managed KMS key ARN to use for bucket encryption"
 }
 
 variable "custom_replication_kms_key" {
