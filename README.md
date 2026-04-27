@@ -197,6 +197,14 @@ This module enforces server-side encryption using customer-managed KMS keys (SSE
   - encryption must be enabled
   - only `aws:kms` is allowed
   - the correct KMS key must be used
+  - uploads must explicitly include SSE-KMS headers
+
+Uploads will be denied if they:
+- omit server-side encryption headers
+- use `AES256`
+- use `aws:kms` with a different KMS key
+
+Some AWS services and integrations may not set these headers by default or may use a different KMS key. These services must be configured to use the provided customer-managed KMS key, otherwise uploads will fail with `AccessDenied`.
 
 If replication is enabled:
 
