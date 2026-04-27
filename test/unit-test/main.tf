@@ -1,12 +1,14 @@
 module "s3" {
-  #checkov:skip=CKV_AWS_300: "Ensure S3 lifecycle configuration sets period for aborting failed uploads - This is not needed in our tests"
   source = "../.."
+
   providers = {
     aws.bucket-replication = aws
   }
-  bucket_prefix = "unit-test-bucket"
-  force_destroy = true
-  tags          = local.tags
+
+  bucket_prefix  = "unit-test-bucket"
+  force_destroy  = true
+  custom_kms_key = aws_kms_key.s3.arn
+  tags           = local.tags
 }
 
 data "aws_iam_policy_document" "topic" {
@@ -35,9 +37,11 @@ resource "aws_sns_topic" "topic" {
 module "s3_with_notification" {
   #checkov:skip=CKV_AWS_300: "Ensure S3 lifecycle configuration sets period for aborting failed uploads - This is not needed in our tests"
   source = "../.."
+
   providers = {
     aws.bucket-replication = aws
   }
+
   bucket_prefix        = "unit-test-bucket"
   force_destroy        = true
   notification_enabled = true
@@ -45,6 +49,7 @@ module "s3_with_notification" {
   notification_sns_arn = aws_sns_topic.topic.arn
   tags                 = local.tags
 
+  custom_kms_key = aws_kms_key.s3.arn
 }
 
 #trivy:ignore:AVD-AWS-0086
@@ -89,29 +94,66 @@ resource "aws_s3_bucket" "non-modulised-bucket-2" {
 module "dummy_s3_log_bucket" {
   #checkov:skip=CKV_AWS_300: "Ensure S3 lifecycle configuration sets period for aborting failed uploads - This is not needed in our tests"
   source = "../.."
+
   providers = {
     aws.bucket-replication = aws
   }
-  bucket_prefix = "unit-test-log-bucket"
-  force_destroy = true
-  tags          = local.tags
+
+  bucket_prefix  = "unit-test-log-bucket"
+  force_destroy  = true
+  custom_kms_key = aws_kms_key.s3.arn
+  tags           = local.tags
+}
+
+module "s3" {
+  #checkov:skip=CKV_AWS_300: "Ensure S3 lifecycle configuration sets period for aborting failed uploads - This is not needed in our tests"
+  source = "../.."
+
+  providers = {
+    aws.bucket-replication = aws
+  }
+
+  bucket_prefix  = "unit-test-bucket"
+  force_destroy  = true
+  custom_kms_key = aws_kms_key.s3.arn
+  tags           = local.tags
+}
+
+module "s3" {
+  #checkov:skip=CKV_AWS_300: "Ensure S3 lifecycle configuration sets period for aborting failed uploads - This is not needed in our tests"
+  source = "../.."
+
+  providers = {
+    aws.bucket-replication = aws
+  }
+
+  bucket_prefix  = "unit-test-bucket"
+  force_destroy  = true
+  custom_kms_key = aws_kms_key.s3.arn
+  tags           = local.tags
 }
 
 module "s3_with_log_bucket" {
   #checkov:skip=CKV_AWS_300: "Ensure S3 lifecycle configuration sets period for aborting failed uploads - This is not needed in our tests"
   source = "../.."
+
   providers = {
     aws.bucket-replication = aws
   }
+
   bucket_prefix = "unit-test-bucket-with-logs"
   force_destroy = true
+
   log_buckets = tomap({
-    "log_bucket_name" : module.dummy_s3_log_bucket.bucket.id,
-    "log_bucket_arn" : module.dummy_s3_log_bucket.bucket.arn,
+    "log_bucket_name"   : module.dummy_s3_log_bucket.bucket.id,
+    "log_bucket_arn"    : module.dummy_s3_log_bucket.bucket.arn,
     "log_bucket_policy" : module.dummy_s3_log_bucket.bucket_policy.policy,
   })
+
   log_prefix = "logs/"
   tags       = local.tags
+
+  custom_kms_key = aws_kms_key.s3.arn
 }
 
 data "aws_caller_identity" "current" {}
