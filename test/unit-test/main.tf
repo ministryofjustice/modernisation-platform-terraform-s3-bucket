@@ -1,3 +1,9 @@
+resource "aws_kms_key" "s3" {
+  description             = "KMS key for S3 unit tests"
+  deletion_window_in_days = 7
+  enable_key_rotation     = true
+}
+
 module "s3" {
   #checkov:skip=CKV_AWS_300: "Ensure S3 lifecycle configuration sets period for aborting failed uploads - This is not needed in our tests"
   source = "../.."
