@@ -74,10 +74,21 @@ variable "custom_kms_key" {
   }
 }
 
+# variable "custom_replication_kms_key" {
+#   type        = string
+#   description = "Customer-managed KMS key ARN to use for replication destination bucket encryption"
+#   default     = ""
+# }
+
 variable "custom_replication_kms_key" {
   type        = string
   description = "Customer-managed KMS key ARN to use for replication destination bucket encryption"
   default     = ""
+
+  validation {
+    condition     = !var.replication_enabled || var.custom_replication_kms_key != ""
+    error_message = "custom_replication_kms_key must be provided when replication_enabled is true."
+  }
 }
 
 variable "lifecycle_rule" {

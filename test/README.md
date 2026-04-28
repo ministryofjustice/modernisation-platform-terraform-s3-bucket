@@ -36,7 +36,16 @@ go test -v
 - AES256 is no longer supported
 - If replication is enabled, `custom_replication_kms_key` must also be provided
 
+- The customer-managed KMS key policy must allow the principals uploading to the bucket to use the key (e.g. `kms:Encrypt`, `kms:Decrypt`, `kms:GenerateDataKey`, `kms:DescribeKey`)
+- If replication is enabled, the destination KMS key must also allow access for the replication role and S3 replication service
+
+- Uploads must explicitly include SSE-KMS headers:
+  - `x-amz-server-side-encryption: aws:kms`
+  - `x-amz-server-side-encryption-aws-kms-key-id: <custom_kms_key>`
+- Uploads that omit these headers, use AES256, or use a different KMS key will be denied (even if bucket default encryption is enabled)
+
 Upon successful run, you should see an output similar to the below
+
 
 ```
 TestS3Creation 2024-05-13T16:46:58+01:00 logger.go:66: Destroy complete! Resources: 37 destroyed.
