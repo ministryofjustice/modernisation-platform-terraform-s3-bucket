@@ -43,11 +43,9 @@ resource "aws_sns_topic" "topic" {
 module "s3_with_notification" {
   #checkov:skip=CKV_AWS_300: "Ensure S3 lifecycle configuration sets period for aborting failed uploads - This is not needed in our tests"
   source = "../.."
-
   providers = {
     aws.bucket-replication = aws
   }
-
   bucket_prefix        = "unit-test-bucket"
   force_destroy        = true
   notification_enabled = true
@@ -73,7 +71,6 @@ resource "aws_s3_bucket" "non-modulised-bucket" {
   #checkov:skip=CKV2_AWS_62: "Ensure S3 buckets should have event notifications enabled - This is not needed in our tests"
   #checkov:skip=CKV_AWS_144: "Ensure that S3 bucket has cross-region replication enabled - This is not needed in our tests"
   #checkov:skip=CKV_AWS_145: "Ensure that S3 buckets are encrypted with KMS by default - This is not needed in our tests"
-
   bucket = "log-test-bucket-051683332738327"
 }
 
@@ -100,7 +97,6 @@ resource "aws_s3_bucket" "non-modulised-bucket-2" {
 module "dummy_s3_log_bucket" {
   #checkov:skip=CKV_AWS_300: "Ensure S3 lifecycle configuration sets period for aborting failed uploads - This is not needed in our tests"
   source = "../.."
-
   providers = {
     aws.bucket-replication = aws
   }
@@ -114,14 +110,12 @@ module "dummy_s3_log_bucket" {
 module "s3_with_log_bucket" {
   #checkov:skip=CKV_AWS_300: "Ensure S3 lifecycle configuration sets period for aborting failed uploads - This is not needed in our tests"
   source = "../.."
-
   providers = {
     aws.bucket-replication = aws
   }
 
   bucket_prefix = "unit-test-bucket-with-logs"
   force_destroy = true
-
   log_buckets = tomap({
     "log_bucket_name" : module.dummy_s3_log_bucket.bucket.id,
     "log_bucket_arn" : module.dummy_s3_log_bucket.bucket.arn,
