@@ -129,12 +129,16 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "replication" {
 
   provider = aws.bucket-replication
   bucket   = aws_s3_bucket.replication[count.index].id
+
   rule {
     bucket_key_enabled = true
 
     apply_server_side_encryption_by_default {
-      sse_algorithm     = "aws:kms"
-      kms_master_key_id = var.replication_enabled ? var.custom_replication_kms_key : null
+      sse_algorithm = "aws:kms"
+
+      # NOTE: When replication is enabled, custom_replication_kms_key must be provided.
+      # This is not enforced via variable validation due to Terraform limitations on cross-variable validation.
+      kms_master_key_id = var.custom_replication_kms_key
     }
   }
 }

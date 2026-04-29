@@ -199,6 +199,11 @@ This module enforces server-side encryption using customer-managed KMS keys (SSE
   - the correct KMS key must be used
   - uploads must explicitly include SSE-KMS headers
 
+Required upload headers:
+
+- `x-amz-server-side-encryption: aws:kms`
+- `x-amz-server-side-encryption-aws-kms-key-id: <custom_kms_key>`
+
 Uploads will be denied if they:
 - omit server-side encryption headers
 - use `AES256`
@@ -208,7 +213,7 @@ Some AWS services and integrations may not set these headers by default or may u
 
 If replication is enabled:
 
-- `custom_replication_kms_key` must also be provided
+- `custom_replication_kms_key` must also be provided. This is not enforced via Terraform variable validation due to Terraform limitations on cross-variable validation.
 
 ## Replication
 
