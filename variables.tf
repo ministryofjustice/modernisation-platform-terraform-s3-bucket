@@ -82,24 +82,31 @@ variable "custom_kms_key" {
 
   validation {
     condition = (
-      var.custom_kms_key == "" ||
-      can(regex("^arn:aws:kms:[a-z0-9-]+:[0-9]{12}:key/[a-f0-9-]+$", var.custom_kms_key))
+      var.encryption_algorithm == "AES256" ||
+      (
+        var.custom_kms_key != "" &&
+        can(regex("^arn:aws:kms:[a-z0-9-]+:[0-9]{12}:key/[a-f0-9-]+$", var.custom_kms_key))
+      )
     )
-    error_message = "custom_kms_key must be empty or a valid customer-managed KMS key ARN."
+    error_message = "custom_kms_key must be provided as a valid customer-managed KMS key ARN when encryption_algorithm is aws:kms."
   }
 }
 
 variable "custom_replication_kms_key" {
   type        = string
-  description = "Customer-managed KMS key ARN to use for replication destination bucket encryption"
+  description = "Customer-managed KMS key ARN to use for replication destination bucket encryption. Required when replication_enabled is true and encryption_algorithm is aws:kms"
   default     = ""
 
   validation {
     condition = (
-      var.custom_replication_kms_key == "" ||
-      can(regex("^arn:aws:kms:[a-z0-9-]+:[0-9]{12}:key/[a-f0-9-]+$", var.custom_replication_kms_key))
+      var.encryption_algorithm == "AES256" ||
+      var.replication_enabled == false ||
+      (
+        var.custom_replication_kms_key != "" &&
+        can(regex("^arn:aws:kms:[a-z0-9-]+:[0-9]{12}:key/[a-f0-9-]+$", var.custom_replication_kms_key))
+      )
     )
-    error_message = "custom_replication_kms_key must be empty or a valid customer-managed KMS key ARN."
+    error_message = "custom_replication_kms_key must be provided as a valid customer-managed KMS key ARN when replication_enabled is true and encryption_algorithm is aws:kms."
   }
 }
 
