@@ -20,7 +20,6 @@ module "s3-bucket" {
   replication_enabled = false
   # Below variable and providers configuration is only relevant if 'replication_enabled' is set to true
   # replication_region  = "eu-west-2"
-
   providers = {
     # Here we use the default provider Region for replication. Destination buckets can be within the same Region as the
     # source bucket. On the other hand, if you need to enable cross-region replication, please contact the Modernisation
@@ -75,10 +74,8 @@ module "s3-bucket" {
   # Default/recommended encryption mode
   encryption_algorithm = "aws:kms"
   custom_kms_key       = "arn:aws:kms:eu-west-2:123456789012:key/your-key-id"
-
   # Optional compatibility mode for services that cannot use SSE-KMS
   # encryption_algorithm = "AES256"
-
   tags = local.tags
 }
 ```

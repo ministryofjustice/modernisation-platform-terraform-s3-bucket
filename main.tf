@@ -180,16 +180,15 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "default" {
   #checkov:skip=CKV2_AWS_67: "Ensure AWS S3 bucket encrypted with Customer Managed Key (CMK) has regular rotation"
 
   bucket = aws_s3_bucket.default.id
-
   rule {
     bucket_key_enabled = var.encryption_algorithm == "aws:kms" ? true : false
-
     apply_server_side_encryption_by_default {
       sse_algorithm     = var.encryption_algorithm
       kms_master_key_id = var.encryption_algorithm == "aws:kms" ? var.custom_kms_key : null
     }
   }
 }
+
 resource "aws_s3_bucket_versioning" "default" {
   bucket = aws_s3_bucket.default.id
   versioning_configuration {
@@ -304,7 +303,6 @@ data "aws_iam_policy_document" "bucket_policy_v2" {
         aws_s3_bucket.default.arn,
         "${aws_s3_bucket.default.arn}/*"
       ]
-
       dynamic "principals" {
         for_each = statement.value.principals != null ? [statement.value.principals] : []
         content {
@@ -312,7 +310,6 @@ data "aws_iam_policy_document" "bucket_policy_v2" {
           identifiers = principals.value.identifiers
         }
       }
-
       dynamic "condition" {
         for_each = statement.value.conditions
         content {

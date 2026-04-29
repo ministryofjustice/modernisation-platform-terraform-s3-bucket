@@ -129,13 +129,10 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "replication" {
 
   provider = aws.bucket-replication
   bucket   = aws_s3_bucket.replication[count.index].id
-
   rule {
     bucket_key_enabled = var.encryption_algorithm == "aws:kms" ? true : false
-
     apply_server_side_encryption_by_default {
       sse_algorithm = var.encryption_algorithm
-
       # When using KMS encryption, a replication KMS key must be provided.
       # This is not enforced via Terraform variable validation due to cross-variable limitations.
       kms_master_key_id = var.encryption_algorithm == "aws:kms" ? var.custom_replication_kms_key : null
@@ -272,7 +269,6 @@ resource "aws_s3_bucket_replication_configuration" "default" {
   for_each = var.replication_enabled ? toset(["run"]) : []
   bucket   = aws_s3_bucket.default.id
   role     = aws_iam_role.replication_role[0].arn
-
   rule {
     id       = "SourceToDestinationReplication"
     status   = "Enabled"
@@ -281,7 +277,6 @@ resource "aws_s3_bucket_replication_configuration" "default" {
     destination {
       bucket        = aws_s3_bucket.replication[0].arn
       storage_class = "STANDARD"
-
       dynamic "encryption_configuration" {
         for_each = var.encryption_algorithm == "aws:kms" ? [1] : []
 
@@ -301,7 +296,6 @@ resource "aws_s3_bucket_replication_configuration" "default" {
       }
     }
   }
-
   depends_on = [
     aws_s3_bucket_versioning.default
   ]

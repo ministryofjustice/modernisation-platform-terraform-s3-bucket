@@ -45,7 +45,6 @@ In KMS mode, uploads that omit these headers, use AES256, or use a different KMS
 
 Upon successful run, you should see an output similar to the below
 
-
 ```
 TestS3Creation 2024-05-13T16:46:58+01:00 logger.go:66: Destroy complete! Resources: 37 destroyed.
 TestS3Creation 2024-05-13T16:46:58+01:00 logger.go:66:

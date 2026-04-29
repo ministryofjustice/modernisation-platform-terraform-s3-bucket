@@ -7,11 +7,9 @@ resource "aws_kms_key" "s3" {
 module "s3" {
   #checkov:skip=CKV_AWS_300: "Ensure S3 lifecycle configuration sets period for aborting failed uploads - This is not needed in our tests"
   source = "../.."
-
   providers = {
     aws.bucket-replication = aws
   }
-
   bucket_prefix  = "unit-test-bucket"
   force_destroy  = true
   custom_kms_key = aws_kms_key.s3.arn
@@ -21,11 +19,9 @@ module "s3" {
 module "s3_with_AES256" {
   #checkov:skip=CKV_AWS_300: "Ensure S3 lifecycle configuration sets period for aborting failed uploads - This is not needed in our tests"
   source = "../.."
-
   providers = {
     aws.bucket-replication = aws
   }
-
   bucket_prefix        = "unit-test-bucket-aes256"
   force_destroy        = true
   encryption_algorithm = "AES256"
@@ -43,6 +39,7 @@ data "aws_iam_policy_document" "topic" {
 
     actions   = ["SNS:Publish"]
     resources = ["arn:aws:sns:*:*:s3-event-notification-topic"]
+
   }
 }
 
@@ -114,7 +111,6 @@ module "dummy_s3_log_bucket" {
   providers = {
     aws.bucket-replication = aws
   }
-
   bucket_prefix  = "unit-test-log-bucket"
   force_destroy  = true
   custom_kms_key = aws_kms_key.s3.arn
@@ -127,7 +123,6 @@ module "s3_with_log_bucket" {
   providers = {
     aws.bucket-replication = aws
   }
-
   bucket_prefix = "unit-test-bucket-with-logs"
   force_destroy = true
   log_buckets = tomap({
