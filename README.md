@@ -262,11 +262,23 @@ When using AES256:
 - No custom key is required
 - This can be used for AWS services that cannot use SSE-KMS
 
-Some AWS services and integrations may not set these headers by default or may use a different KMS key. These services must be configured to use the provided customer-managed KMS key, otherwise uploads will fail with `AccessDenied`.
+### When should I use AES256?
 
-If replication is enabled:
+Use AES256 only if you cannot use SSE-KMS.
 
-- `custom_replication_kms_key` must also be provided. This is not enforced via Terraform variable validation due to Terraform limitations on cross-variable validation.
+This is typically required when:
+- using AWS-managed services that do not support customer-managed KMS keys
+  (e.g. some logging destinations such as ELB/ALB access logs, CloudFront logs, or legacy integrations)
+
+If you encounter `AccessDenied` errors when uploading to the bucket,
+and the service cannot be configured to use your KMS key,
+switch to:
+
+```hcl
+encryption_algorithm = "AES256"
+```
+
+Otherwise, KMS (aws:kms) should always be preferred.
 
 ## Replication
 
