@@ -1,3 +1,14 @@
+variable "encryption_algorithm" {
+  type        = string
+  description = "S3 server-side encryption algorithm. Defaults to aws:kms. Use AES256 only for compatibility scenarios where SSE-KMS is not supported."
+  default     = "aws:kms"
+
+  validation {
+    condition     = contains(["aws:kms", "AES256"], var.encryption_algorithm)
+    error_message = "encryption_algorithm must be either aws:kms or AES256."
+  }
+}
+
 variable "acl" {
   type        = string
   description = "Use canned ACL on the bucket instead of BucketOwnerEnforced ownership controls. var.ownership_controls must be set to corresponding value below."
@@ -66,11 +77,15 @@ variable "bucket_name" {
 
 variable "custom_kms_key" {
   type        = string
-  description = "Customer-managed KMS key ARN to use for bucket encryption"
+  description = "Customer-managed KMS key ARN to use for bucket encryption. Required when encryption_algorithm is aws:kms"
+  default     = ""
 
   validation {
-    condition     = can(regex("^arn:aws:kms:[a-z0-9-]+:[0-9]{12}:key/[a-f0-9-]+$", var.custom_kms_key))
-    error_message = "custom_kms_key must be a valid customer-managed KMS key ARN."
+    condition = (
+      var.custom_kms_key == "" ||
+      can(regex("^arn:aws:kms:[a-z0-9-]+:[0-9]{12}:key/[a-f0-9-]+$", var.custom_kms_key))
+    )
+    error_message = "custom_kms_key must be empty or a valid customer-managed KMS key ARN."
   }
 }
 

@@ -8,18 +8,19 @@ A Terraform module to standardise S3 buckets with sensible defaults.
 
 ```
 module "s3-bucket" {
-    source = "github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket?ref=v7.0.0"
+  source = "github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket?ref=v10.0.0"
 
-  bucket_prefix                            = "s3-bucket"
-  versioning_enabled                       = true
+  bucket_prefix      = "s3-bucket"
+  versioning_enabled = true
 
   # to disable ACLs in preference of BucketOwnership controls as per https://aws.amazon.com/blogs/aws/heads-up-amazon-s3-security-changes-are-coming-in-april-of-2023/ set:
   ownership_controls = "BucketOwnerEnforced"
 
   # Refer to the below section "Replication" before enabling replication
-  replication_enabled                      = false
+  replication_enabled = false
   # Below variable and providers configuration is only relevant if 'replication_enabled' is set to true
-  # replication_region                       = "eu-west-2"
+  # replication_region  = "eu-west-2"
+
   providers = {
     # Here we use the default provider Region for replication. Destination buckets can be within the same Region as the
     # source bucket. On the other hand, if you need to enable cross-region replication, please contact the Modernisation
@@ -43,7 +44,8 @@ module "s3-bucket" {
         {
           days          = 90
           storage_class = "STANDARD_IA"
-          }, {
+        },
+        {
           days          = 365
           storage_class = "GLACIER"
         }
@@ -57,7 +59,8 @@ module "s3-bucket" {
         {
           days          = 90
           storage_class = "STANDARD_IA"
-          }, {
+        },
+        {
           days          = 365
           storage_class = "GLACIER"
         }
@@ -69,9 +72,14 @@ module "s3-bucket" {
     }
   ]
 
-  custom_kms_key = "arn:aws:kms:eu-west-2:123456789012:key/your-key-id"
+  # Default/recommended encryption mode
+  encryption_algorithm = "aws:kms"
+  custom_kms_key       = "arn:aws:kms:eu-west-2:123456789012:key/your-key-id"
 
-  tags                 = local.tags
+  # Optional compatibility mode for services that cannot use SSE-KMS
+  # encryption_algorithm = "AES256"
+
+  tags = local.tags
 }
 ```
 
@@ -79,14 +87,14 @@ module "s3-bucket" {
 ## Requirements
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | ~> 1.0 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 6.0 |
 
 ## Providers
 
 | Name | Version |
-|------|---------|
+| ---- | ------- |
 | <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 6.0 |
 | <a name="provider_aws.bucket-replication"></a> [aws.bucket-replication](#provider\_aws.bucket-replication) | ~> 6.0 |
 
@@ -97,7 +105,7 @@ No modules.
 ## Resources
 
 | Name | Type |
-|------|------|
+| ---- | ---- |
 | [aws_iam_policy.replication_policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_policy) | resource |
 | [aws_iam_role.replication_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role_policy_attachment.replication](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
@@ -133,14 +141,15 @@ No modules.
 ## Inputs
 
 | Name | Description | Type | Default | Required |
-|------|-------------|------|---------|:--------:|
+| ---- | ----------- | ---- | ------- | :------: |
 | <a name="input_acl"></a> [acl](#input\_acl) | Use canned ACL on the bucket instead of BucketOwnerEnforced ownership controls. var.ownership\_controls must be set to corresponding value below. | `string` | `"private"` | no |
 | <a name="input_bucket_name"></a> [bucket\_name](#input\_bucket\_name) | Please use bucket\_prefix instead of bucket\_name to ensure a globally unique name. | `string` | `null` | no |
 | <a name="input_bucket_policy"></a> [bucket\_policy](#input\_bucket\_policy) | JSON for the bucket policy | `list(string)` | <pre>[<br/>  "{}"<br/>]</pre> | no |
 | <a name="input_bucket_policy_v2"></a> [bucket\_policy\_v2](#input\_bucket\_policy\_v2) | Alternative to bucket\_policy.  Define policies directly without needing to know the bucket ARN | <pre>list(object({<br/>    effect  = string<br/>    actions = list(string)<br/>    principals = optional(object({<br/>      type        = string<br/>      identifiers = list(string)<br/>    }))<br/>    conditions = optional(list(object({<br/>      test     = string<br/>      variable = string<br/>      values   = list(string)<br/>    })), [])<br/>  }))</pre> | `[]` | no |
 | <a name="input_bucket_prefix"></a> [bucket\_prefix](#input\_bucket\_prefix) | Bucket prefix, which will include a randomised suffix to ensure globally unique names | `string` | `null` | no |
-| <a name="input_custom_kms_key"></a> [custom\_kms\_key](#input\_custom\_kms\_key) | Customer-managed KMS key ARN to use for bucket encryption | `string` | n/a | yes |
+| <a name="input_custom_kms_key"></a> [custom\_kms\_key](#input\_custom\_kms\_key) | Customer-managed KMS key ARN to use for bucket encryption. Required when encryption\_algorithm is aws:kms | `string` | `""` | no |
 | <a name="input_custom_replication_kms_key"></a> [custom\_replication\_kms\_key](#input\_custom\_replication\_kms\_key) | Customer-managed KMS key ARN to use for replication destination bucket encryption | `string` | `""` | no |
+| <a name="input_encryption_algorithm"></a> [encryption\_algorithm](#input\_encryption\_algorithm) | S3 server-side encryption algorithm. Defaults to aws:kms. Use AES256 only for compatibility scenarios where SSE-KMS is not supported. | `string` | `"aws:kms"` | no |
 | <a name="input_force_destroy"></a> [force\_destroy](#input\_force\_destroy) | A boolean that indicates all objects (including any locked objects) should be deleted from the bucket so that the bucket can be destroyed without error. These objects are not recoverable. | `bool` | `false` | no |
 | <a name="input_lifecycle_rule"></a> [lifecycle\_rule](#input\_lifecycle\_rule) | List of maps containing configuration of object lifecycle management. | `any` | <pre>[<br/>  {<br/>    "enabled": "Enabled",<br/>    "expiration": {<br/>      "days": 730<br/>    },<br/>    "id": "main",<br/>    "noncurrent_version_expiration": {<br/>      "days": 730<br/>    },<br/>    "noncurrent_version_transition": [<br/>      {<br/>        "days": 90,<br/>        "storage_class": "STANDARD_IA"<br/>      },<br/>      {<br/>        "days": 365,<br/>        "storage_class": "GLACIER"<br/>      }<br/>    ],<br/>    "prefix": "",<br/>    "tags": {<br/>      "autoclean": "true",<br/>      "rule": "log"<br/>    },<br/>    "transition": [<br/>      {<br/>        "days": 90,<br/>        "storage_class": "STANDARD_IA"<br/>      },<br/>      {<br/>        "days": 365,<br/>        "storage_class": "GLACIER"<br/>      }<br/>    ]<br/>  }<br/>]</pre> | no |
 | <a name="input_log_bucket"></a> [log\_bucket](#input\_log\_bucket) | Unique name of s3 bucket to log to (not defined in terraform) | `string` | `null` | no |
@@ -165,7 +174,7 @@ No modules.
 ## Outputs
 
 | Name | Description |
-|------|-------------|
+| ---- | ----------- |
 | <a name="output_bucket"></a> [bucket](#output\_bucket) | Direct aws\_s3\_bucket resource with all attributes |
 | <a name="output_bucket_notifications"></a> [bucket\_notifications](#output\_bucket\_notifications) | n/a |
 | <a name="output_bucket_policy"></a> [bucket\_policy](#output\_bucket\_policy) | Policy of the bucket |
@@ -182,32 +191,76 @@ AWS Provider 4.0 introduces some significant changes to the `s3_bucket` resource
 We have worked to make the change as seamless to your code as possible, but you should expect to update your value for
 `Status` from a boolean value of `true | false` to a string value of `Enabled | Disabled`.
 
+## ⚠️ Breaking changes (v10.0.0)
+
+- Default encryption is now **SSE-KMS (`aws:kms`)**
+- `custom_kms_key` is required when using KMS encryption
+- Bucket policies now enforce encryption headers on uploads
+- Uploads without correct headers will be denied (`AccessDenied`)
+- AES256 is no longer the default, but can be explicitly enabled
+
+If you are upgrading from a previous version:
+- Ensure all uploading services support SSE-KMS headers
+- Or explicitly switch to `encryption_algorithm = "AES256"` where required
+
 ## Bucket policies
 
 Regardless of whether a custom bucket policy is set as part of this module, we will always include policy `statement` to require the use of SecureTransport (SSL) for every action on and every resource within the bucket.
 
 ### Encryption requirements
 
-This module enforces server-side encryption using customer-managed KMS keys (SSE-KMS only):
+This module supports configurable server-side encryption.
 
-- `custom_kms_key` must always be provided
-- AES256 encryption is no longer supported
-- AWS-managed KMS keys (e.g. `alias/aws/s3`) are not used
+---
+
+### Default (recommended)
+
+- `encryption_algorithm = "aws:kms"`
+- Customer-managed KMS keys (SSE-KMS) are used
+
+---
+
+### KMS encryption (`aws:kms`)
+
+When using KMS encryption:
+
+- `custom_kms_key` **must be provided**
+- AWS-managed KMS keys (e.g. `alias/aws/s3`) are not supported
 - Bucket policies enforce:
   - encryption must be enabled
   - only `aws:kms` is allowed
   - the correct KMS key must be used
   - uploads must explicitly include SSE-KMS headers
 
-Required upload headers:
+#### Required upload headers:
 
 - `x-amz-server-side-encryption: aws:kms`
 - `x-amz-server-side-encryption-aws-kms-key-id: <custom_kms_key>`
 
-Uploads will be denied if they:
+#### Uploads will be denied if they:
+
 - omit server-side encryption headers
 - use `AES256`
 - use `aws:kms` with a different KMS key
+
+> ⚠️ Some AWS services (e.g. CloudTrail, ELB access logs, AWS Config) may not send these headers by default.  
+> These services must be configured to use your KMS key, otherwise uploads will fail with `AccessDenied`.
+
+---
+
+### AES256 encryption (`AES256`)
+
+You may opt out of KMS enforcement:
+
+```hcl
+encryption_algorithm = "AES256"
+```
+
+When using AES256:
+
+- KMS-specific bucket policy enforcement is disabled
+- No custom key is required
+- This can be used for AWS services that cannot use SSE-KMS
 
 Some AWS services and integrations may not set these headers by default or may use a different KMS key. These services must be configured to use the provided customer-managed KMS key, otherwise uploads will fail with `AccessDenied`.
 
@@ -220,7 +273,8 @@ If replication is enabled:
 If replication is enabled then:
 
 - Define a provider configuration for the replication region by setting 'aws.bucket-replication' to the desired region e.g.'aws.bucket-replication' = 'aws.replication-region'
-- provide `custom_replication_kms_key`. AWS-managed KMS keys are no longer supported. The KMS key must be in the same region as the destination bucket and must allow access for S3.
+- provide `custom_replication_kms_key` when using KMS encryption. AWS-managed KMS keys are not supported. The key must be in the same region as the destination bucket and must allow access for S3.
+- if using `encryption_algorithm = "AES256"`, replication does not require a custom KMS key
 - 'versioning_enabled' variable must be set to enabled. Both source and destination buckets must have versioning enabled.
 - 'replication_region' variable must be set to desired destination region.
 - 'ownership_controls' variable must be set to 'BucketOwnerEnforced' for full control of all objects in the bucket and to disable ACLs.
