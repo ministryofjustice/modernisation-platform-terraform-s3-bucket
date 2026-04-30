@@ -180,6 +180,14 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "default" {
   #checkov:skip=CKV2_AWS_67: "Ensure AWS S3 bucket encrypted with Customer Managed Key (CMK) has regular rotation"
 
   bucket = aws_s3_bucket.default.id
+
+  lifecycle {
+    precondition {
+      condition     = var.encryption_algorithm != "aws:kms" || var.custom_kms_key != ""
+      error_message = "custom_kms_key must be provided when encryption_algorithm is aws:kms."
+    }
+  }
+
   rule {
     bucket_key_enabled = var.encryption_algorithm == "aws:kms" ? true : false
     apply_server_side_encryption_by_default {
