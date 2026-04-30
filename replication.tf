@@ -274,6 +274,8 @@ resource "aws_s3_bucket_replication_configuration" "default" {
     status   = "Enabled"
     priority = 0
 
+    filter {}
+
     destination {
       bucket        = aws_s3_bucket.replication[0].arn
       storage_class = "STANDARD"
