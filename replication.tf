@@ -276,6 +276,10 @@ resource "aws_s3_bucket_replication_configuration" "default" {
 
     filter {}
 
+    delete_marker_replication {
+      status = "Enabled"
+    }
+
     destination {
       bucket        = aws_s3_bucket.replication[0].arn
       storage_class = "STANDARD"
