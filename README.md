@@ -199,6 +199,7 @@ We have worked to make the change as seamless to your code as possible, but you 
 If you are upgrading from a previous version:
 - Ensure all uploading services support SSE-KMS headers
 - Or explicitly switch to `encryption_algorithm = "AES256"` where required
+Otherwise, Terraform will fail during planning due to enforced encryption requirements.
 
 ## Bucket policies
 
