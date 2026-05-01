@@ -1,20 +1,28 @@
+resource "aws_kms_key" "s3" {
+  description             = "KMS key for S3 unit tests"
+  deletion_window_in_days = 7
+  enable_key_rotation     = true
+}
+
 module "s3" {
   #checkov:skip=CKV_AWS_300: "Ensure S3 lifecycle configuration sets period for aborting failed uploads - This is not needed in our tests"
   source = "../.."
   providers = {
     aws.bucket-replication = aws
   }
-  bucket_prefix = "unit-test-bucket"
-  force_destroy = true
-  tags          = local.tags
+  bucket_prefix  = "unit-test-bucket"
+  force_destroy  = true
+  custom_kms_key = aws_kms_key.s3.arn
+  tags           = local.tags
 }
 
 module "s3_with_AES256" {
+  #checkov:skip=CKV_AWS_300: "Ensure S3 lifecycle configuration sets period for aborting failed uploads - This is not needed in our tests"
   source = "../.."
   providers = {
     aws.bucket-replication = aws
   }
-  bucket_prefix = "unit-test-bucket"
+  bucket_prefix = "unit-test-bucket-aes256"
   force_destroy = true
   sse_algorithm = "AES256"
   tags          = local.tags
@@ -54,8 +62,8 @@ module "s3_with_notification" {
   notification_enabled = true
   notification_events  = ["s3:ObjectCreated:*"]
   notification_sns_arn = aws_sns_topic.topic.arn
+  custom_kms_key       = aws_kms_key.s3.arn
   tags                 = local.tags
-
 }
 
 #trivy:ignore:AVD-AWS-0086
@@ -103,9 +111,10 @@ module "dummy_s3_log_bucket" {
   providers = {
     aws.bucket-replication = aws
   }
-  bucket_prefix = "unit-test-log-bucket"
-  force_destroy = true
-  tags          = local.tags
+  bucket_prefix  = "unit-test-log-bucket"
+  force_destroy  = true
+  custom_kms_key = aws_kms_key.s3.arn
+  tags           = local.tags
 }
 
 module "s3_with_log_bucket" {
@@ -121,8 +130,10 @@ module "s3_with_log_bucket" {
     "log_bucket_arn" : module.dummy_s3_log_bucket.bucket.arn,
     "log_bucket_policy" : module.dummy_s3_log_bucket.bucket_policy.policy,
   })
-  log_prefix = "logs/"
-  tags       = local.tags
+
+  log_prefix     = "logs/"
+  custom_kms_key = aws_kms_key.s3.arn
+  tags           = local.tags
 }
 
 data "aws_caller_identity" "current" {}

@@ -30,6 +30,20 @@ go mod download
 go test -v
 ```
 
+⚠️ Note:
+
+- This module defaults to SSE-KMS (`aws:kms`)
+- `custom_kms_key` must be provided when using the default KMS mode
+- AES256 is still supported, but only as an explicit opt-in (`sse_algorithm = "AES256"`) for compatibility scenarios
+- If replication is enabled with KMS, `custom_replication_kms_key` must also be provided
+
+The customer-managed KMS key policy must allow the principals uploading to the bucket to use the key (e.g. `kms:Encrypt`, `kms:Decrypt`, `kms:GenerateDataKey`, `kms:DescribeKey`).
+If replication is enabled with KMS, the destination KMS key must also allow access for the replication role and S3 replication service.
+In KMS mode, uploads must explicitly include SSE-KMS headers:
+
+- `x-amz-server-side-encryption: aws:kms`
+- `x-amz-server-side-encryption-aws-kms-key-id: <custom_kms_key>`
+  In KMS mode, uploads that omit these headers, use AES256, or use a different KMS key will be denied.
 
 Upon successful run, you should see an output similar to the below
 

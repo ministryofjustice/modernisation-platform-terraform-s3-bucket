@@ -66,14 +66,30 @@ variable "bucket_name" {
 
 variable "custom_kms_key" {
   type        = string
-  description = "KMS key ARN to use"
+  description = "Customer-managed KMS key ARN to use for bucket encryption. Required when sse_algorithm is aws:kms"
   default     = ""
+
+  validation {
+    condition = (
+      var.custom_kms_key == "" ||
+      can(regex("^arn:aws:kms:[a-z0-9-]+:[0-9]{12}:key/[a-z0-9-]+$", var.custom_kms_key))
+    )
+    error_message = "custom_kms_key must be empty or a valid customer-managed KMS key ARN."
+  }
 }
 
 variable "custom_replication_kms_key" {
   type        = string
-  description = "KMS key ARN to use for replication to eu-west-2"
+  description = "Customer-managed KMS key ARN to use for replication destination bucket encryption"
   default     = ""
+
+  validation {
+    condition = (
+      var.custom_replication_kms_key == "" ||
+      can(regex("^arn:aws:kms:[a-z0-9-]+:[0-9]{12}:key/[a-z0-9-]+$", var.custom_replication_kms_key))
+    )
+    error_message = "custom_replication_kms_key must be empty or a valid customer-managed KMS key ARN."
+  }
 }
 
 variable "lifecycle_rule" {
@@ -152,6 +168,17 @@ variable "log_prefix" {
   nullable    = true
 }
 
+variable "sse_algorithm" {
+  type        = string
+  description = "S3 server-side encryption algorithm. Defaults to aws:kms. Use AES256 only for compatibility scenarios where SSE-KMS is not supported."
+  default     = "aws:kms"
+
+  validation {
+    condition     = contains(["aws:kms", "AES256"], var.sse_algorithm)
+    error_message = "sse_algorithm must be either aws:kms or AES256."
+  }
+}
+
 variable "replication_role_arn" {
   type        = string
   description = "Role ARN to access S3 and replicate objects"
@@ -167,12 +194,6 @@ variable "force_destroy" {
   type        = bool
   description = "A boolean that indicates all objects (including any locked objects) should be deleted from the bucket so that the bucket can be destroyed without error. These objects are not recoverable."
   default     = false
-}
-
-variable "sse_algorithm" {
-  type        = string
-  description = "The server-side encryption algorithm to use"
-  default     = "aws:kms"
 }
 
 variable "notification_sns_arn" {

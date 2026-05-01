@@ -129,10 +129,20 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "replication" {
 
   provider = aws.bucket-replication
   bucket   = aws_s3_bucket.replication[count.index].id
+
+  lifecycle {
+    precondition {
+      condition     = var.sse_algorithm != "aws:kms" || var.custom_replication_kms_key != ""
+      error_message = "custom_replication_kms_key must be provided when replication_enabled is true and sse_algorithm is aws:kms."
+    }
+  }
+
   rule {
+    bucket_key_enabled = var.sse_algorithm == "aws:kms" ? true : false
     apply_server_side_encryption_by_default {
-      sse_algorithm     = var.sse_algorithm
-      kms_master_key_id = (var.custom_replication_kms_key != "") ? var.custom_replication_kms_key : ""
+      sse_algorithm = var.sse_algorithm
+      # When using KMS encryption, a replication KMS key must be provided.
+      kms_master_key_id = var.sse_algorithm == "aws:kms" ? var.custom_replication_kms_key : null
     }
   }
 }
@@ -249,8 +259,7 @@ data "aws_iam_policy_document" "replication-policy" {
       test     = "StringLikeIfExists"
       variable = "s3:x-amz-server-side-encryption"
       values = [
-        "aws:kms",
-        "AES256"
+        var.sse_algorithm
       ]
     }
   }
@@ -269,20 +278,34 @@ resource "aws_s3_bucket_replication_configuration" "default" {
   role     = aws_iam_role.replication_role[0].arn
   rule {
     id       = "SourceToDestinationReplication"
-    status   = var.replication_enabled ? "Enabled" : "Disabled"
+    status   = "Enabled"
     priority = 0
 
+    filter {}
+
+    delete_marker_replication {
+      status = "Enabled"
+    }
+
     destination {
-      bucket        = var.replication_enabled ? aws_s3_bucket.replication[0].arn : aws_s3_bucket.replication[0].arn
+      bucket        = aws_s3_bucket.replication[0].arn
       storage_class = "STANDARD"
-      encryption_configuration {
-        replica_kms_key_id = (var.custom_replication_kms_key != "") ? var.custom_replication_kms_key : "arn:aws:kms:${var.replication_region}:${data.aws_caller_identity.current.account_id}:alias/aws/s3"
+      dynamic "encryption_configuration" {
+        for_each = var.sse_algorithm == "aws:kms" ? [1] : []
+
+        content {
+          replica_kms_key_id = var.custom_replication_kms_key
+        }
       }
     }
 
-    source_selection_criteria {
-      sse_kms_encrypted_objects {
-        status = (var.replication_enabled != false) ? "Enabled" : "Disabled"
+    dynamic "source_selection_criteria" {
+      for_each = var.sse_algorithm == "aws:kms" ? [1] : []
+
+      content {
+        sse_kms_encrypted_objects {
+          status = "Enabled"
+        }
       }
     }
   }
