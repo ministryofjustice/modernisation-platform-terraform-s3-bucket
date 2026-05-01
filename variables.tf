@@ -1,14 +1,3 @@
-variable "encryption_algorithm" {
-  type        = string
-  description = "S3 server-side encryption algorithm. Defaults to aws:kms. Use AES256 only for compatibility scenarios where SSE-KMS is not supported."
-  default     = "aws:kms"
-
-  validation {
-    condition     = contains(["aws:kms", "AES256"], var.encryption_algorithm)
-    error_message = "encryption_algorithm must be either aws:kms or AES256."
-  }
-}
-
 variable "acl" {
   type        = string
   description = "Use canned ACL on the bucket instead of BucketOwnerEnforced ownership controls. var.ownership_controls must be set to corresponding value below."
@@ -177,6 +166,17 @@ variable "log_prefix" {
   description = "Prefix for all log object keys."
   default     = null
   nullable    = true
+}
+
+variable "sse_algorithm" {
+  type        = string
+  description = "S3 server-side encryption algorithm. Defaults to aws:kms. Use AES256 only for compatibility scenarios where SSE-KMS is not supported."
+  default     = "aws:kms"
+
+  validation {
+    condition     = contains(["aws:kms", "AES256"], var.sse_algorithm)
+    error_message = "sse_algorithm must be either aws:kms or AES256."
+  }
 }
 
 variable "replication_role_arn" {
