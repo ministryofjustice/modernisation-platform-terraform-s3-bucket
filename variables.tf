@@ -72,7 +72,7 @@ variable "custom_kms_key" {
   validation {
     condition = (
       var.custom_kms_key == "" ||
-      can(regex("^arn:aws:kms:[a-z0-9-]+:[0-9]{12}:key/[a-f0-9-]+$", var.custom_kms_key))
+      can(regex("^arn:aws:kms:[a-z0-9-]+:[0-9]{12}:key/[a-z0-9-]+$", var.custom_kms_key))
     )
     error_message = "custom_kms_key must be empty or a valid customer-managed KMS key ARN."
   }
@@ -86,7 +86,7 @@ variable "custom_replication_kms_key" {
   validation {
     condition = (
       var.custom_replication_kms_key == "" ||
-      can(regex("^arn:aws:kms:[a-z0-9-]+:[0-9]{12}:key/[a-f0-9-]+$", var.custom_replication_kms_key))
+      can(regex("^arn:aws:kms:[a-z0-9-]+:[0-9]{12}:key/[a-z0-9-]+$", var.custom_replication_kms_key))
     )
     error_message = "custom_replication_kms_key must be empty or a valid customer-managed KMS key ARN."
   }
