@@ -168,15 +168,11 @@ variable "log_prefix" {
   nullable    = true
 }
 
+
 variable "sse_algorithm" {
   type        = string
-  description = "S3 server-side encryption algorithm. Defaults to aws:kms. Use AES256 only for compatibility scenarios where SSE-KMS is not supported."
+  description = "The server-side encryption algorithm to use"
   default     = "aws:kms"
-
-  validation {
-    condition     = contains(["aws:kms", "AES256"], var.sse_algorithm)
-    error_message = "sse_algorithm must be either aws:kms or AES256."
-  }
 }
 
 variable "replication_role_arn" {
