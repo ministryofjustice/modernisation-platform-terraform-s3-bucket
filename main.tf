@@ -183,16 +183,16 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "default" {
 
   lifecycle {
     precondition {
-      condition     = var.encryption_algorithm != "aws:kms" || var.custom_kms_key != ""
-      error_message = "custom_kms_key must be provided when encryption_algorithm is aws:kms."
+      condition     = var.sse_algorithm != "aws:kms" || var.custom_kms_key != ""
+      error_message = "custom_kms_key must be provided when sse_algorithm is aws:kms."
     }
   }
 
   rule {
-    bucket_key_enabled = var.encryption_algorithm == "aws:kms" ? true : false
+    bucket_key_enabled = var.sse_algorithm == "aws:kms" ? true : false
     apply_server_side_encryption_by_default {
-      sse_algorithm     = var.encryption_algorithm
-      kms_master_key_id = var.encryption_algorithm == "aws:kms" ? var.custom_kms_key : null
+      sse_algorithm     = var.sse_algorithm
+      kms_master_key_id = var.sse_algorithm == "aws:kms" ? var.custom_kms_key : null
     }
   }
 }
@@ -228,7 +228,7 @@ data "aws_iam_policy_document" "bucket_policy_v2" {
   }
 
   dynamic "statement" {
-    for_each = var.encryption_algorithm == "aws:kms" ? [1] : []
+    for_each = var.sse_algorithm == "aws:kms" ? [1] : []
 
     content {
       sid    = "DenyUnencryptedObjectUploads"
@@ -253,7 +253,7 @@ data "aws_iam_policy_document" "bucket_policy_v2" {
   }
 
   dynamic "statement" {
-    for_each = var.encryption_algorithm == "aws:kms" ? [1] : []
+    for_each = var.sse_algorithm == "aws:kms" ? [1] : []
 
     content {
       sid    = "DenyIncorrectEncryptionHeader"
@@ -278,7 +278,7 @@ data "aws_iam_policy_document" "bucket_policy_v2" {
   }
 
   dynamic "statement" {
-    for_each = var.encryption_algorithm == "aws:kms" ? [1] : []
+    for_each = var.sse_algorithm == "aws:kms" ? [1] : []
 
     content {
       sid    = "DenyIncorrectKMSKeyHeader"

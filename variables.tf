@@ -66,7 +66,7 @@ variable "bucket_name" {
 
 variable "custom_kms_key" {
   type        = string
-  description = "Customer-managed KMS key ARN to use for bucket encryption. Required when encryption_algorithm is aws:kms"
+  description = "Customer-managed KMS key ARN to use for bucket encryption. Required when sse_algorithm is aws:kms"
   default     = ""
 
   validation {
@@ -170,8 +170,13 @@ variable "log_prefix" {
 
 variable "sse_algorithm" {
   type        = string
-  description = "The server-side encryption algorithm to use"
+  description = "S3 server-side encryption algorithm. Defaults to aws:kms. Use AES256 only for compatibility scenarios where SSE-KMS is not supported."
   default     = "aws:kms"
+
+  validation {
+    condition     = contains(["aws:kms", "AES256"], var.sse_algorithm)
+    error_message = "sse_algorithm must be either aws:kms or AES256."
+  }
 }
 
 variable "replication_role_arn" {

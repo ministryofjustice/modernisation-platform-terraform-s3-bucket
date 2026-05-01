@@ -132,17 +132,17 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "replication" {
 
   lifecycle {
     precondition {
-      condition     = var.encryption_algorithm != "aws:kms" || var.custom_replication_kms_key != ""
-      error_message = "custom_replication_kms_key must be provided when replication_enabled is true and encryption_algorithm is aws:kms."
+      condition     = var.sse_algorithm != "aws:kms" || var.custom_replication_kms_key != ""
+      error_message = "custom_replication_kms_key must be provided when replication_enabled is true and sse_algorithm is aws:kms."
     }
   }
 
   rule {
-    bucket_key_enabled = var.encryption_algorithm == "aws:kms" ? true : false
+    bucket_key_enabled = var.sse_algorithm == "aws:kms" ? true : false
     apply_server_side_encryption_by_default {
-      sse_algorithm = var.encryption_algorithm
+      sse_algorithm = var.sse_algorithm
       # When using KMS encryption, a replication KMS key must be provided.
-      kms_master_key_id = var.encryption_algorithm == "aws:kms" ? var.custom_replication_kms_key : null
+      kms_master_key_id = var.sse_algorithm == "aws:kms" ? var.custom_replication_kms_key : null
     }
   }
 }
@@ -259,7 +259,7 @@ data "aws_iam_policy_document" "replication-policy" {
       test     = "StringLikeIfExists"
       variable = "s3:x-amz-server-side-encryption"
       values = [
-        var.encryption_algorithm
+        var.sse_algorithm
       ]
     }
   }
@@ -291,7 +291,7 @@ resource "aws_s3_bucket_replication_configuration" "default" {
       bucket        = aws_s3_bucket.replication[0].arn
       storage_class = "STANDARD"
       dynamic "encryption_configuration" {
-        for_each = var.encryption_algorithm == "aws:kms" ? [1] : []
+        for_each = var.sse_algorithm == "aws:kms" ? [1] : []
 
         content {
           replica_kms_key_id = var.custom_replication_kms_key
@@ -300,7 +300,7 @@ resource "aws_s3_bucket_replication_configuration" "default" {
     }
 
     dynamic "source_selection_criteria" {
-      for_each = var.encryption_algorithm == "aws:kms" ? [1] : []
+      for_each = var.sse_algorithm == "aws:kms" ? [1] : []
 
       content {
         sse_kms_encrypted_objects {
