@@ -168,7 +168,6 @@ variable "log_prefix" {
   nullable    = true
 }
 
-
 variable "sse_algorithm" {
   type        = string
   description = "The server-side encryption algorithm to use"
