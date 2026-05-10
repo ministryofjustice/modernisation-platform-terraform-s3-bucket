@@ -28,10 +28,19 @@ func TestS3Creation(t *testing.T) {
 	bucketAWSKMS := terraform.Output(t, terraformOptions, "bucket_awskms")
 	assert.Regexp(t, regexp.MustCompile(`aws:kms`), bucketAWSKMS)
 
-    // Check AES256 explicit opt-in possible
-    bucketAES256 := terraform.Output(t, terraformOptions, "bucket_aes256")
-    assert.Regexp(t, regexp.MustCompile(`AES256`), bucketAES256)
-	
+	// Check AES256 explicit opt-in possible
+	bucketAES256 := terraform.Output(t, terraformOptions, "bucket_aes256")
+	assert.Regexp(t, regexp.MustCompile(`AES256`), bucketAES256)
+
+	// Check KMS bucket-default-only compatibility mode
+	bucketKMSDefaultOnly := terraform.Output(t, terraformOptions, "bucket_kms_default_only_algorithm")
+	assert.Regexp(t, regexp.MustCompile(`aws:kms`), bucketKMSDefaultOnly)
+
+	bucketKMSDefaultOnlyPolicy := terraform.Output(t, terraformOptions, "bucket_kms_default_only_policy")
+	assert.NotRegexp(t, regexp.MustCompile(`DenyUnencryptedObjectUploads`), bucketKMSDefaultOnlyPolicy)
+	assert.NotRegexp(t, regexp.MustCompile(`DenyIncorrectEncryptionHeader`), bucketKMSDefaultOnlyPolicy)
+	assert.NotRegexp(t, regexp.MustCompile(`DenyIncorrectKMSKeyHeader`), bucketKMSDefaultOnlyPolicy)
+
 	assert.Regexp(t, regexp.MustCompile(`arn:aws:s3:::unit-test-bucket*`), bucketArn)
 	// Verify that our Bucket has a policy attached
 	aws.AssertS3BucketPolicyExists(t, awsRegion, bucketID)
@@ -82,8 +91,8 @@ func TestS3Logging(t *testing.T) {
 	terraform.InitAndApply(t, terraformOptions)
 
 	// Retrieve the source bucket and log bucket from the output
-    sourceBucket := terraform.Output(t, terraformOptions, "log_source_bucket_name")
-    logBucket := terraform.Output(t, terraformOptions, "log_bucket_name")
+	sourceBucket := terraform.Output(t, terraformOptions, "log_source_bucket_name")
+	logBucket := terraform.Output(t, terraformOptions, "log_bucket_name")
 
 	// Retrieve the name of the log bucket target of source bucket
 	sourceLogBucket := aws.GetS3BucketLoggingTarget(t, awsRegion, sourceBucket)

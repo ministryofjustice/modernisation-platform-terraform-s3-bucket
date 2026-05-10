@@ -74,8 +74,14 @@ module "s3-bucket" {
   # Default/recommended encryption mode
   sse_algorithm  = "aws:kms"
   custom_kms_key = "arn:aws:kms:eu-west-2:123456789012:key/your-key-id"
+
+  # Optional compatibility mode for uploaders that rely on bucket default
+  # SSE-KMS encryption and do not send explicit SSE-KMS request headers.
+  # enforce_kms_request_headers = false
+
   # Optional compatibility mode for services that cannot use SSE-KMS
   # sse_algorithm = "AES256"
+
   tags = local.tags
 }
 ```
@@ -192,14 +198,15 @@ We have worked to make the change as seamless to your code as possible, but you 
 
 - Default encryption is now **SSE-KMS (`aws:kms`)**
 - `custom_kms_key` is required when using KMS encryption
-- Bucket policies now enforce encryption headers on uploads
+- Bucket policies enforce SSE-KMS request headers on uploads by default when using SSE-KMS
 - Uploads without correct headers will be denied (`AccessDenied`)
 - AES256 is no longer the default, but can be explicitly enabled
 
 If you are upgrading from a previous version:
 
 - Ensure all uploading services support SSE-KMS headers
-- Or explicitly switch to `sse_algorithm = "AES256"` where required
+- Or set `enforce_kms_request_headers = false` where uploaders rely on bucket default SSE-KMS encryption
+- Or explicitly switch to `sse_algorithm = "AES256"` where SSE-KMS is not supported
   Otherwise, Terraform will fail during planning due to enforced encryption requirements.
 
 ## Bucket policies
@@ -225,7 +232,7 @@ When using KMS encryption:
 
 - `custom_kms_key` **must be provided**
 - AWS-managed KMS keys (e.g. `alias/aws/s3`) are not supported
-- Bucket policies enforce:
+- Bucket policies enforce the following by default:
   - encryption must be enabled
   - only `aws:kms` is allowed
   - the correct KMS key must be used
@@ -245,6 +252,32 @@ When using KMS encryption:
 > ⚠️ Some AWS services (e.g. CloudTrail, ELB access logs, AWS Config) may not send these headers by default.  
 > These services must be configured to use your KMS key, otherwise uploads will fail with `AccessDenied`.
 
+### Bucket default SSE-KMS compatibility mode
+
+Some uploaders do not send SSE-KMS request headers, but can still be encrypted at rest by the bucket default encryption configuration. In CloudTrail, these uploads appear with:
+
+- missing `requestParameters.x-amz-server-side-encryption`
+- missing `requestParameters.x-amz-server-side-encryption-aws-kms-key-id`
+- `additionalEventData.SSEApplied = Default_SSE_KMS`
+- `responseElements.x-amz-server-side-encryption = aws:kms`
+
+For these compatibility cases, use:
+
+```hcl
+sse_algorithm               = "aws:kms"
+custom_kms_key              = "arn:aws:kms:eu-west-2:123456789012:key/your-key-id"
+enforce_kms_request_headers = false
+```
+
+When this is set:
+
+- objects are still encrypted at rest using the configured customer-managed KMS key
+- S3 applies the bucket default SSE-KMS encryption automatically
+- uploaders are not required to send SSE-KMS request headers
+- KMS-specific deny statements for missing or incorrect request headers are not added to the bucket policy
+
+Use this only where the uploader cannot be changed to send explicit SSE-KMS request headers.
+
 ---
 
 ### AES256 encryption (`AES256`)
@@ -257,7 +290,7 @@ sse_algorithm = "AES256"
 
 When using AES256:
 
-- KMS-specific bucket policy enforcement is disabled
+- KMS-specific request-header policy enforcement is disabled
 - No custom key is required
 - This can be used for AWS services that cannot use SSE-KMS
 
