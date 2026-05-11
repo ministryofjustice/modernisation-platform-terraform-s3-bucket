@@ -28,6 +28,20 @@ module "s3_with_AES256" {
   tags          = local.tags
 }
 
+module "s3_kms_default_only" {
+  source = "../../"
+
+  bucket_prefix               = "unit-test-kms-default-only"
+  custom_kms_key              = aws_kms_key.s3.arn
+  enforce_kms_request_headers = false
+
+  providers = {
+    aws.bucket-replication = aws
+  }
+
+  tags = local.tags
+}
+
 data "aws_iam_policy_document" "topic" {
   statement {
     effect = "Allow"

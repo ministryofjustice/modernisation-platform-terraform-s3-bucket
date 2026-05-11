@@ -179,6 +179,12 @@ variable "sse_algorithm" {
   }
 }
 
+variable "enforce_kms_request_headers" {
+  type        = bool
+  description = "Whether to require SSE-KMS request headers in bucket policy when sse_algorithm = \"aws:kms\". Ignored when using AES256."
+  default     = true
+}
+
 variable "replication_role_arn" {
   type        = string
   description = "Role ARN to access S3 and replicate objects"

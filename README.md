@@ -74,8 +74,14 @@ module "s3-bucket" {
   # Default/recommended encryption mode
   sse_algorithm  = "aws:kms"
   custom_kms_key = "arn:aws:kms:eu-west-2:123456789012:key/your-key-id"
+
+  # Optional compatibility mode for uploaders that rely on bucket default
+  # SSE-KMS encryption and do not send explicit SSE-KMS request headers.
+  # enforce_kms_request_headers = false
+
   # Optional compatibility mode for services that cannot use SSE-KMS
   # sse_algorithm = "AES256"
+
   tags = local.tags
 }
 ```
@@ -146,6 +152,7 @@ No modules.
 | <a name="input_bucket_prefix"></a> [bucket\_prefix](#input\_bucket\_prefix) | Bucket prefix, which will include a randomised suffix to ensure globally unique names | `string` | `null` | no |
 | <a name="input_custom_kms_key"></a> [custom\_kms\_key](#input\_custom\_kms\_key) | Customer-managed KMS key ARN to use for bucket encryption. Required when sse\_algorithm is aws:kms | `string` | `""` | no |
 | <a name="input_custom_replication_kms_key"></a> [custom\_replication\_kms\_key](#input\_custom\_replication\_kms\_key) | Customer-managed KMS key ARN to use for replication destination bucket encryption | `string` | `""` | no |
+| <a name="input_enforce_kms_request_headers"></a> [enforce\_kms\_request\_headers](#input\_enforce\_kms\_request\_headers) | Whether to require SSE-KMS request headers in bucket policy when sse\_algorithm = "aws:kms". Ignored when using AES256. | `bool` | `true` | no |
 | <a name="input_force_destroy"></a> [force\_destroy](#input\_force\_destroy) | A boolean that indicates all objects (including any locked objects) should be deleted from the bucket so that the bucket can be destroyed without error. These objects are not recoverable. | `bool` | `false` | no |
 | <a name="input_lifecycle_rule"></a> [lifecycle\_rule](#input\_lifecycle\_rule) | List of maps containing configuration of object lifecycle management. | `any` | <pre>[<br/>  {<br/>    "enabled": "Enabled",<br/>    "expiration": {<br/>      "days": 730<br/>    },<br/>    "id": "main",<br/>    "noncurrent_version_expiration": {<br/>      "days": 730<br/>    },<br/>    "noncurrent_version_transition": [<br/>      {<br/>        "days": 90,<br/>        "storage_class": "STANDARD_IA"<br/>      },<br/>      {<br/>        "days": 365,<br/>        "storage_class": "GLACIER"<br/>      }<br/>    ],<br/>    "prefix": "",<br/>    "tags": {<br/>      "autoclean": "true",<br/>      "rule": "log"<br/>    },<br/>    "transition": [<br/>      {<br/>        "days": 90,<br/>        "storage_class": "STANDARD_IA"<br/>      },<br/>      {<br/>        "days": 365,<br/>        "storage_class": "GLACIER"<br/>      }<br/>    ]<br/>  }<br/>]</pre> | no |
 | <a name="input_log_bucket"></a> [log\_bucket](#input\_log\_bucket) | Unique name of s3 bucket to log to (not defined in terraform) | `string` | `null` | no |
@@ -192,14 +199,15 @@ We have worked to make the change as seamless to your code as possible, but you 
 
 - Default encryption is now **SSE-KMS (`aws:kms`)**
 - `custom_kms_key` is required when using KMS encryption
-- Bucket policies now enforce encryption headers on uploads
+- Bucket policies enforce SSE-KMS request headers on uploads by default when using SSE-KMS
 - Uploads without correct headers will be denied (`AccessDenied`)
 - AES256 is no longer the default, but can be explicitly enabled
 
 If you are upgrading from a previous version:
 
 - Ensure all uploading services support SSE-KMS headers
-- Or explicitly switch to `sse_algorithm = "AES256"` where required
+- Or set `enforce_kms_request_headers = false` where uploaders rely on bucket default SSE-KMS encryption
+- Or explicitly switch to `sse_algorithm = "AES256"` where SSE-KMS is not supported
   Otherwise, Terraform will fail during planning due to enforced encryption requirements.
 
 ## Bucket policies
@@ -225,7 +233,7 @@ When using KMS encryption:
 
 - `custom_kms_key` **must be provided**
 - AWS-managed KMS keys (e.g. `alias/aws/s3`) are not supported
-- Bucket policies enforce:
+- Bucket policies enforce the following by default:
   - encryption must be enabled
   - only `aws:kms` is allowed
   - the correct KMS key must be used
@@ -245,6 +253,32 @@ When using KMS encryption:
 > ⚠️ Some AWS services (e.g. CloudTrail, ELB access logs, AWS Config) may not send these headers by default.  
 > These services must be configured to use your KMS key, otherwise uploads will fail with `AccessDenied`.
 
+### Bucket default SSE-KMS compatibility mode
+
+Some uploaders do not send SSE-KMS request headers, but can still be encrypted at rest by the bucket default encryption configuration. In CloudTrail, these uploads appear with:
+
+- missing `requestParameters.x-amz-server-side-encryption`
+- missing `requestParameters.x-amz-server-side-encryption-aws-kms-key-id`
+- `additionalEventData.SSEApplied = Default_SSE_KMS`
+- `responseElements.x-amz-server-side-encryption = aws:kms`
+
+For these compatibility cases, use:
+
+```hcl
+sse_algorithm               = "aws:kms"
+custom_kms_key              = "arn:aws:kms:eu-west-2:123456789012:key/your-key-id"
+enforce_kms_request_headers = false
+```
+
+When this is set:
+
+- objects are still encrypted at rest using the configured customer-managed KMS key
+- S3 applies the bucket default SSE-KMS encryption automatically
+- uploaders are not required to send SSE-KMS request headers
+- KMS-specific deny statements for missing or incorrect request headers are not added to the bucket policy
+
+Use this only where the uploader cannot be changed to send explicit SSE-KMS request headers.
+
 ---
 
 ### AES256 encryption (`AES256`)
@@ -257,7 +291,7 @@ sse_algorithm = "AES256"
 
 When using AES256:
 
-- KMS-specific bucket policy enforcement is disabled
+- KMS-specific request-header policy enforcement is disabled
 - No custom key is required
 - This can be used for AWS services that cannot use SSE-KMS
 

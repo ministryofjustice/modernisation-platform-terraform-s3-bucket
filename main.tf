@@ -228,7 +228,7 @@ data "aws_iam_policy_document" "bucket_policy_v2" {
   }
 
   dynamic "statement" {
-    for_each = var.sse_algorithm == "aws:kms" ? [1] : []
+    for_each = var.sse_algorithm == "aws:kms" && var.enforce_kms_request_headers ? [1] : []
 
     content {
       sid    = "DenyUnencryptedObjectUploads"
@@ -253,7 +253,7 @@ data "aws_iam_policy_document" "bucket_policy_v2" {
   }
 
   dynamic "statement" {
-    for_each = var.sse_algorithm == "aws:kms" ? [1] : []
+    for_each = var.sse_algorithm == "aws:kms" && var.enforce_kms_request_headers ? [1] : []
 
     content {
       sid    = "DenyIncorrectEncryptionHeader"
@@ -278,7 +278,7 @@ data "aws_iam_policy_document" "bucket_policy_v2" {
   }
 
   dynamic "statement" {
-    for_each = var.sse_algorithm == "aws:kms" ? [1] : []
+    for_each = var.sse_algorithm == "aws:kms" && var.enforce_kms_request_headers ? [1] : []
 
     content {
       sid    = "DenyIncorrectKMSKeyHeader"
