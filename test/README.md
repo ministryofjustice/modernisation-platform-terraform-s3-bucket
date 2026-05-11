@@ -51,6 +51,9 @@ For compatibility scenarios where clients rely on bucket default SSE-KMS encrypt
 enforce_kms_request_headers = false
 ```
 
+> `enforce_kms_request_headers` only applies when `sse_algorithm = "aws:kms"`.
+> When using `AES256`, KMS request-header enforcement is not used and this setting has no effect.
+
 When this mode is enabled:
 
 - Objects are still encrypted at rest using the configured customer-managed KMS key
