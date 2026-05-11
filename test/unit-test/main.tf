@@ -35,6 +35,10 @@ module "s3_kms_default_only" {
   custom_kms_key              = aws_kms_key.s3.arn
   enforce_kms_request_headers = false
 
+    providers = {
+    aws.bucket-replication = aws
+  }
+
   tags = local.tags
 }
 
