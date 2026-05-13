@@ -46,7 +46,7 @@ Buckets currently relying on AWS-managed S3 KMS keys (`aws/s3`) are not supporte
 Buckets currently using AWS-managed S3 KMS keys should continue using KMS encryption after migration, either:
 
 - with strict SSE-KMS header enforcement (default), or
-- with `enforce_kms_request_headers = false` for compatibility with clients that cannot send SSE-KMS headers
+- with `enforce_kms_request_headers = false` to support clients that cannot send SSE-KMS headers
 
 The customer-managed KMS key policy must allow the principals uploading to the bucket to use the key (e.g. `kms:Encrypt`, `kms:Decrypt`, `kms:GenerateDataKey`, `kms:DescribeKey`).
 If replication is enabled with KMS, the destination KMS key must also allow access for the replication role and S3 replication service.
