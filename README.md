@@ -239,6 +239,15 @@ When using KMS encryption:
   - the correct KMS key must be used
   - uploads must explicitly include SSE-KMS headers
 
+#### AWS-managed S3 KMS key (`aws/s3`) buckets
+
+Buckets currently relying on AWS-managed S3 KMS keys (`aws/s3`) are not supported in `aws:kms` mode unless they are migrated to a customer-managed KMS key.
+
+Buckets currently using AWS-managed S3 KMS keys should continue using KMS encryption after migration, either:
+
+- with strict SSE-KMS request-header enforcement (default), or
+- with `enforce_kms_request_headers = false` to support uploaders that rely on bucket default SSE-KMS encryption and cannot send explicit SSE-KMS headers.
+
 #### Required upload headers:
 
 - `x-amz-server-side-encryption: aws:kms`
