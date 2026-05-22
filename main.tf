@@ -180,10 +180,19 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "default" {
   #checkov:skip=CKV2_AWS_67: "Ensure AWS S3 bucket encrypted with Customer Managed Key (CMK) has regular rotation"
 
   bucket = aws_s3_bucket.default.id
+
+  lifecycle {
+    precondition {
+      condition     = var.sse_algorithm != "aws:kms" || var.custom_kms_key != ""
+      error_message = "custom_kms_key must be provided when sse_algorithm is aws:kms."
+    }
+  }
+
   rule {
+    bucket_key_enabled = var.sse_algorithm == "aws:kms" ? true : false
     apply_server_side_encryption_by_default {
       sse_algorithm     = var.sse_algorithm
-      kms_master_key_id = (var.custom_kms_key != "") ? var.custom_kms_key : ""
+      kms_master_key_id = var.sse_algorithm == "aws:kms" ? var.custom_kms_key : null
     }
   }
 }
@@ -196,6 +205,103 @@ resource "aws_s3_bucket_versioning" "default" {
 }
 
 data "aws_iam_policy_document" "bucket_policy_v2" {
+  statement {
+    sid    = "DenyInsecureTransport"
+    effect = "Deny"
+
+    actions = ["s3:*"]
+    resources = [
+      aws_s3_bucket.default.arn,
+      "${aws_s3_bucket.default.arn}/*"
+    ]
+
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
+
+    condition {
+      test     = "Bool"
+      variable = "aws:SecureTransport"
+      values   = ["false"]
+    }
+  }
+
+  dynamic "statement" {
+    for_each = var.sse_algorithm == "aws:kms" && var.enforce_kms_request_headers ? [1] : []
+
+    content {
+      sid    = "DenyUnencryptedObjectUploads"
+      effect = "Deny"
+
+      actions = ["s3:PutObject"]
+      resources = [
+        "${aws_s3_bucket.default.arn}/*"
+      ]
+
+      principals {
+        type        = "*"
+        identifiers = ["*"]
+      }
+
+      condition {
+        test     = "Null"
+        variable = "s3:x-amz-server-side-encryption"
+        values   = ["true"]
+      }
+    }
+  }
+
+  dynamic "statement" {
+    for_each = var.sse_algorithm == "aws:kms" && var.enforce_kms_request_headers ? [1] : []
+
+    content {
+      sid    = "DenyIncorrectEncryptionHeader"
+      effect = "Deny"
+
+      actions = ["s3:PutObject"]
+      resources = [
+        "${aws_s3_bucket.default.arn}/*"
+      ]
+
+      principals {
+        type        = "*"
+        identifiers = ["*"]
+      }
+
+      condition {
+        test     = "StringNotEquals"
+        variable = "s3:x-amz-server-side-encryption"
+        values   = ["aws:kms"]
+      }
+    }
+  }
+
+  dynamic "statement" {
+    for_each = var.sse_algorithm == "aws:kms" && var.enforce_kms_request_headers ? [1] : []
+
+    content {
+      sid    = "DenyIncorrectKMSKeyHeader"
+      effect = "Deny"
+
+      actions = ["s3:PutObject"]
+      resources = [
+        "${aws_s3_bucket.default.arn}/*"
+      ]
+
+      principals {
+        type        = "*"
+        identifiers = ["*"]
+      }
+
+      condition {
+        test     = "StringNotEquals"
+        variable = "s3:x-amz-server-side-encryption-aws-kms-key-id"
+        values   = [var.custom_kms_key]
+      }
+    }
+  }
+
   dynamic "statement" {
     for_each = var.bucket_policy_v2
     content {

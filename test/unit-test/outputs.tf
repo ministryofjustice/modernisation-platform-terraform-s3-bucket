@@ -3,6 +3,14 @@ output "bucket_aes256" {
   description = "SSE Algorithm"
 }
 
+output "bucket_kms_default_only_algorithm" {
+  value = element(module.s3_kms_default_only.bucket_server_side_encryption.rule[*].apply_server_side_encryption_by_default[0].sse_algorithm, 0)
+}
+
+output "bucket_kms_default_only_policy" {
+  value = module.s3_kms_default_only.bucket_policy.policy
+}
+
 output "bucketArn" {
   value       = module.s3.bucket.arn
   description = "Bucket ARN"
