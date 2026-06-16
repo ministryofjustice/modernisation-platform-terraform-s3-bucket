@@ -152,7 +152,7 @@ No modules.
 | <a name="input_bucket_prefix"></a> [bucket\_prefix](#input\_bucket\_prefix) | Bucket prefix, which will include a randomised suffix to ensure globally unique names | `string` | `null` | no |
 | <a name="input_custom_kms_key"></a> [custom\_kms\_key](#input\_custom\_kms\_key) | Customer-managed KMS key ARN to use for bucket encryption. Required when sse\_algorithm is aws:kms | `string` | `""` | no |
 | <a name="input_custom_replication_kms_key"></a> [custom\_replication\_kms\_key](#input\_custom\_replication\_kms\_key) | Customer-managed KMS key ARN to use for replication destination bucket encryption | `string` | `""` | no |
-| <a name="input_enforce_kms_request_headers"></a> [enforce\_kms\_request\_headers](#input\_enforce\_kms\_request\_headers) | Whether to require SSE-KMS request headers in bucket policy when sse\_algorithm = "aws:kms". Ignored when using AES256. | `bool` | `true` | no |
+| <a name="input_enforce_kms_request_headers"></a> [enforce\_kms\_request\_headers](#input\_enforce\_kms\_request\_headers) | Whether to require SSE-KMS request headers in bucket policy when sse\_algorithm = "aws:kms". Ignored when using AES256. AWS service principals (like ELB access logs and CloudWatch Logs) are automatically exempt from this requirement. | `bool` | `true` | no |
 | <a name="input_force_destroy"></a> [force\_destroy](#input\_force\_destroy) | A boolean that indicates all objects (including any locked objects) should be deleted from the bucket so that the bucket can be destroyed without error. These objects are not recoverable. | `bool` | `false` | no |
 | <a name="input_lifecycle_rule"></a> [lifecycle\_rule](#input\_lifecycle\_rule) | List of maps containing configuration of object lifecycle management. | `any` | <pre>[<br/>  {<br/>    "enabled": "Enabled",<br/>    "expiration": {<br/>      "days": 730<br/>    },<br/>    "id": "main",<br/>    "noncurrent_version_expiration": {<br/>      "days": 730<br/>    },<br/>    "noncurrent_version_transition": [<br/>      {<br/>        "days": 90,<br/>        "storage_class": "STANDARD_IA"<br/>      },<br/>      {<br/>        "days": 365,<br/>        "storage_class": "GLACIER"<br/>      }<br/>    ],<br/>    "prefix": "",<br/>    "tags": {<br/>      "autoclean": "true",<br/>      "rule": "log"<br/>    },<br/>    "transition": [<br/>      {<br/>        "days": 90,<br/>        "storage_class": "STANDARD_IA"<br/>      },<br/>      {<br/>        "days": 365,<br/>        "storage_class": "GLACIER"<br/>      }<br/>    ]<br/>  }<br/>]</pre> | no |
 | <a name="input_log_bucket"></a> [log\_bucket](#input\_log\_bucket) | Unique name of s3 bucket to log to (not defined in terraform) | `string` | `null` | no |
@@ -239,14 +239,18 @@ When using KMS encryption:
   - the correct KMS key must be used
   - uploads must explicitly include SSE-KMS headers
 
-#### AWS-managed S3 KMS key (`aws/s3`) buckets
+#### AWS service principals (logging services)
 
-Buckets currently relying on AWS-managed S3 KMS keys (`aws/s3`) are not supported in `aws:kms` mode unless they are migrated to a customer-managed KMS key.
+AWS service principals are automatically exempt from KMS header enforcement. This allows AWS logging services like ELB and CloudWatch Logs to write directly to the bucket using the bucket's default encryption without needing to send explicit SSE-KMS headers.
 
-Buckets currently using AWS-managed S3 KMS keys should continue using KMS encryption after migration, either:
+The KMS enforcement policy checks `aws:PrincipalType` and only applies header requirements to `AWS` type principals (IAM users, roles, and accounts). Service principals bypass these checks because they cannot send these headers directly.
 
-- with strict SSE-KMS request-header enforcement (default), or
-- with `enforce_kms_request_headers = false` to support uploaders that rely on bucket default SSE-KMS encryption and cannot send explicit SSE-KMS headers.
+This means:
+
+- **ELB/ALB access logs** (via `delivery.logs.amazonaws.com` service principal) can write directly to the bucket
+- **CloudWatch Logs** (via service principal) can write directly to the bucket
+- **Other AWS services** that use service principals can write without header requirements
+- **IAM principals** (users, roles, AWS accounts) must still send explicit KMS headers when `enforce_kms_request_headers = true`
 
 #### Required upload headers:
 
