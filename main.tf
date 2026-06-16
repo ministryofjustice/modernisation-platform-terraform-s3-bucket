@@ -249,6 +249,12 @@ data "aws_iam_policy_document" "bucket_policy_v2" {
         variable = "s3:x-amz-server-side-encryption"
         values   = ["true"]
       }
+
+      condition {
+        test     = "StringNotEquals"
+        variable = "aws:PrincipalType"
+        values   = ["Service"]
+      }
     }
   }
 
@@ -274,6 +280,12 @@ data "aws_iam_policy_document" "bucket_policy_v2" {
         variable = "s3:x-amz-server-side-encryption"
         values   = ["aws:kms"]
       }
+
+      condition {
+        test     = "StringNotEquals"
+        variable = "aws:PrincipalType"
+        values   = ["Service"]
+      }
     }
   }
 
@@ -298,6 +310,12 @@ data "aws_iam_policy_document" "bucket_policy_v2" {
         test     = "StringNotEquals"
         variable = "s3:x-amz-server-side-encryption-aws-kms-key-id"
         values   = [var.custom_kms_key]
+      }
+
+      condition {
+        test     = "StringNotEquals"
+        variable = "aws:PrincipalType"
+        values   = ["Service"]
       }
     }
   }

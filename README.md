@@ -239,14 +239,18 @@ When using KMS encryption:
   - the correct KMS key must be used
   - uploads must explicitly include SSE-KMS headers
 
-#### AWS-managed S3 KMS key (`aws/s3`) buckets
+#### AWS service principals (logging services)
 
-Buckets currently relying on AWS-managed S3 KMS keys (`aws/s3`) are not supported in `aws:kms` mode unless they are migrated to a customer-managed KMS key.
+AWS service principals are automatically exempt from KMS header enforcement. This allows AWS logging services like ELB and CloudWatch Logs to write directly to the bucket using the bucket's default encryption without needing to send explicit SSE-KMS headers.
 
-Buckets currently using AWS-managed S3 KMS keys should continue using KMS encryption after migration, either:
+The KMS enforcement policy checks `aws:PrincipalType` and only applies header requirements to `AWS` type principals (IAM users, roles, and accounts). Service principals bypass these checks because they cannot send these headers directly.
 
-- with strict SSE-KMS request-header enforcement (default), or
-- with `enforce_kms_request_headers = false` to support uploaders that rely on bucket default SSE-KMS encryption and cannot send explicit SSE-KMS headers.
+This means:
+
+- **ELB/ALB access logs** (via `delivery.logs.amazonaws.com` service principal) can write directly to the bucket
+- **CloudWatch Logs** (via service principal) can write directly to the bucket
+- **Other AWS services** that use service principals can write without header requirements
+- **IAM principals** (users, roles, AWS accounts) must still send explicit KMS headers when `enforce_kms_request_headers = true`
 
 #### Required upload headers:
 

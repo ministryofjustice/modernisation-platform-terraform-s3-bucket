@@ -181,7 +181,7 @@ variable "sse_algorithm" {
 
 variable "enforce_kms_request_headers" {
   type        = bool
-  description = "Whether to require SSE-KMS request headers in bucket policy when sse_algorithm = \"aws:kms\". Ignored when using AES256."
+  description = "Whether to require SSE-KMS request headers in bucket policy when sse_algorithm = \"aws:kms\". Ignored when using AES256. AWS service principals (like ELB access logs and CloudWatch Logs) are automatically exempt from this requirement."
   default     = true
 }
 

@@ -54,6 +54,19 @@ enforce_kms_request_headers = false
 > `enforce_kms_request_headers` only applies when `sse_algorithm = "aws:kms"`.
 > When using `AES256`, KMS request-header enforcement is not used and this setting has no effect.
 
+### AWS service principals (built-in exemptions)
+
+AWS service principals are automatically exempt from KMS header enforcement. This is implemented via a `aws:PrincipalType` condition that only applies the header requirements to `AWS` type principals.
+
+This built-in exemption means:
+
+- **ELB/ALB access logs** (via `delivery.logs.amazonaws.com` service principal) can write directly without KMS headers
+- **CloudWatch Logs** (via service principal) can write directly without KMS headers
+- **Other AWS services** using service principals can write without header requirements
+- **IAM principals** (users, roles, accounts) must still send explicit KMS headers when `enforce_kms_request_headers = true`
+
+This is particularly useful for integrations like the [modernisation-platform-terraform-loadbalancer](https://github.com/ministryofjustice/modernisation-platform-terraform-loadbalancer) module, which uses `delivery.logs.amazonaws.com` service principal to write ALB access logs directly to your S3 bucket.
+
 When this mode is enabled:
 
 - Objects are still encrypted at rest using the configured customer-managed KMS key
