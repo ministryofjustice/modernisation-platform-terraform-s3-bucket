@@ -36,12 +36,19 @@ func TestS3Creation(t *testing.T) {
 	bucketKMSDefaultOnly := terraform.Output(t, terraformOptions, "bucket_kms_default_only_algorithm")
 	assert.Regexp(t, regexp.MustCompile(`aws:kms`), bucketKMSDefaultOnly)
 
+	bucketNamespaceNameID := terraform.Output(t, terraformOptions, "bucket_namespace_name_id")
+	assert.Regexp(t, regexp.MustCompile(`^unit-test-bucket-namespace-name-\d{12}-eu-west-2-an$`), bucketNamespaceNameID)
+
+	bucketNamespacePrefixID := terraform.Output(t, terraformOptions, "bucket_namespace_prefix_id")
+	assert.Regexp(t, regexp.MustCompile(`^unit-test-bucket-namespace-prefix-\d{12}-eu-west-2-an`), bucketNamespacePrefixID)
+
 	bucketKMSDefaultOnlyPolicy := terraform.Output(t, terraformOptions, "bucket_kms_default_only_policy")
 	assert.NotRegexp(t, regexp.MustCompile(`DenyUnencryptedObjectUploads`), bucketKMSDefaultOnlyPolicy)
 	assert.NotRegexp(t, regexp.MustCompile(`DenyIncorrectEncryptionHeader`), bucketKMSDefaultOnlyPolicy)
 	assert.NotRegexp(t, regexp.MustCompile(`DenyIncorrectKMSKeyHeader`), bucketKMSDefaultOnlyPolicy)
 
 	assert.Regexp(t, regexp.MustCompile(`arn:aws:s3:::unit-test-bucket*`), bucketArn)
+	assert.NotRegexp(t, regexp.MustCompile(`-\d{12}-eu-west-2-an`), bucketID)
 	// Verify that our Bucket has a policy attached
 	aws.AssertS3BucketPolicyExists(t, awsRegion, bucketID)
 
