@@ -64,6 +64,12 @@ variable "bucket_name" {
   default     = null
 }
 
+variable "bucket_namespace" {
+  type        = string
+  description = "Namespace for the bucket. Determines bucket naming scope. Valid values: account-regional, global."
+  default     = "global"
+}
+
 variable "custom_kms_key" {
   type        = string
   description = "Customer-managed KMS key ARN to use for bucket encryption. Required when sse_algorithm is aws:kms"
