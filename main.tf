@@ -1,8 +1,3 @@
-locals {
-  bucket_name   = var.bucket_namespace == "account-regional" && var.bucket_name != null ? "${var.bucket_name}-${data.aws_caller_identity.current.account_id}-${data.aws_region.current.region}-an" : var.bucket_name
-  bucket_prefix = var.bucket_namespace == "account-regional" && var.bucket_prefix != null ? "${var.bucket_prefix}-${data.aws_caller_identity.current.account_id}-${data.aws_region.current.region}-an" : var.bucket_prefix
-}
-
 resource "aws_s3_bucket_notification" "bucket_notification" {
   count  = var.notification_enabled == true ? 1 : 0
   bucket = aws_s3_bucket.default.id
@@ -50,8 +45,15 @@ resource "aws_s3_bucket" "default" {
   #checkov:skip=CKV_AWS_21: "Versioning handled in Versioning configuration resource"
   #checkov:skip=CKV_AWS_145: "Encryption handled in encryption configuration resource"
 
-  bucket           = local.bucket_name
-  bucket_prefix    = local.bucket_prefix
+  lifecycle {
+    precondition {
+      condition     = var.bucket_namespace != "account-regional" || var.bucket_name != null
+      error_message = "bucket_name must be defined when bucket_namespace is 'account-regional'."
+    }
+  }
+
+  bucket           = var.bucket_namespace == "account-regional" && var.bucket_name != null ? "${var.bucket_name}-${data.aws_caller_identity.current.account_id}-${data.aws_region.current.region}-an" : var.bucket_name
+  bucket_prefix    = var.bucket_prefix
   bucket_namespace = var.bucket_namespace
 
   force_destroy = var.force_destroy

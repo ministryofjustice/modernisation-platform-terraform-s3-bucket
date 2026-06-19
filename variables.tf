@@ -68,6 +68,11 @@ variable "bucket_namespace" {
   type        = string
   description = "Namespace for the bucket. Determines bucket naming scope. Valid values: account-regional, global."
   default     = "global"
+
+  validation {
+    condition     = contains(["global", "account-regional"], var.bucket_namespace)
+    error_message = "bucket_namespace must be either 'global' or 'account-regional'."
+  }
 }
 
 variable "custom_kms_key" {
