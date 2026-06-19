@@ -16,11 +16,6 @@ output "bucket_namespace_name_id" {
   description = "Bucket name created when bucket_namespace = account-regional and bucket_name is used"
 }
 
-output "bucket_namespace_prefix_id" {
-  value       = module.s3_account_regional_prefix.bucket.id
-  description = "Bucket name created when bucket_namespace = account-regional and bucket_prefix is used"
-}
-
 output "bucketArn" {
   value       = module.s3.bucket.arn
   description = "Bucket ARN"

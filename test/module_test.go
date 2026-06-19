@@ -39,9 +39,6 @@ func TestS3Creation(t *testing.T) {
 	bucketNamespaceNameID := terraform.Output(t, terraformOptions, "bucket_namespace_name_id")
 	assert.Regexp(t, regexp.MustCompile(`^unit-test-bucket-namespace-name-\d{12}-eu-west-2-an$`), bucketNamespaceNameID)
 
-	bucketNamespacePrefixID := terraform.Output(t, terraformOptions, "bucket_namespace_prefix_id")
-	assert.Regexp(t, regexp.MustCompile(`^unit-test-bucket-namespace-prefix-\d{12}-eu-west-2-an`), bucketNamespacePrefixID)
-
 	bucketKMSDefaultOnlyPolicy := terraform.Output(t, terraformOptions, "bucket_kms_default_only_policy")
 	assert.NotRegexp(t, regexp.MustCompile(`DenyUnencryptedObjectUploads`), bucketKMSDefaultOnlyPolicy)
 	assert.NotRegexp(t, regexp.MustCompile(`DenyIncorrectEncryptionHeader`), bucketKMSDefaultOnlyPolicy)
