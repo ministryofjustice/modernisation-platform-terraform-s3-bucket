@@ -92,7 +92,7 @@ module "s3-bucket" {
 This module supports two bucket naming namespaces via `bucket_namespace` (information on regional namespaces can be found [here](https://aws.amazon.com/blogs/aws/introducing-account-regional-namespaces-for-amazon-s3-general-purpose-buckets/)):
 
 - `global` - uses `bucket_name` or `bucket_prefix` exactly as supplied.
-- `account-regional` - appends the AWS account id and region to the supplied name or prefix using the format `<name>-<account-id>-<region>-an`.
+- `account-regional` - appends the AWS account id and region to the supplied name or prefix using the format `<bucket_prefix>-<account-id>-<region>-an`.
 
 Examples:
 
