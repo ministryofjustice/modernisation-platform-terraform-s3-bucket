@@ -48,7 +48,7 @@ module "s3_account_regional_name" {
     aws.bucket-replication = aws
   }
 
-  bucket_name      = "unit-test-bucket-namespace-name"
+  bucket_prefix    = "unit-test-bucket-namespace-name"
   bucket_namespace = "account-regional"
   force_destroy    = true
   custom_kms_key   = aws_kms_key.s3.arn

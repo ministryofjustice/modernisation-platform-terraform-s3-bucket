@@ -54,7 +54,7 @@ variable "bucket_policy_v2" {
 
 variable "bucket_prefix" {
   type        = string
-  description = "Bucket prefix, which will include a randomised suffix to ensure globally unique names"
+  description = "Bucket prefix, which will include a randomised suffix to ensure globally unique names when bucket_namespace is 'global', or a region and account-specific suffix when bucket_namespace is 'account-regional'."
   default     = null
 }
 
