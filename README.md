@@ -97,7 +97,7 @@ This module supports two bucket naming namespaces via `bucket_namespace` (inform
 Examples:
 
 - `bucket_name = "reports"` with `bucket_namespace = "global"` creates `reports`
-- `bucket_name = "reports"` with `bucket_namespace = "account-regional"` creates `reports-123456789012-eu-west-2-an`
+- `bucket_name = "reports"` with `bucket_namespace = "global"` creates `reports-123456789012`
 - `bucket_prefix = "reports"` with `bucket_namespace = "account-regional"` creates buckets that start with `reports-123456789012-eu-west-2-an`
 
 <!-- BEGIN_TF_DOCS -->
