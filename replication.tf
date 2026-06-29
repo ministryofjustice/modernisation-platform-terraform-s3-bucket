@@ -97,6 +97,19 @@ resource "aws_s3_bucket_lifecycle_configuration" "replication" {
   }
 }
 
+resource "aws_s3_bucket_object_lock_configuration" "replication" {
+  count    = var.replication_enabled && var.replication_object_lock_days != null ? 1 : 0
+  provider = aws.bucket-replication
+  bucket   = aws_s3_bucket.replication[0].id
+
+  rule {
+    default_retention {
+      mode = "COMPLIANCE"
+      days = var.replication_object_lock_days
+    }
+  }
+}
+
 # Block public access policies to the replication bucket
 resource "aws_s3_bucket_public_access_block" "replication" {
   count = var.replication_enabled ? 1 : 0
