@@ -258,3 +258,9 @@ variable "object_lock_days" {
   description = "The number of days that you want to specify for the default retention period"
   default     = null
 }
+
+variable "replication_object_lock_days" {
+  type        = number
+  description = "The number of days that you want to specify for the replication bucket default retention period"
+  default     = null
+}
