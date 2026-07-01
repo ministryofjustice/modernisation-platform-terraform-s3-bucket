@@ -11,6 +11,11 @@ output "bucket_kms_default_only_policy" {
   value = module.s3_kms_default_only.bucket_policy.policy
 }
 
+output "bucket_namespace_name_id" {
+  value       = module.s3_account_regional_name.bucket.id
+  description = "Bucket name created when bucket_namespace = account-regional and bucket_prefix is used"
+}
+
 output "bucketArn" {
   value       = module.s3.bucket.arn
   description = "Bucket ARN"

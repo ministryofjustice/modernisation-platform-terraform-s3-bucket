@@ -45,8 +45,17 @@ resource "aws_s3_bucket" "default" {
   #checkov:skip=CKV_AWS_21: "Versioning handled in Versioning configuration resource"
   #checkov:skip=CKV_AWS_145: "Encryption handled in encryption configuration resource"
 
-  bucket        = var.bucket_name
-  bucket_prefix = var.bucket_prefix
+  lifecycle {
+    precondition {
+      condition     = var.bucket_namespace != "account-regional" || var.bucket_prefix != null
+      error_message = "bucket_prefix must be defined when bucket_namespace is 'account-regional'."
+    }
+  }
+
+  bucket           = var.bucket_namespace == "account-regional" && var.bucket_prefix != null ? "${var.bucket_prefix}-${data.aws_caller_identity.current.account_id}-${data.aws_region.current.region}-an" : var.bucket_name
+  bucket_prefix    = var.bucket_namespace == "account-regional" && var.bucket_prefix != null ? null : var.bucket_prefix
+  bucket_namespace = var.bucket_namespace
+
   force_destroy = var.force_destroy
 
   tags = var.tags

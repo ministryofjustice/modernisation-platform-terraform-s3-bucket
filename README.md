@@ -11,6 +11,7 @@ module "s3-bucket" {
   source = "github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket?ref=v10.0.0"
 
   bucket_prefix      = "s3-bucket"
+  bucket_namespace   = "account-regional"
   versioning_enabled = true
 
   # to disable ACLs in preference of BucketOwnership controls as per https://aws.amazon.com/blogs/aws/heads-up-amazon-s3-security-changes-are-coming-in-april-of-2023/ set:
@@ -86,6 +87,19 @@ module "s3-bucket" {
 }
 ```
 
+## Bucket naming
+
+This module supports two bucket naming namespaces via `bucket_namespace` (information on regional namespaces can be found [here](https://aws.amazon.com/blogs/aws/introducing-account-regional-namespaces-for-amazon-s3-general-purpose-buckets/)):
+
+- `global` - uses `bucket_name` or `bucket_prefix` exactly as supplied.
+- `account-regional` - appends the AWS account id and region to the supplied name or prefix using the format `<bucket_prefix>-<account-id>-<region>-an`.
+
+Examples:
+
+- `bucket_name = "reports"` with `bucket_namespace = "global"` creates `reports`
+- `bucket_name = "reports"` with `bucket_namespace = "global"` creates `reports-123456789012`
+- `bucket_prefix = "reports"` with `bucket_namespace = "account-regional"` creates buckets that start with `reports-123456789012-eu-west-2-an`
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
@@ -141,6 +155,7 @@ No modules.
 | [aws_iam_policy_document.replication](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.replication-policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.s3-assume-role-policy](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_region.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) | data source |
 
 ## Inputs
 
@@ -148,9 +163,10 @@ No modules.
 |------|-------------|------|---------|:--------:|
 | <a name="input_acl"></a> [acl](#input\_acl) | Use canned ACL on the bucket instead of BucketOwnerEnforced ownership controls. var.ownership\_controls must be set to corresponding value below. | `string` | `"private"` | no |
 | <a name="input_bucket_name"></a> [bucket\_name](#input\_bucket\_name) | Please use bucket\_prefix instead of bucket\_name to ensure a globally unique name. | `string` | `null` | no |
+| <a name="input_bucket_namespace"></a> [bucket\_namespace](#input\_bucket\_namespace) | Namespace for the bucket. Determines bucket naming scope. Valid values: account-regional, global. | `string` | `"global"` | no |
 | <a name="input_bucket_policy"></a> [bucket\_policy](#input\_bucket\_policy) | JSON for the bucket policy | `list(string)` | <pre>[<br/>  "{}"<br/>]</pre> | no |
 | <a name="input_bucket_policy_v2"></a> [bucket\_policy\_v2](#input\_bucket\_policy\_v2) | Alternative to bucket\_policy.  Define policies directly without needing to know the bucket ARN | <pre>list(object({<br/>    effect  = string<br/>    actions = list(string)<br/>    principals = optional(object({<br/>      type        = string<br/>      identifiers = list(string)<br/>    }))<br/>    conditions = optional(list(object({<br/>      test     = string<br/>      variable = string<br/>      values   = list(string)<br/>    })), [])<br/>  }))</pre> | `[]` | no |
-| <a name="input_bucket_prefix"></a> [bucket\_prefix](#input\_bucket\_prefix) | Bucket prefix, which will include a randomised suffix to ensure globally unique names | `string` | `null` | no |
+| <a name="input_bucket_prefix"></a> [bucket\_prefix](#input\_bucket\_prefix) | Bucket prefix, which will include a randomised suffix to ensure globally unique names when bucket\_namespace is 'global', or a region and account-specific suffix when bucket\_namespace is 'account-regional'. | `string` | `null` | no |
 | <a name="input_custom_kms_key"></a> [custom\_kms\_key](#input\_custom\_kms\_key) | Customer-managed KMS key ARN to use for bucket encryption. Required when sse\_algorithm is aws:kms | `string` | `""` | no |
 | <a name="input_custom_replication_kms_key"></a> [custom\_replication\_kms\_key](#input\_custom\_replication\_kms\_key) | Customer-managed KMS key ARN to use for replication destination bucket encryption | `string` | `""` | no |
 | <a name="input_enforce_kms_request_headers"></a> [enforce\_kms\_request\_headers](#input\_enforce\_kms\_request\_headers) | Whether to require SSE-KMS request headers in bucket policy when sse\_algorithm = "aws:kms". Ignored when using AES256. AWS service principals (like ELB access logs and CloudWatch Logs) are automatically exempt from this requirement. | `bool` | `true` | no |

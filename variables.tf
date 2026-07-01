@@ -54,7 +54,7 @@ variable "bucket_policy_v2" {
 
 variable "bucket_prefix" {
   type        = string
-  description = "Bucket prefix, which will include a randomised suffix to ensure globally unique names"
+  description = "Bucket prefix, which will include a randomised suffix to ensure globally unique names when bucket_namespace is 'global', or a region and account-specific suffix when bucket_namespace is 'account-regional'."
   default     = null
 }
 
@@ -62,6 +62,17 @@ variable "bucket_name" {
   type        = string
   description = "Please use bucket_prefix instead of bucket_name to ensure a globally unique name."
   default     = null
+}
+
+variable "bucket_namespace" {
+  type        = string
+  description = "Namespace for the bucket. Determines bucket naming scope. Valid values: account-regional, global."
+  default     = "global"
+
+  validation {
+    condition     = contains(["global", "account-regional"], var.bucket_namespace)
+    error_message = "bucket_namespace must be either 'global' or 'account-regional'."
+  }
 }
 
 variable "custom_kms_key" {

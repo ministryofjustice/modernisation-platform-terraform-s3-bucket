@@ -42,6 +42,19 @@ module "s3_kms_default_only" {
   tags = local.tags
 }
 
+module "s3_account_regional_name" {
+  source = "../.."
+  providers = {
+    aws.bucket-replication = aws
+  }
+
+  bucket_prefix    = "unit-test-bucket-namespace-name"
+  bucket_namespace = "account-regional"
+  force_destroy    = true
+  custom_kms_key   = aws_kms_key.s3.arn
+  tags             = local.tags
+}
+
 data "aws_iam_policy_document" "topic" {
   statement {
     effect = "Allow"
