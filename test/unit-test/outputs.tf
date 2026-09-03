@@ -55,3 +55,18 @@ output "log_bucket_name" {
   value       = module.dummy_s3_log_bucket.bucket.id
   description = "Name of the log bucket"
 }
+
+output "managed_log_bucket_name" {
+  value       = aws_s3_bucket.non-modulised-bucket.id
+  description = "Name of the log bucket whose policy is managed by the source module"
+}
+
+output "shared_log_source_bucket_name" {
+  value       = module.s3_with_shared_log_bucket.bucket.id
+  description = "The source bucket using the shared logging bucket"
+}
+
+output "shared_log_source_bucket_two_name" {
+  value       = module.s3_with_shared_log_bucket_two.bucket.id
+  description = "The second source bucket using the shared logging bucket"
+}

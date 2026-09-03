@@ -96,11 +96,25 @@ func TestS3Logging(t *testing.T) {
 
 	// Retrieve the source bucket and log bucket from the output
 	sourceBucket := terraform.Output(t, terraformOptions, "log_source_bucket_name")
+	sharedSourceBucket := terraform.Output(t, terraformOptions, "shared_log_source_bucket_name")
+	sharedSourceBucketTwo := terraform.Output(t, terraformOptions, "shared_log_source_bucket_two_name")
 	logBucket := terraform.Output(t, terraformOptions, "log_bucket_name")
+	managedLogBucket := terraform.Output(t, terraformOptions, "managed_log_bucket_name")
 
 	// Retrieve the name of the log bucket target of source bucket
 	sourceLogBucket := aws.GetS3BucketLoggingTarget(t, awsRegion, sourceBucket)
+	sharedSourceLogBucket := aws.GetS3BucketLoggingTarget(t, awsRegion, sharedSourceBucket)
+	sharedSourceLogBucketTwo := aws.GetS3BucketLoggingTarget(t, awsRegion, sharedSourceBucketTwo)
 
-	// Verify that names are the same
-	assert.Equal(t, sourceLogBucket, logBucket, "Log bucket should contain log")
+	// Verify that each source bucket uses its configured logging destination
+	assert.Equal(t, sourceLogBucket, managedLogBucket, "Source bucket should use the configured logging destination")
+	assert.Equal(t, sharedSourceLogBucket, logBucket, "Shared log bucket should be the logging target")
+	assert.Equal(t, sharedSourceLogBucketTwo, logBucket, "Shared log bucket should be the second logging target")
+
+	// Verify that the default behaviour manages the destination policy while
+	// source buckets using a shared destination opt out of policy management.
+	state := terraform.RunTerraformCommand(t, terraformOptions, "state", "list")
+	assert.Contains(t, state, "module.s3_with_log_bucket.aws_s3_bucket_policy.log_bucket_policy[0]", "The default true setting should create the destination policy")
+	assert.NotContains(t, state, "module.s3_with_shared_log_bucket.aws_s3_bucket_policy.log_bucket_policy[0]", "The first shared source should not manage the destination policy")
+	assert.NotContains(t, state, "module.s3_with_shared_log_bucket_two.aws_s3_bucket_policy.log_bucket_policy[0]", "The second shared source should not manage the destination policy")
 }
