@@ -153,6 +153,13 @@ variable "log_buckets" {
   default     = null
   nullable    = true
 }
+
+variable "manage_log_bucket_policy" {
+  type        = bool
+  description = "Whether this module manages the destination logging bucket policy. Set to false when multiple source buckets share a centrally managed logging bucket policy."
+  default     = true
+}
+
 variable "log_bucket" {
   type        = string
   description = "Unique name of s3 bucket to log to (not defined in terraform)"

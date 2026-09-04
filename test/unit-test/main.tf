@@ -143,6 +143,32 @@ module "dummy_s3_log_bucket" {
   force_destroy  = true
   custom_kms_key = aws_kms_key.s3.arn
   tags           = local.tags
+
+  bucket_policy_v2 = [
+    {
+      effect  = "Allow"
+      actions = ["s3:PutObject"]
+      principals = {
+        type        = "Service"
+        identifiers = ["logging.s3.amazonaws.com"]
+      }
+      conditions = [
+        {
+          test     = "ArnLike"
+          variable = "aws:SourceArn"
+          values = [
+            module.s3_with_shared_log_bucket.bucket.arn,
+            module.s3_with_shared_log_bucket_two.bucket.arn,
+          ]
+        },
+        {
+          test     = "StringEquals"
+          variable = "aws:SourceAccount"
+          values   = [data.aws_caller_identity.current.account_id]
+        }
+      ]
+    }
+  ]
 }
 
 module "s3_with_log_bucket" {
@@ -154,12 +180,53 @@ module "s3_with_log_bucket" {
   bucket_prefix = "unit-test-bucket-with-logs"
   force_destroy = true
   log_buckets = tomap({
-    "log_bucket_name" : module.dummy_s3_log_bucket.bucket.id,
-    "log_bucket_arn" : module.dummy_s3_log_bucket.bucket.arn,
-    "log_bucket_policy" : module.dummy_s3_log_bucket.bucket_policy.policy,
+    "log_bucket_name" : aws_s3_bucket.non-modulised-bucket.id,
+    "log_bucket_arn" : aws_s3_bucket.non-modulised-bucket.arn,
+    "log_bucket_policy" : jsonencode({
+      Version   = "2012-10-17"
+      Statement = []
+    }),
   })
 
   log_prefix     = "logs/"
+  custom_kms_key = aws_kms_key.s3.arn
+  tags           = local.tags
+}
+
+module "s3_with_shared_log_bucket" {
+  #checkov:skip=CKV_AWS_300: "Ensure S3 lifecycle configuration sets period for aborting failed uploads - This is not needed in our tests"
+  source = "../.."
+  providers = {
+    aws.bucket-replication = aws
+  }
+  bucket_prefix = "unit-test-bucket-with-shared-logs"
+  force_destroy = true
+  log_buckets = tomap({
+    "log_bucket_name" : module.dummy_s3_log_bucket.bucket.id,
+    "log_bucket_arn" : module.dummy_s3_log_bucket.bucket.arn,
+  })
+  manage_log_bucket_policy = false
+
+  log_prefix     = "shared-logs/"
+  custom_kms_key = aws_kms_key.s3.arn
+  tags           = local.tags
+}
+
+module "s3_with_shared_log_bucket_two" {
+  #checkov:skip=CKV_AWS_300: "Ensure S3 lifecycle configuration sets period for aborting failed uploads - This is not needed in our tests"
+  source = "../.."
+  providers = {
+    aws.bucket-replication = aws
+  }
+  bucket_prefix = "unit-test-bucket-with-shared-logs-two"
+  force_destroy = true
+  log_buckets = tomap({
+    "log_bucket_name" : module.dummy_s3_log_bucket.bucket.id,
+    "log_bucket_arn" : module.dummy_s3_log_bucket.bucket.arn,
+  })
+  manage_log_bucket_policy = false
+
+  log_prefix     = "shared-logs-two/"
   custom_kms_key = aws_kms_key.s3.arn
   tags           = local.tags
 }

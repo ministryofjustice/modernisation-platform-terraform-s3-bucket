@@ -380,12 +380,12 @@ data "aws_iam_policy_document" "default" {
   }
 }
 
-
 # locally merge the two policies
 locals {
-  log_bucket_name = var.log_buckets != null ? var.log_buckets["log_bucket_name"] : null
-  log_bucket_arn  = var.log_buckets != null ? var.log_buckets["log_bucket_arn"] : null
-  new_policy_statements = var.log_buckets != null ? {
+  log_bucket_name   = var.log_buckets != null ? var.log_buckets["log_bucket_name"] : null
+  log_bucket_arn    = var.log_buckets != null ? var.log_buckets["log_bucket_arn"] : null
+  log_bucket_policy = var.log_buckets != null ? lookup(var.log_buckets, "log_bucket_policy", null) : null
+  new_policy_statement = var.log_buckets != null && var.manage_log_bucket_policy ? {
     Sid    = "AllowS3Logging"
     Effect = "Allow"
     Principal = {
@@ -400,10 +400,10 @@ locals {
     }
   } : null
 
-  updated_policies = var.log_buckets != null ? merge(
+  updated_policies = var.log_buckets != null && var.manage_log_bucket_policy ? merge(
     jsondecode(
       coalesce(
-        var.log_buckets["log_bucket_policy"],
+        local.log_bucket_policy,
         jsonencode({
           Version   = "2012-10-17",
           Statement = []
@@ -414,14 +414,14 @@ locals {
       Statement = concat(
         jsondecode(
           coalesce(
-            var.log_buckets["log_bucket_policy"],
+            local.log_bucket_policy,
             jsonencode({
               Version   = "2012-10-17",
               Statement = []
             })
           )
         ).Statement,
-        [local.new_policy_statements]
+        [local.new_policy_statement]
       )
     }
   ) : null
@@ -429,8 +429,7 @@ locals {
 
 
 resource "aws_s3_bucket_policy" "log_bucket_policy" {
-  count  = var.log_buckets != null ? 1 : 0
+  count  = var.log_buckets != null && var.manage_log_bucket_policy ? 1 : 0
   bucket = local.log_bucket_name
   policy = jsonencode(local.updated_policies)
 }
-

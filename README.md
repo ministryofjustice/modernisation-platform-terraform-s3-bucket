@@ -100,6 +100,29 @@ Examples:
 - `bucket_name = "reports"` with `bucket_namespace = "global"` creates `reports-123456789012`
 - `bucket_prefix = "reports"` with `bucket_namespace = "account-regional"` creates buckets that start with `reports-123456789012-eu-west-2-an`
 
+## Shared access logging bucket
+
+By default, a module instance configured with `log_buckets` also manages the destination logging bucket policy. When several source buckets send access logs to the same destination, only one Terraform resource should own that policy.
+
+Set `manage_log_bucket_policy = false` on each source-bucket module and manage a single destination policy centrally with permission for every source bucket ARN:
+
+```hcl
+module "source_bucket" {
+  source = "github.com/ministryofjustice/modernisation-platform-terraform-s3-bucket?ref=v10.0.0"
+
+  bucket_prefix            = "application-data"
+  manage_log_bucket_policy = false
+  log_buckets = {
+    log_bucket_name = aws_s3_bucket.central_logs.id
+    log_bucket_arn  = aws_s3_bucket.central_logs.arn
+  }
+
+  # Other required configuration omitted.
+}
+```
+
+Disabling policy management does not disable access logging. The consumer is responsible for creating one policy on the destination bucket that allows `logging.s3.amazonaws.com` to perform `s3:PutObject`, restricted by the source bucket ARNs.
+
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
@@ -177,6 +200,7 @@ No modules.
 | <a name="input_log_buckets"></a> [log\_buckets](#input\_log\_buckets) | Map containing log bucket details and its associated bucket policy. | `map(any)` | `null` | no |
 | <a name="input_log_partition_date_source"></a> [log\_partition\_date\_source](#input\_log\_partition\_date\_source) | Partition logs by date. Allowed values are 'EventTime', 'DeliveryTime', or 'None'. | `string` | `"None"` | no |
 | <a name="input_log_prefix"></a> [log\_prefix](#input\_log\_prefix) | Prefix for all log object keys. | `string` | `null` | no |
+| <a name="input_manage_log_bucket_policy"></a> [manage\_log\_bucket\_policy](#input\_manage\_log\_bucket\_policy) | Whether this module manages the destination logging bucket policy. Set to false when multiple source buckets share a centrally managed logging bucket policy. | `bool` | `true` | no |
 | <a name="input_notification_enabled"></a> [notification\_enabled](#input\_notification\_enabled) | Boolean indicating if a notification resource is required for the bucket | `bool` | `false` | no |
 | <a name="input_notification_events"></a> [notification\_events](#input\_notification\_events) | The event for which we send topic notifications | `list(string)` | <pre>[<br/>  ""<br/>]</pre> | no |
 | <a name="input_notification_queues"></a> [notification\_queues](#input\_notification\_queues) | a map of bucket notification queues where the map key is used as the configuration id | <pre>map(object({<br/>    events        = list(string)     # e.g. ["s3:ObjectCreated:*"]<br/>    filter_prefix = optional(string) # e.g. "images/"<br/>    filter_suffix = optional(string) # e.g. ".gz"<br/>    queue_arn     = string<br/>  }))</pre> | `{}` | no |
