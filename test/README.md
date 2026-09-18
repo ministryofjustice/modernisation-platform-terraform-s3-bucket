@@ -4,17 +4,17 @@
 
 On first set up of a new repository, run:
 
-```
+```bash
 go mod init github.com/ministryofjustice/<repo-name>
 ```
 
 Then run:
 
-```
+```bash
 go mod tidy
 ```
 
-# How to run the tests locally
+## How to run the tests locally
 
 Run the tests from within the `test` directory using the `testing-test` user credentials.
 
@@ -24,7 +24,7 @@ Copy the credentials and export them by pasting them into the terminal from whic
 
 Next go into the testing folder and run the tests.
 
-```
+```bash
 cd test
 go mod download
 go test -v
@@ -43,7 +43,7 @@ By default, in KMS mode, uploads must explicitly include SSE-KMS headers:
 
 - `x-amz-server-side-encryption: aws:kms`
 - `x-amz-server-side-encryption-aws-kms-key-id: <custom_kms_key>`
-Uploads that omit these headers, use AES256, or use a different KMS key will be denied.
+  Uploads that omit these headers, use AES256, or use a different KMS key will be denied.
 
 For compatibility scenarios where clients rely on bucket default SSE-KMS encryption instead of explicit request headers, you can disable strict request-header enforcement:
 
@@ -54,7 +54,7 @@ enforce_kms_request_headers = false
 > `enforce_kms_request_headers` only applies when `sse_algorithm = "aws:kms"`.
 > When using `AES256`, KMS request-header enforcement is not used and this setting has no effect.
 
-### AWS service principals (built-in exemptions)
+## AWS service principals (built-in exemptions)
 
 AWS service principals are automatically exempt from KMS header enforcement. This is implemented via a `aws:PrincipalType` condition that only applies the header requirements to `AWS` type principals.
 
@@ -76,7 +76,7 @@ When this mode is enabled:
 
 Upon successful run, you should see an output similar to the below
 
-```
+```bash
 TestS3Creation 2024-05-13T16:46:58+01:00 logger.go:66: Destroy complete! Resources: 37 destroyed.
 TestS3Creation 2024-05-13T16:46:58+01:00 logger.go:66:
 --- PASS: TestS3Creation (69.46s)
