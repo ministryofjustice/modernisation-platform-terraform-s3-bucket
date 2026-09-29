@@ -80,9 +80,6 @@ module "s3-bucket" {
   # SSE-KMS encryption and do not send explicit SSE-KMS request headers.
   # enforce_kms_request_headers = false
 
-  # Optional compatibility mode for services that cannot use SSE-KMS
-  # sse_algorithm = "AES256"
-
   tags = local.tags
 }
 ```
@@ -192,7 +189,7 @@ No modules.
 | <a name="input_bucket_prefix"></a> [bucket\_prefix](#input\_bucket\_prefix) | Bucket prefix, which will include a randomised suffix to ensure globally unique names when bucket\_namespace is 'global', or a region and account-specific suffix when bucket\_namespace is 'account-regional'. | `string` | `null` | no |
 | <a name="input_custom_kms_key"></a> [custom\_kms\_key](#input\_custom\_kms\_key) | Customer-managed KMS key ARN to use for bucket encryption. Required when sse\_algorithm is aws:kms | `string` | `""` | no |
 | <a name="input_custom_replication_kms_key"></a> [custom\_replication\_kms\_key](#input\_custom\_replication\_kms\_key) | Customer-managed KMS key ARN to use for replication destination bucket encryption | `string` | `""` | no |
-| <a name="input_enforce_kms_request_headers"></a> [enforce\_kms\_request\_headers](#input\_enforce\_kms\_request\_headers) | Whether to require SSE-KMS request headers in bucket policy when sse\_algorithm = "aws:kms". Ignored when using AES256. AWS service principals (like ELB access logs and CloudWatch Logs) are automatically exempt from this requirement. | `bool` | `true` | no |
+| <a name="input_enforce_kms_request_headers"></a> [enforce\_kms\_request\_headers](#input\_enforce\_kms\_request\_headers) | Whether to require SSE-KMS request headers in bucket policy when sse\_algorithm = "aws:kms". AWS service principals (like ELB access logs and CloudWatch Logs) are automatically exempt from this requirement. | `bool` | `true` | no |
 | <a name="input_force_destroy"></a> [force\_destroy](#input\_force\_destroy) | A boolean that indicates all objects (including any locked objects) should be deleted from the bucket so that the bucket can be destroyed without error. These objects are not recoverable. | `bool` | `false` | no |
 | <a name="input_lifecycle_rule"></a> [lifecycle\_rule](#input\_lifecycle\_rule) | List of maps containing configuration of object lifecycle management. | `any` | <pre>[<br/>  {<br/>    "enabled": "Enabled",<br/>    "expiration": {<br/>      "days": 730<br/>    },<br/>    "id": "main",<br/>    "noncurrent_version_expiration": {<br/>      "days": 730<br/>    },<br/>    "noncurrent_version_transition": [<br/>      {<br/>        "days": 90,<br/>        "storage_class": "STANDARD_IA"<br/>      },<br/>      {<br/>        "days": 365,<br/>        "storage_class": "GLACIER"<br/>      }<br/>    ],<br/>    "prefix": "",<br/>    "tags": {<br/>      "autoclean": "true",<br/>      "rule": "log"<br/>    },<br/>    "transition": [<br/>      {<br/>        "days": 90,<br/>        "storage_class": "STANDARD_IA"<br/>      },<br/>      {<br/>        "days": 365,<br/>        "storage_class": "GLACIER"<br/>      }<br/>    ]<br/>  }<br/>]</pre> | no |
 | <a name="input_log_bucket"></a> [log\_bucket](#input\_log\_bucket) | Unique name of s3 bucket to log to (not defined in terraform) | `string` | `null` | no |
@@ -213,7 +210,7 @@ No modules.
 | <a name="input_replication_object_lock_days"></a> [replication\_object\_lock\_days](#input\_replication\_object\_lock\_days) | The number of days that you want to specify for the replication bucket default retention period | `number` | `null` | no |
 | <a name="input_replication_region"></a> [replication\_region](#input\_replication\_region) | Region to create S3 replication bucket | `string` | `"eu-west-2"` | no |
 | <a name="input_replication_role_arn"></a> [replication\_role\_arn](#input\_replication\_role\_arn) | Role ARN to access S3 and replicate objects | `string` | `""` | no |
-| <a name="input_sse_algorithm"></a> [sse\_algorithm](#input\_sse\_algorithm) | S3 server-side encryption algorithm. Defaults to aws:kms. Use AES256 only for compatibility scenarios where SSE-KMS is not supported. | `string` | `"aws:kms"` | no |
+| <a name="input_sse_algorithm"></a> [sse\_algorithm](#input\_sse\_algorithm) | S3 server-side encryption algorithm. Only aws:kms is permitted. | `string` | `"aws:kms"` | no |
 | <a name="input_suffix_name"></a> [suffix\_name](#input\_suffix\_name) | Suffix for role and policy names | `string` | `""` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | Tags to apply to resources, where applicable | `map(any)` | n/a | yes |
 | <a name="input_versioning_enabled"></a> [versioning\_enabled](#input\_versioning\_enabled) | Activate S3 bucket versioning | `bool` | `true` | no |
@@ -259,7 +256,7 @@ Regardless of whether a custom bucket policy is set as part of this module, we w
 
 ### Encryption requirements
 
-This module supports configurable server-side encryption.
+This module enforces server-side encryption using SSE-KMS (`aws:kms`).
 
 ---
 
@@ -303,7 +300,7 @@ This means:
 #### Uploads will be denied if they:
 
 - omit server-side encryption headers
-- use `AES256`
+- use any encryption method other than `aws:kms`
 - use `aws:kms` with a different KMS key
 
 > ⚠️ Some AWS services (e.g. CloudTrail, ELB access logs, AWS Config) may not send these headers by default.  
@@ -337,46 +334,12 @@ Use this only where the uploader cannot be changed to send explicit SSE-KMS requ
 
 ---
 
-### AES256 encryption (`AES256`)
-
-You may opt out of KMS enforcement:
-
-```hcl
-sse_algorithm = "AES256"
-```
-
-When using AES256:
-
-- KMS-specific request-header policy enforcement is disabled
-- No custom key is required
-- This can be used for AWS services that cannot use SSE-KMS
-
-### When should I use AES256?
-
-Use AES256 only if you cannot use SSE-KMS.
-
-This is typically required when:
-
-- using AWS-managed services that do not support customer-managed KMS keys
-  (e.g. some logging destinations such as ELB/ALB access logs, CloudFront logs, or legacy integrations)
-
-If you encounter `AccessDenied` errors when uploading to the bucket,
-and the service cannot be configured to use your KMS key,
-switch to:
-
-```hcl
-sse_algorithm = "AES256"
-```
-
-Otherwise, KMS (aws:kms) should always be preferred.
-
 ## Replication
 
 If replication is enabled then:
 
 - Define a provider configuration for the replication region by setting 'aws.bucket-replication' to the desired region e.g.'aws.bucket-replication' = 'aws.replication-region'
 - provide `custom_replication_kms_key` when using KMS encryption. AWS-managed KMS keys are not supported. The key must be in the same region as the destination bucket and must allow access for S3.
-- if using `sse_algorithm = "AES256"`, replication does not require a custom KMS key
 - 'versioning_enabled' variable must be set to enabled. Both source and destination buckets must have versioning enabled.
 - 'replication_region' variable must be set to desired destination region.
 - 'ownership_controls' variable must be set to 'BucketOwnerEnforced' for full control of all objects in the bucket and to disable ACLs.
