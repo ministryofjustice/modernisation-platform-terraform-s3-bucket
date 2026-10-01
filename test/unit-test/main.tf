@@ -17,18 +17,6 @@ module "s3" {
   tags           = local.tags
 }
 
-module "s3_with_AES256" {
-  #checkov:skip=CKV_AWS_300: "Ensure S3 lifecycle configuration sets period for aborting failed uploads - This is not needed in our tests"
-  source = "../.."
-  providers = {
-    aws.bucket-replication = aws
-  }
-  bucket_prefix = "unit-test-bucket-aes256"
-  force_destroy = true
-  sse_algorithm = "AES256"
-  tags          = local.tags
-}
-
 module "s3_kms_default_only" {
   source = "../../"
 

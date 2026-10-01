@@ -34,7 +34,6 @@ go test -v
 
 - This module defaults to SSE-KMS (`aws:kms`)
 - `custom_kms_key` must be provided when using the default KMS mode
-- AES256 is still supported, but only as an explicit opt-in (`sse_algorithm = "AES256"`) for compatibility scenarios
 - If replication is enabled with KMS, `custom_replication_kms_key` must also be provided
 
 The customer-managed KMS key policy must allow the principals uploading to the bucket to use the key (e.g. `kms:Encrypt`, `kms:Decrypt`, `kms:GenerateDataKey`, `kms:DescribeKey`).
@@ -43,7 +42,7 @@ By default, in KMS mode, uploads must explicitly include SSE-KMS headers:
 
 - `x-amz-server-side-encryption: aws:kms`
 - `x-amz-server-side-encryption-aws-kms-key-id: <custom_kms_key>`
-  Uploads that omit these headers, use AES256, or use a different KMS key will be denied.
+  Uploads that omit these headers or use a different KMS key will be denied.
 
 For compatibility scenarios where clients rely on bucket default SSE-KMS encryption instead of explicit request headers, you can disable strict request-header enforcement:
 
@@ -51,8 +50,7 @@ For compatibility scenarios where clients rely on bucket default SSE-KMS encrypt
 enforce_kms_request_headers = false
 ```
 
-> `enforce_kms_request_headers` only applies when `sse_algorithm = "aws:kms"`.
-> When using `AES256`, KMS request-header enforcement is not used and this setting has no effect.
+> `enforce_kms_request_headers` controls whether uploads must explicitly provide SSE-KMS request headers.
 
 ## AWS service principals (built-in exemptions)
 

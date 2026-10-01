@@ -194,18 +194,18 @@ variable "log_prefix" {
 
 variable "sse_algorithm" {
   type        = string
-  description = "S3 server-side encryption algorithm. Defaults to aws:kms. Use AES256 only for compatibility scenarios where SSE-KMS is not supported."
+  description = "S3 server-side encryption algorithm. Only aws:kms is permitted."
   default     = "aws:kms"
 
   validation {
-    condition     = contains(["aws:kms", "AES256"], var.sse_algorithm)
-    error_message = "sse_algorithm must be either aws:kms or AES256."
+    condition     = var.sse_algorithm == "aws:kms"
+    error_message = "Only aws:kms is permitted."
   }
 }
 
 variable "enforce_kms_request_headers" {
   type        = bool
-  description = "Whether to require SSE-KMS request headers in bucket policy when sse_algorithm = \"aws:kms\". Ignored when using AES256. AWS service principals (like ELB access logs and CloudWatch Logs) are automatically exempt from this requirement."
+  description = "Whether to require SSE-KMS request headers in bucket policy when sse_algorithm = \"aws:kms\". AWS service principals (like ELB access logs and CloudWatch Logs) are automatically exempt from this requirement."
   default     = true
 }
 

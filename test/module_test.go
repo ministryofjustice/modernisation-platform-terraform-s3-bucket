@@ -28,10 +28,6 @@ func TestS3Creation(t *testing.T) {
 	bucketAWSKMS := terraform.Output(t, terraformOptions, "bucket_awskms")
 	assert.Regexp(t, regexp.MustCompile(`aws:kms`), bucketAWSKMS)
 
-	// Check AES256 explicit opt-in possible
-	bucketAES256 := terraform.Output(t, terraformOptions, "bucket_aes256")
-	assert.Regexp(t, regexp.MustCompile(`AES256`), bucketAES256)
-
 	// Check KMS bucket-default-only compatibility mode
 	bucketKMSDefaultOnly := terraform.Output(t, terraformOptions, "bucket_kms_default_only_algorithm")
 	assert.Regexp(t, regexp.MustCompile(`aws:kms`), bucketKMSDefaultOnly)
